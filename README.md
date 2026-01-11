@@ -50,9 +50,10 @@
 
 ## 📊 GitHub Stats
 
-![](https://github-readme-stats.vercel.app/api?username=sujal690&theme=dark)
-![](https://streak-stats.demolab.com?user=sujal690&theme=dark)
-![](https://github-readme-stats.vercel.app/api/top-langs/?username=sujal690&theme=dark&layout=compact)
+![](https://github-readme-stats.vercel.app/api?username=sujal690&theme=dark&hide_border=false&include_all_commits=false&count_private=false)
+![](https://nirzak-streak-stats.vercel.app/?user=sujal690&theme=dark&hide_border=false)
+![](https://github-readme-stats.vercel.app/api/top-langs/?username=sujal690&theme=dark&hide_border=false&include_all_commits=false&count_private=false&layout=compact)
+<img src="http://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=sujal690&theme=dark" width="31%" align="left"/>
 
 
 ---
