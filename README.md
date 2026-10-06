@@ -2,113 +2,65 @@
 
 <img src="assets/banner.svg" alt="Sujal Shah - Full-Stack Developer, AI Enthusiast, Sustainable Tech Innovator" width="100%"/>
 
+<a href="#about"><img src="assets/nav-about.svg" height="44" alt="About"/></a>
+<a href="#stack"><img src="assets/nav-stack.svg" height="44" alt="Stack"/></a>
+<a href="#stats"><img src="assets/nav-stats.svg" height="44" alt="Stats"/></a>
+<a href="#projects"><img src="assets/nav-projects.svg" height="44" alt="Projects"/></a>
+<a href="#achievements"><img src="assets/nav-wins.svg" height="44" alt="Wins"/></a>
+<a href="#contact"><img src="assets/nav-contact.svg" height="44" alt="Contact"/></a>
+
+<img src="assets/terminal.svg" alt="Terminal intro: whoami" width="100%"/>
+
+<a id="about"></a>
+<img src="assets/h-about.svg" alt="About" width="100%"/>
+<img src="assets/about.svg" alt="Now building GreenMines. Learning system design and AI. Collaborating on open-source MERN projects. Mission: solve real-world problems with tech." width="100%"/>
+
+<a id="stack"></a>
+<img src="assets/h-stack.svg" alt="Tech Stack" width="100%"/>
+<img src="assets/stack.svg" alt="JavaScript, TypeScript, Python, Java, C, C#, PHP, React, Next.js, Node.js, Express, Electron, Django, Flask, .NET, Tailwind, MongoDB, MySQL, PostgreSQL, SQLite, Firebase, Cloudinary, Docker, Git, GitHub, VS Code" width="100%"/>
+
+<a id="stats"></a>
+<img src="assets/h-stats.svg" alt="GitHub Stats" width="100%"/>
+<img src="assets/stats.svg" alt="GitHub stats: repositories, contributions, streaks, contribution heatmap and top languages" width="100%"/>
+
+<a id="projects"></a>
+<img src="assets/h-projects.svg" alt="Projects" width="100%"/>
+
+<a href="https://github.com/sujal690?tab=repositories"><img src="assets/card-greenmines.svg" width="32%" alt="GreenMines"/></a>
+<a href="https://github.com/sujal690?tab=repositories"><img src="assets/card-travelsafe.svg" width="32%" alt="TravelSafe"/></a>
+<a href="https://github.com/sujal690?tab=repositories"><img src="assets/card-surveillance.svg" width="32%" alt="Surveillance System"/></a>
+
+<a href="https://github.com/sujal690/Culturama"><img src="assets/card-culturama.svg" width="32%" alt="Culturama"/></a>
+<a href="https://github.com/sujal690/Odoo_Appointment_Booking"><img src="assets/card-odoo.svg" width="32%" alt="Appointment Booking"/></a>
+<a href="https://github.com/sujal690/weapon_detection_assignment"><img src="assets/card-weapon.svg" width="32%" alt="Weapon Detection"/></a>
+
+<details>
+<summary><b>Browse all public repositories</b></summary>
 <br/>
 
-<a href="https://linkedin.com/in/sujal-shah-390154303"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
-<a href="mailto:manoj12shah12@gmail.com"><img src="https://img.shields.io/badge/Email-Say%20Hello-2af5a0?style=for-the-badge&logo=gmail&logoColor=050d0a" alt="Email"/></a>
-<a href="https://github.com/sujal690?tab=repositories"><img src="https://img.shields.io/badge/Repositories-Explore-22d3ee?style=for-the-badge&logo=github&logoColor=050d0a" alt="Repositories"/></a>
-<img src="https://komarev.com/ghpvc/?username=sujal690&label=Profile%20views&color=2af5a0&style=for-the-badge" alt="Profile views"/>
+| Repository | What it is | Stack |
+|---|---|---|
+| [Culturama](https://github.com/sujal690/Culturama) | My first full-stack project: temple-heritage travel app | .NET, C# |
+| [Odoo_Appointment_Booking](https://github.com/sujal690/Odoo_Appointment_Booking) | Multi-role appointment booking system | Next.js, Express, PostgreSQL |
+| [weapon_detection_assignment](https://github.com/sujal690/weapon_detection_assignment) | YOLOv8 weapon detection, 90.4% mAP@0.5 | Python |
+| [OIBSIP](https://github.com/sujal690/OIBSIP) | Pizza delivery app with a video walkthrough | JavaScript |
+| [PRODIGY_FS_01](https://github.com/sujal690/PRODIGY_FS_01), [03](https://github.com/sujal690/PRODIGY_FS_03), [04](https://github.com/sujal690/PRODIGY_FS_04), [05](https://github.com/sujal690/PRODIGY_FS_05) | Prodigy InfoTech full-stack internship tasks | JavaScript |
+| [sujal-certificates](https://github.com/sujal690/sujal-certificates) | Certificates and credentials | n/a |
 
-<br/><br/>
+</details>
 
-<img src="assets/terminal.svg" alt="Terminal intro" width="860"/>
+<a id="achievements"></a>
+<img src="assets/h-achievements.svg" alt="Achievements" width="100%"/>
+<img src="assets/achievements.svg" alt="NASA Space Apps Global Nominee, Smart India Hackathon 2024 Finalist, Avishkar 2025 1st Place, Former DSA Python Trainer at Campus Credentials" width="100%"/>
 
-</div>
+<a id="contact"></a>
+<img src="assets/h-contact.svg" alt="Contact" width="100%"/>
+<img src="assets/contact.svg" alt="Let's build something that matters" width="100%"/>
 
-<img src="assets/divider.svg" width="100%" alt=""/>
+<a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>
+<a href="mailto:manoj12shah12@gmail.com"><img src="assets/btn-email.svg" height="44" alt="Email"/></a>
+<a href="https://github.com/sujal690?tab=repositories"><img src="assets/btn-repos.svg" height="44" alt="All repositories"/></a>
 
-## 🔭 What I'm up to
-
-- 🌱 Building **GreenMines**: a platform to cut emissions in coal mining
-- 🧠 Learning **System Design** and **AI integrations**
-- 👯 Looking to collaborate on **open-source MERN projects**
-- 🎯 Goal: solve real-world problems with tech
-
-<img src="assets/divider.svg" width="100%" alt=""/>
-
-## 💻 Tech Stack
-
-<div align="center">
-
-**Languages**
-
-<img src="https://skillicons.dev/icons?i=js,ts,py,java,c,cs,php&theme=dark" alt="Languages"/>
-
-**Frameworks and Libraries**
-
-<img src="https://skillicons.dev/icons?i=react,nextjs,nodejs,express,electron,django,flask,dotnet&theme=dark" alt="Frameworks"/>
-
-**Databases, Cloud and Tools**
-
-<img src="https://skillicons.dev/icons?i=mongodb,mysql,sqlite,firebase,docker,git,github,vscode&theme=dark" alt="Tools"/>
+<img src="assets/footer.svg" alt="Made with code and care by Sujal Shah" width="100%"/>
 
 </div>
-
-<img src="assets/divider.svg" width="100%" alt=""/>
-
-## 📊 GitHub Stats
-
-<div align="center">
-
-<img height="180" src="https://github-readme-stats.vercel.app/api?username=sujal690&show_icons=true&hide_border=false&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee&ring_color=2af5a0&count_private=true&include_all_commits=true" alt="GitHub stats"/>
-<img height="180" src="https://github-readme-stats.vercel.app/api/top-langs/?username=sujal690&layout=compact&hide_border=false&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3" alt="Top languages"/>
-
-<img src="https://streak-stats.demolab.com?user=sujal690&hide_border=false&background=050d0a&border=2af5a0&stroke=2af5a0&ring=22d3ee&fire=2af5a0&currStreakNum=c9fbe3&sideNums=c9fbe3&currStreakLabel=22d3ee&sideLabels=22d3ee&dates=6b8f80" alt="Streak stats"/>
-
-</div>
-
-<img src="assets/divider.svg" width="100%" alt=""/>
-
-## 🚀 Featured Projects
-
-<table>
-<tr>
-<td width="33%" valign="top">
-
-### 🔋 GreenMines
-**MERN · ML · Data Viz**
-
-Monitors and reduces carbon emissions in coal mining: carbon sink estimates, interactive dashboards, pollution-prediction AI and carbon-capture modules.
-
-</td>
-<td width="33%" valign="top">
-
-### ✈️ TravelSafe
-**Express.js · AI Chatbot · Multer**
-
-Crowdsourced travel-safety guide with voting, comments, image uploads, an AI trip planner and route options based on real-time safety alerts.
-
-</td>
-<td width="33%" valign="top">
-
-### 🛡️ Advanced Surveillance System
-**AI · IoT · Multisensor**
-
-AI-powered HQ defense system with laser triggers, a multilingual chatbot, facial recognition and weather-adaptive surveillance.
-
-</td>
-</tr>
-</table>
-
-### 📂 Open-source repos
-
-<div align="center">
-
-<a href="https://github.com/sujal690/Culturama"><img src="https://github-readme-stats.vercel.app/api/pin/?username=sujal690&repo=Culturama&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee" alt="Culturama"/></a>
-<a href="https://github.com/sujal690/Odoo_Appointment_Booking"><img src="https://github-readme-stats.vercel.app/api/pin/?username=sujal690&repo=Odoo_Appointment_Booking&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee" alt="Odoo Appointment Booking"/></a>
-<a href="https://github.com/sujal690/weapon_detection_assignment"><img src="https://github-readme-stats.vercel.app/api/pin/?username=sujal690&repo=weapon_detection_assignment&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee" alt="Weapon detection"/></a>
-
-</div>
-
-<img src="assets/divider.svg" width="100%" alt=""/>
-
-## 🏆 Achievements
-
-| | |
-|---|---|
-| 🛰️ **NASA Space Apps Challenge** | Global Nominee |
-| 🧠 **Smart India Hackathon 2024** | Finalist |
-| 🥇 **Avishkar 2025** | 1st Place |
-| 👨‍🏫 **Campus Credentials** | Former DSA Python Trainer |
-
-<img src="assets/footer.svg" width="100%" alt="Made with code and care by Sujal Shah"/>

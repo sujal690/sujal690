@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="121" height="44" viewBox="0 0 121 44" role="img">
+<defs>
+  <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2af5a0"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+  <linearGradient id="pan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#08190f"/><stop offset="1" stop-color="#061219"/></linearGradient>
+  <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2af5a0" stop-opacity="0"/><stop offset="0.5" stop-color="#2af5a0" stop-opacity="0.9"/><stop offset="1" stop-color="#2af5a0" stop-opacity="0"/></linearGradient>
+  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <clipPath id="cl"><rect width="121" height="44" rx="22"/></clipPath>
+</defs><rect width="121" height="44" rx="22" fill="#07140f"/><g clip-path="url(#cl)"><rect x="-80" y="0" width="80" height="44" fill="url(#shine)" opacity="0.35"><animate attributeName="x" values="-80;121" dur="3.4s" repeatCount="indefinite" calcMode="spline" keyTimes="0;1" keySplines="0.4 0 0.2 1"/></rect></g><rect x="0.75" y="0.75" width="119.5" height="42.5" rx="21" fill="none" stroke="#2af5a0" stroke-opacity="0.55" stroke-width="1.5"/><g transform="translate(28 22.0) scale(0.78)" fill="none" stroke="#2af5a0" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="0" cy="-5" r="5"/><path d="M-9 10 C-9 2 9 2 9 10"/></g><text x="48" y="27.0" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif" font-size="14" font-weight="700" fill="#d1fae5" letter-spacing="0.4">About</text></svg>
