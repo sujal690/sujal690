@@ -1,86 +1,116 @@
-<h1 align="center">Hi 👋, I'm Sujal Shah</h1>
-<h3 align="center">Full-Stack Developer | AI Enthusiast | Sustainable Tech Innovator</h3>
+<div align="center">
 
-<p align="center">
-  <i>A Computer Engineering student passionate about building impactful software for a better, greener world.</i>
-</p>
+<img src="assets/banner.svg" alt="Sujal Shah - Full-Stack Developer, AI Enthusiast, Sustainable Tech Innovator" width="100%"/>
 
----
+<br/>
 
-🔭 I’m currently working on **GreenMines** – A platform to reduce emissions in coal mining  
-🌱 I’m learning **System Design** and **AI integrations**  
-👯 I’m looking to collaborate on **open-source MERN projects**  
-🎯 My goal: Solve real-world problems with tech  
-🏆 Finalist @ SIH 2024 • NASA Space Apps Nominee • Avishkar Winner
+<a href="https://linkedin.com/in/sujal-shah-390154303"><img src="https://img.shields.io/badge/LinkedIn-Connect-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="mailto:manoj12shah12@gmail.com"><img src="https://img.shields.io/badge/Email-Say%20Hello-2af5a0?style=for-the-badge&logo=gmail&logoColor=050d0a" alt="Email"/></a>
+<a href="https://github.com/sujal690?tab=repositories"><img src="https://img.shields.io/badge/Repositories-Explore-22d3ee?style=for-the-badge&logo=github&logoColor=050d0a" alt="Repositories"/></a>
+<img src="https://komarev.com/ghpvc/?username=sujal690&label=Profile%20views&color=2af5a0&style=for-the-badge" alt="Profile views"/>
 
----
+<br/><br/>
 
-## 🌐 Socials
+<img src="assets/terminal.svg" alt="Terminal intro" width="860"/>
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/sujal-shah-390154303)  
-📫 Email: manoj12shah12@gmail.com
+</div>
 
----
+<img src="assets/divider.svg" width="100%" alt=""/>
+
+## 🔭 What I'm up to
+
+- 🌱 Building **GreenMines**: a platform to cut emissions in coal mining
+- 🧠 Learning **System Design** and **AI integrations**
+- 👯 Looking to collaborate on **open-source MERN projects**
+- 🎯 Goal: solve real-world problems with tech
+
+<img src="assets/divider.svg" width="100%" alt=""/>
 
 ## 💻 Tech Stack
 
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
-![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
-![C](https://img.shields.io/badge/c-%2300599C.svg?style=for-the-badge&logo=c&logoColor=white)
+<div align="center">
 
-![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
-![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
-![Express.js](https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=white)
-![Electron.js](https://img.shields.io/badge/electron.js-%23404d59.svg?style=for-the-badge&logo=electron&logoColor=white)
-![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
-![Flask](https://img.shields.io/badge/flask-%23000.svg?style=for-the-badge&logo=flask&logoColor=white)
+**Languages**
 
-![MongoDB](https://img.shields.io/badge/MongoDB-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white)
-![MySQL](https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white)
-![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
+<img src="https://skillicons.dev/icons?i=js,ts,py,java,c,cs,php&theme=dark" alt="Languages"/>
 
-![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
-![Multer](https://img.shields.io/badge/multer-%23ffdd57.svg?style=for-the-badge&logoColor=black)
-![Cloudinary](https://img.shields.io/badge/cloudinary-000000?style=for-the-badge&logo=cloudinary&logoColor=white)
-![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+**Frameworks and Libraries**
 
----
+<img src="https://skillicons.dev/icons?i=react,nextjs,nodejs,express,electron,django,flask,dotnet&theme=dark" alt="Frameworks"/>
+
+**Databases, Cloud and Tools**
+
+<img src="https://skillicons.dev/icons?i=mongodb,mysql,sqlite,firebase,docker,git,github,vscode&theme=dark" alt="Tools"/>
+
+</div>
+
+<img src="assets/divider.svg" width="100%" alt=""/>
 
 ## 📊 GitHub Stats
 
-![](https://github-readme-stats.vercel.app/api?username=sujal690&theme=dark&hide_border=false&include_all_commits=false&count_private=false)
-![](https://nirzak-streak-stats.vercel.app/?user=sujal690&theme=dark&hide_border=false)
-![](https://github-readme-stats.vercel.app/api/top-langs/?username=sujal690&theme=dark&hide_border=false&include_all_commits=false&count_private=false&layout=compact)
-<img src="http://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=sujal690&theme=dark" width="31%" align="left"/>
+<div align="center">
 
+<img height="180" src="https://github-readme-stats.vercel.app/api?username=sujal690&show_icons=true&hide_border=false&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee&ring_color=2af5a0&count_private=true&include_all_commits=true" alt="GitHub stats"/>
+<img height="180" src="https://github-readme-stats.vercel.app/api/top-langs/?username=sujal690&layout=compact&hide_border=false&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3" alt="Top languages"/>
 
----
+<img src="https://streak-stats.demolab.com?user=sujal690&hide_border=false&background=050d0a&border=2af5a0&stroke=2af5a0&ring=22d3ee&fire=2af5a0&currStreakNum=c9fbe3&sideNums=c9fbe3&currStreakLabel=22d3ee&sideLabels=22d3ee&dates=6b8f80" alt="Streak stats"/>
 
-## 🏆 Achievements
+<img src="https://github-readme-activity-graph.vercel.app/graph?username=sujal690&bg_color=050d0a&color=2af5a0&line=22d3ee&point=ffffff&area=true&area_color=2af5a0&hide_border=true&radius=12" alt="Contribution activity graph" width="100%"/>
 
-- 🛰️ NASA Space Apps Challenge – Global Nominee  
-- 🧠 Smart India Hackathon 2024 – Finalist  
-- 🥇 Avishkar 2025 – 1st Place  
-- 👨‍🏫 Former DSA Python Trainer @ Campus Credentials
+</div>
 
----
+<img src="assets/divider.svg" width="100%" alt=""/>
 
 ## 🚀 Featured Projects
 
-### 🔋 GreenMines  
-**Tech:** MERN, ML, DataViz  
-A platform to monitor and reduce carbon emissions in coal mining. Features carbon sink estimations, interactive dashboards, pollution prediction AI, and carbon capture modules.
+<table>
+<tr>
+<td width="33%" valign="top">
 
-### ✈️ TravelSafe  
-**Tech:** Express.js, AI Chatbot, Multer  
-A crowdsourced travel safety guide with voting, comments, image uploads, AI trip planner, and multiple route options based on real-time safety alerts.
+### 🔋 GreenMines
+**MERN · ML · Data Viz**
 
-### 🛡️ Advanced Surveillance System  
-**Tech:** AI + IoT + Multisensor  
-An AI-powered HQ defense system using laser triggers, multilingual chatbot, facial recognition, and weather-adaptive surveillance.
+Monitors and reduces carbon emissions in coal mining: carbon sink estimates, interactive dashboards, pollution-prediction AI and carbon-capture modules.
 
----
+</td>
+<td width="33%" valign="top">
 
-<sub align="center">Made with 💻 and 🌱 by Sujal Shah</sub>
+### ✈️ TravelSafe
+**Express.js · AI Chatbot · Multer**
+
+Crowdsourced travel-safety guide with voting, comments, image uploads, an AI trip planner and route options based on real-time safety alerts.
+
+</td>
+<td width="33%" valign="top">
+
+### 🛡️ Advanced Surveillance System
+**AI · IoT · Multisensor**
+
+AI-powered HQ defense system with laser triggers, a multilingual chatbot, facial recognition and weather-adaptive surveillance.
+
+</td>
+</tr>
+</table>
+
+### 📂 Open-source repos
+
+<div align="center">
+
+<a href="https://github.com/sujal690/Culturama"><img src="https://github-readme-stats.vercel.app/api/pin/?username=sujal690&repo=Culturama&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee" alt="Culturama"/></a>
+<a href="https://github.com/sujal690/Odoo_Appointment_Booking"><img src="https://github-readme-stats.vercel.app/api/pin/?username=sujal690&repo=Odoo_Appointment_Booking&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee" alt="Odoo Appointment Booking"/></a>
+<a href="https://github.com/sujal690/weapon_detection_assignment"><img src="https://github-readme-stats.vercel.app/api/pin/?username=sujal690&repo=weapon_detection_assignment&bg_color=050d0a&border_color=2af5a0&title_color=2af5a0&text_color=c9fbe3&icon_color=22d3ee" alt="Weapon detection"/></a>
+
+</div>
+
+<img src="assets/divider.svg" width="100%" alt=""/>
+
+## 🏆 Achievements
+
+| | |
+|---|---|
+| 🛰️ **NASA Space Apps Challenge** | Global Nominee |
+| 🧠 **Smart India Hackathon 2024** | Finalist |
+| 🥇 **Avishkar 2025** | 1st Place |
+| 👨‍🏫 **Campus Credentials** | Former DSA Python Trainer |
+
+<img src="assets/footer.svg" width="100%" alt="Made with code and care by Sujal Shah"/>
