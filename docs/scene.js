@@ -48,6 +48,14 @@ export const PHASES = {
     ink: '#e5fbe8', canopy: '#06402e',
   },
 };
+export const DARK = {
+  morning: { ...PHASES.morning, top: '#0b2420', mid: '#2a5642', bot: '#b9825a', glow: '#ffcf96', glowPos: [0.80, 0.40], glowR: 0.30, glowI: 0.85, fog: '#2a4a3a', fogD: 0.022,
+    hemiSky: '#ffe2b8', hemiGround: '#163a24', hemiI: 0.7, sunI: 3.6, emF: 0.12, emB: 0.36, bloom: 0.42, exposure: 1.0, sat: 1.12, vig: 0.42, dust: '#ffeccc' },
+  afternoon: { ...PHASES.afternoon, top: '#071f16', mid: '#1b5534', bot: '#3c8a44', glow: '#f6ffc8', glowPos: [0.74, 0.74], glowR: 0.36, glowI: 0.7, fog: '#16422a', fogD: 0.02,
+    hemiSky: '#f2ffe0', hemiGround: '#0e2e1a', hemiI: 0.75, sunI: 4.0, emF: 0.12, emB: 0.34, bloom: 0.4, exposure: 1.0, sat: 1.18, vig: 0.42 },
+  evening: { ...PHASES.evening, top: '#1d1433', mid: '#8a4535', bot: '#d9874c', glowI: 1.0, vig: 0.48 },
+  night: { ...PHASES.night },
+};
 export function phaseForHour(h) {
   if (h >= 5 && h < 11) return 'morning';
   if (h >= 11 && h < 16) return 'afternoon';
@@ -130,8 +138,9 @@ const GradeShader = {
 };
 
 // ------------------------------------------------------------------ scene
-export function createScene({ canvas, width, height, T = 6, live = false, leafCount = 40, dpr = 1, phase = 'afternoon', bars = 0 }) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, preserveDrawingBuffer: !live, powerPreference: 'high-performance' });
+// post=true: offline cinematic render (DoF, bloom, grade). post=false: live site, direct render, GPU particles.
+export function createScene({ canvas, width, height, T = 6, live = false, leafCount = 36, dpr = 1, phase = 'afternoon', bars = 0, post = false, defs = PHASES }) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: !post, alpha: false, preserveDrawingBuffer: !live, powerPreference: 'high-performance' });
   renderer.setPixelRatio(dpr); renderer.setSize(width, height, false);
   renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
 
@@ -140,17 +149,13 @@ export function createScene({ canvas, width, height, T = 6, live = false, leafCo
   const camera = new THREE.PerspectiveCamera(30, width / height, 0.1, 80);
   camera.position.set(0, 0, 10);
 
-  // live parameter set (colours are THREE.Color so they can be lerped)
-  const P = {}; const Tg = {};
+  const P = {}, Tg = {};
   const toLive = (p) => { const o = {}; for (const k in p) o[k] = (typeof p[k] === 'string' && p[k][0] === '#') ? C(p[k]) : (Array.isArray(p[k]) ? p[k].slice() : p[k]); return o; };
-  Object.assign(P, toLive(PHASES[phase])); Object.assign(Tg, toLive(PHASES[phase]));
-  const lerpTo = (k) => {
-    const a = P[k], b = Tg[k];
-    if (a && a.isColor) a.lerp(b, k2); else if (Array.isArray(a)) for (let i = 0; i < a.length; i++) a[i] += (b[i] - a[i]) * k2; else P[k] = a + (b - a) * k2;
-  };
-  let k2 = 1;
+  const def = (ph) => (typeof ph === 'string' ? defs[ph] : ph);
+  Object.assign(P, toLive(def(phase))); Object.assign(Tg, toLive(def(phase)));
+  let k2 = 1, blend = 0;
+  const lerpTo = (k) => { const a = P[k], b = Tg[k]; if (a && a.isColor) a.lerp(b, k2); else if (Array.isArray(a)) for (let i = 0; i < a.length; i++) a[i] += (b[i] - a[i]) * k2; else if (typeof a === 'number') P[k] = a + (b - a) * k2; };
 
-  // backdrop
   const bgMat = new THREE.ShaderMaterial({
     uniforms: { top: { value: C('#000') }, mid: { value: C('#000') }, bot: { value: C('#000') }, glow: { value: C('#fff') }, gp: { value: new THREE.Vector2(.7, .6) }, gr: { value: .35 }, gi: { value: 1 } },
     vertexShader: 'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);} ',
@@ -169,7 +174,6 @@ export function createScene({ canvas, width, height, T = 6, live = false, leafCo
   const fill = new THREE.DirectionalLight(0xffffff, 1); fill.position.set(-5, 2, 8); scene.add(fill);
   const rim = new THREE.PointLight(0xffffff, 20, 14, 1.6); rim.position.set(2.5, 1.5, -2.2); scene.add(rim);
 
-  // leaf material: colours come from uniforms so the phase can crossfade
   const U = { uBase: { value: C('#2f9e4f') }, uMid: { value: C('#86cf4e') }, uEdge: { value: C('#e6e06a') }, uEmF: { value: .2 }, uEmB: { value: .4 } };
   const mat = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, roughness: 0.5, metalness: 0, bumpMap: veinTexture(), bumpScale: 2.2 });
   mat.onBeforeCompile = (sh) => {
@@ -187,60 +191,75 @@ export function createScene({ canvas, width, height, T = 6, live = false, leafCo
   const geo = ginkgoGeometry();
 
   const hero = new THREE.Group();
-  const heroLeaf = new THREE.Mesh(geo, mat); heroLeaf.scale.setScalar(1.7); heroLeaf.position.y = -1.2; hero.add(heroLeaf);
-  const stemMat = new THREE.MeshStandardMaterial({ color: 0x5f8a2a, roughness: 0.7 });
-  hero.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, -3, 0), new THREE.Vector3(0.07, -2, 0.05), new THREE.Vector3(0, -0.84, 0)]), 12, 0.028, 6), stemMat));
+  const heroGeo = geo.clone(); heroGeo.setAttribute('aTint', new THREE.Float32BufferAttribute(new Float32Array(geo.attributes.position.count), 1));
+  const heroLeaf = new THREE.Mesh(heroGeo, mat); heroLeaf.scale.setScalar(1.7); heroLeaf.position.y = -1.2; hero.add(heroLeaf);
+  hero.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(0, -3, 0), new THREE.Vector3(0.07, -2, 0.05), new THREE.Vector3(0, -0.84, 0)]), 12, 0.028, 6), new THREE.MeshStandardMaterial({ color: 0x5f8a2a, roughness: 0.7 })));
   hero.position.set(3.15, 0.2, 0); scene.add(hero);
 
-  const mkInst = (n, seed, spec) => {
-    const g = geo.clone(); const tint = new Float32Array(n); const R = rand(seed); const L = [];
-    for (let i = 0; i < n; i++) { const o = spec(R, i); tint[i] = o.tint; L.push(o); }
-    g.setAttribute('aTint', new THREE.InstancedBufferAttribute(tint, 1));
-    const m = new THREE.InstancedMesh(g, mat, n); m.frustumCulled = false; scene.add(m);
-    return { m, L, n };
-  };
-  const falling = mkInst(leafCount, 7, (R) => {
+  const R = rand(7), L = [], tint = new Float32Array(leafCount);
+  for (let i = 0; i < leafCount; i++) {
     const z = -7 + R() * 11;
-    return { x0: -8 + R() * 16, y0: R() * 14, z, s: 0.30 + R() * 0.38 + (z > 1 ? 0.12 : 0), k: 1 + Math.floor(R() * 2), swayA: 0.25 + R() * 0.7, swayM: 1 + Math.floor(R() * 2), ph: R() * TAU,
-      rx: 1 + Math.floor(R() * 2), ry: 1 + Math.floor(R() * 2), rz: 1 + Math.floor(R() * 2), p2: R() * TAU, p3: R() * TAU, tint: (R() - 0.35) * 1.1 };
-  });
-  // lush foreground canopy: big, soft, framing leaves
-  const canopyPos = [[-7.2, 3.3, 4.4, 2.2], [6.8, 3.6, 4.0, 2.4], [-6.4, -3.4, 4.2, 2.3], [7.2, -3.2, 4.6, 2.6], [0.5, 4.6, 3.6, 1.8], [-3.2, -4.2, 3.8, 1.9], [4.2, -4.4, 3.6, 2.0], [-8.6, 0.2, 3.4, 1.8]];
-  const canopy = mkInst(canopyPos.length, 31, (R, i) => ({ x0: canopyPos[i][0], y0: canopyPos[i][1], z: canopyPos[i][2], s: canopyPos[i][3], ph: R() * TAU, p2: R() * TAU, p3: R() * TAU, tint: -0.45 }));
+    L.push({ x0: -8 + R() * 16, y0: R() * 14, z, s: 0.30 + R() * 0.38 + (z > 1 ? 0.12 : 0), k: 1 + Math.floor(R() * 2), swayA: 0.25 + R() * 0.7, swayM: 1 + Math.floor(R() * 2), ph: R() * TAU,
+      rx: 1 + Math.floor(R() * 2), ry: 1 + Math.floor(R() * 2), rz: 1 + Math.floor(R() * 2), p2: R() * TAU, p3: R() * TAU });
+    tint[i] = (R() - 0.35) * 1.1;
+  }
+  const fg = geo.clone(); fg.setAttribute('aTint', new THREE.InstancedBufferAttribute(tint, 1));
+  const falling = new THREE.InstancedMesh(fg, mat, leafCount); falling.frustumCulled = false; scene.add(falling);
+  falling.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   const dummy = new THREE.Object3D();
 
-  // dust / pollen / fireflies
-  const DN = 560, dR = rand(21), dpos = new Float32Array(DN * 3), dseed = [];
-  for (let i = 0; i < DN; i++) dseed.push({ x: -9 + dR() * 18, y: dR() * 12 - 6, z: -6 + dR() * 12, k: 1 + Math.floor(dR() * 2), a: 0.1 + dR() * 0.4, p: dR() * TAU });
-  const dgeo = new THREE.BufferGeometry(); dgeo.setAttribute('position', new THREE.BufferAttribute(dpos, 3));
-  const dustMat = new THREE.PointsMaterial({ map: sprite([[0, 'rgba(255,255,255,1)'], [0.4, 'rgba(255,255,255,.5)'], [1, 'rgba(255,255,255,0)']]), size: 0.1, sizeAttenuation: true, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending });
+  // pollen / fireflies: animated entirely in the vertex shader (no per-frame CPU work)
+  const DN = live ? 420 : 560, dR = rand(21);
+  const dSeed = new Float32Array(DN * 4), dK = new Float32Array(DN * 2);
+  for (let i = 0; i < DN; i++) { dSeed.set([-9 + dR() * 18, dR() * 12 - 6, -6 + dR() * 12, dR() * TAU], i * 4); dK.set([1 + Math.floor(dR() * 2), 0.1 + dR() * 0.4], i * 2); }
+  const dgeo = new THREE.BufferGeometry();
+  dgeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(DN * 3), 3));
+  dgeo.setAttribute('aSeed', new THREE.BufferAttribute(dSeed, 4)); dgeo.setAttribute('aK', new THREE.BufferAttribute(dK, 2));
+  dgeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(), 50);
+  const dustMat = new THREE.ShaderMaterial({
+    uniforms: { uU: { value: 0 }, uFly: { value: 0 }, uSize: { value: 0.1 }, uColor: { value: C('#fff') }, uOp: { value: 0.8 }, uScale: { value: height * dpr * 0.5 } },
+    vertexShader: `attribute vec4 aSeed; attribute vec2 aK; uniform float uU, uFly, uSize, uScale; varying float vA;
+      const float TAU = 6.2831853;
+      void main(){
+        float w = TAU * uU;
+        float x = aSeed.x + aK.y * sin(w * aK.x + aSeed.w) * (2.0 + uFly * 3.0);
+        float yr = mod(aSeed.y + 6.0 + 12.0 * aK.x * uU, 12.0) - 6.0;
+        float yf = aSeed.y * 0.7 + sin(w * aK.x * 2.0 + aSeed.w) * 0.6;
+        vec4 mv = modelViewMatrix * vec4(x, mix(yr, yf, step(0.5, uFly)), aSeed.z, 1.0);
+        gl_Position = projectionMatrix * mv;
+        gl_PointSize = uSize * uScale / -mv.z * 2.0;
+        vA = mix(1.0, 0.35 + 0.65 * (0.5 + 0.5 * sin(w * 4.0 + aSeed.w * 3.0)), step(0.5, uFly));
+      }`,
+    fragmentShader: `uniform vec3 uColor; uniform float uOp; varying float vA;
+      void main(){ float d = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.0, d); a *= a; gl_FragColor = vec4(uColor * a * uOp * vA, 1.0); }`,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  });
   scene.add(new THREE.Points(dgeo, dustMat));
 
-  // stars (night)
   const SN = 160, sR = rand(77), spos = new Float32Array(SN * 3);
   for (let i = 0; i < SN; i++) { spos[i * 3] = -22 + sR() * 44; spos[i * 3 + 1] = -2 + sR() * 14; spos[i * 3 + 2] = -20; }
   const sgeo = new THREE.BufferGeometry(); sgeo.setAttribute('position', new THREE.BufferAttribute(spos, 3));
   const starMat = new THREE.PointsMaterial({ map: sprite([[0, 'rgba(255,255,255,1)'], [1, 'rgba(255,255,255,0)']]), size: 0.28, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
-  scene.add(new THREE.Points(sgeo, starMat));
+  const stars = new THREE.Points(sgeo, starMat); scene.add(stars);
 
-  // light shafts
   const shaftTex = shaftTexture(), shafts = [], shR = rand(3);
   for (let i = 0; i < 6; i++) {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(1.6 + shR() * 1.6, 22), new THREE.MeshBasicMaterial({ map: shaftTex, transparent: true, opacity: 0.1, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }));
     m.position.set(-3 + i * 2.6 + shR(), 2.5, -9 + shR() * 3); m.rotation.z = -0.5 - shR() * 0.25; scene.add(m); shafts.push({ m, ph: shR() * TAU, base: m.position.x });
   }
 
-  // post
-  const rt = new THREE.WebGLRenderTarget(width * dpr, height * dpr, { type: THREE.HalfFloatType, samples: 4 });
-  const composer = new EffectComposer(renderer, rt); composer.setPixelRatio(dpr); composer.setSize(width, height);
-  composer.addPass(new RenderPass(scene, camera));
-  const bokeh = new BokehPass(scene, camera, { focus: 10, aperture: 0.00022, maxblur: 0.011 }); composer.addPass(bokeh);
-  const bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.4, 0.75, 0.8); composer.addPass(bloom);
-  composer.addPass(new OutputPass());
-  const grade = new ShaderPass(GradeShader); grade.uniforms.res.value.set(width * dpr, height * dpr); grade.uniforms.bars.value = bars; composer.addPass(grade);
+  let composer = null, bokeh = null, bloom = null, grade = null;
+  if (post) {
+    const rt = new THREE.WebGLRenderTarget(width * dpr, height * dpr, { type: THREE.HalfFloatType, samples: 4 });
+    composer = new EffectComposer(renderer, rt); composer.setPixelRatio(dpr); composer.setSize(width, height);
+    composer.addPass(new RenderPass(scene, camera));
+    bokeh = new BokehPass(scene, camera, { focus: 10, aperture: 0.00022, maxblur: 0.011 }); composer.addPass(bokeh);
+    bloom = new UnrealBloomPass(new THREE.Vector2(width, height), 0.4, 0.75, 0.8); composer.addPass(bloom);
+    composer.addPass(new OutputPass());
+    grade = new ShaderPass(GradeShader); grade.uniforms.res.value.set(width * dpr, height * dpr); grade.uniforms.bars.value = bars; composer.addPass(grade);
+  }
 
   const ptr = { x: 0, y: 0, sx: 0, sy: 0, scroll: 0 };
-
   function apply() {
     bgMat.uniforms.top.value.copy(P.top); bgMat.uniforms.mid.value.copy(P.mid); bgMat.uniforms.bot.value.copy(P.bot); bgMat.uniforms.glow.value.copy(P.glow);
     bgMat.uniforms.gp.value.set(P.glowPos[0], P.glowPos[1]); bgMat.uniforms.gr.value = P.glowR; bgMat.uniforms.gi.value = P.glowI;
@@ -248,24 +267,27 @@ export function createScene({ canvas, width, height, T = 6, live = false, leafCo
     sun.color.copy(P.sun); sun.intensity = P.sunI; fill.color.copy(P.fill); fill.intensity = P.fillI; rim.color.copy(P.sun);
     scene.fog.color.copy(P.fog); scene.fog.density = P.fogD;
     U.uBase.value.copy(P.base); U.uMid.value.copy(P.midc); U.uEdge.value.copy(P.edge); U.uEmF.value = P.emF; U.uEmB.value = P.emB;
-    bloom.strength = P.bloom; renderer.toneMappingExposure = P.exposure;
-    dustMat.color.copy(P.dust); dustMat.size = P.dustSize; starMat.opacity = P.stars * 0.9;
+    renderer.toneMappingExposure = P.exposure;
+    dustMat.uniforms.uColor.value.copy(P.dust); dustMat.uniforms.uSize.value = P.dustSize; dustMat.uniforms.uOp.value = P.dustOp; dustMat.uniforms.uFly.value = P.fly;
+    starMat.opacity = P.stars * 0.9; stars.visible = P.stars > 0.02;
     shafts.forEach((s) => { s.m.material.color.copy(P.shaft); });
-    grade.uniforms.sat.value = P.sat; grade.uniforms.vig.value = P.vig; grade.uniforms.grain.value = P.grain;
-    grade.uniforms.shadow.value.set(...P.shadow); grade.uniforms.high.value.set(...P.high);
+    if (post) {
+      bloom.strength = P.bloom; grade.uniforms.sat.value = P.sat; grade.uniforms.vig.value = P.vig; grade.uniforms.grain.value = P.grain;
+      grade.uniforms.shadow.value.set(...P.shadow); grade.uniforms.high.value.set(...P.high);
+    }
   }
-  function setPhase(name, instant = false) {
-    Object.assign(Tg, toLive(PHASES[name]));
-    if (instant) { Object.assign(P, toLive(PHASES[name])); apply(); }
+  function setPhase(ph, instant = false) {
+    Object.assign(Tg, toLive(def(ph))); blend = 3.5;
+    if (instant) { Object.assign(P, toLive(def(ph))); apply(); blend = 0; }
   }
   apply();
 
   function frame(t, p = ptr, dt = 0) {
-    if (dt > 0) { k2 = 1 - Math.pow(0.001, dt * 0.55); for (const key in Tg) lerpTo(key); apply(); }
+    if (blend > 0 && dt > 0) { blend -= dt; k2 = 1 - Math.pow(0.001, dt * 0.55); for (const key in Tg) lerpTo(key); apply(); }
     const u = t / T, w = TAU * u;
     camera.position.set(0.5 * Math.sin(w) + p.sx * 0.6, 0.12 * Math.cos(w) - p.sy * 0.35, 10 + 0.25 * (1 - Math.cos(w)));
     camera.lookAt(0.9 + p.sx * 0.3, 0.1, 0);
-    bokeh.uniforms.focus.value = camera.position.distanceTo(hero.position);
+    if (bokeh) bokeh.uniforms.focus.value = camera.position.distanceTo(hero.position);
 
     const asp = Math.min(1, camera.aspect / 2.39);
     hero.scale.setScalar(0.62 + 0.38 * asp);
@@ -273,38 +295,23 @@ export function createScene({ canvas, width, height, T = 6, live = false, leafCo
     hero.rotation.z = 0.12 * Math.sin(w * 2 + 1) - 0.08 + p.sy * 0.1;
     hero.rotation.x = 0.08 * Math.cos(w) + p.sy * 0.12;
     hero.position.y = 0.2 + 0.1 * Math.sin(w * 2) + (p.scroll || 0) * 0.8;
-    hero.position.x = 3.15 * (0.5 + 0.5 * asp) - 1.4 * Math.min(1, (p.scroll || 0) * 2);
+    hero.position.x = (p.heroX ?? 3.15) * (0.5 + 0.5 * asp) - 1.4 * Math.min(1, (p.scroll || 0) * 2);
     rim.position.x = 2.5 + 0.6 * Math.sin(w);
 
-    const F = falling;
-    for (let i = 0; i < F.n; i++) {
-      const o = F.L[i], range = 16;
+    for (let i = 0; i < leafCount; i++) {
+      const o = L[i], range = 16;
       dummy.position.set(o.x0 + o.swayA * Math.sin(w * o.swayM + o.ph) * 1.4 + (live ? p.sx * 0.15 * (o.z + 8) / 8 : 0), range / 2 - mod(o.y0 + range * o.k * u, range), o.z);
-      dummy.rotation.set(w * o.rx + o.p2, w * o.ry + o.p3, w * o.rz + o.ph); dummy.scale.setScalar(o.s); dummy.updateMatrix(); F.m.setMatrixAt(i, dummy.matrix);
+      dummy.rotation.set(w * o.rx + o.p2, w * o.ry + o.p3, w * o.rz + o.ph); dummy.scale.setScalar(o.s); dummy.updateMatrix(); falling.setMatrixAt(i, dummy.matrix);
     }
-    F.m.instanceMatrix.needsUpdate = true;
-    const Cn = canopy;
-    for (let i = 0; i < Cn.n; i++) {
-      const o = Cn.L[i];
-      dummy.position.set(o.x0 + 0.25 * Math.sin(w + o.ph) - p.sx * 0.5 * (o.z / 4), o.y0 + 0.2 * Math.cos(w + o.p2) - p.sy * 0.3, o.z);
-      dummy.rotation.set(0.5 * Math.sin(w + o.p2), 0.6 * Math.sin(w + o.ph), o.p3 + 0.3 * Math.sin(w + o.ph * 2)); dummy.scale.setScalar(o.s); dummy.updateMatrix(); Cn.m.setMatrixAt(i, dummy.matrix);
-    }
-    Cn.m.instanceMatrix.needsUpdate = true;
-
-    for (let i = 0; i < DN; i++) {
-      const d = dseed[i];
-      // fireflies wander in lazy loops, pollen drifts upward
-      const fl = P.fly;
-      dpos[i * 3] = d.x + d.a * Math.sin(w * d.k + d.p) * (2 + fl * 3);
-      dpos[i * 3 + 1] = fl > 0.5 ? d.y * 0.7 + Math.sin(w * d.k * 2 + d.p) * 0.6 : mod(d.y + 6 + 12 * d.k * u, 12) - 6;
-      dpos[i * 3 + 2] = d.z;
-    }
-    dgeo.attributes.position.needsUpdate = true;
-    dustMat.opacity = P.dustOp * (P.fly > 0.5 ? 0.55 + 0.45 * Math.sin(w * 4) : 1);
-
-    shafts.forEach((s) => { s.m.material.opacity = (P.shaftI + 0.03 * Math.sin(w + s.ph)) * (0.7 + 0.3 * Math.sin(w + s.ph)); s.m.position.x = s.base + 0.8 * Math.sin(w + s.ph); });
-    composer.render();
+    falling.instanceMatrix.needsUpdate = true;
+    dustMat.uniforms.uU.value = u;
+    for (const s of shafts) { s.m.material.opacity = (P.shaftI + 0.03 * Math.sin(w + s.ph)) * (0.7 + 0.3 * Math.sin(w + s.ph)); s.m.position.x = s.base + 0.8 * Math.sin(w + s.ph); }
+    if (composer) composer.render(); else renderer.render(scene, camera);
   }
-  function resize(wd, ht) { renderer.setSize(wd, ht, false); composer.setSize(wd, ht); camera.aspect = wd / ht; camera.updateProjectionMatrix(); grade.uniforms.res.value.set(wd * dpr, ht * dpr); }
+  function resize(wd, ht, d = dpr) {
+    dpr = d; renderer.setPixelRatio(d); renderer.setSize(wd, ht, false);
+    if (composer) { composer.setPixelRatio(d); composer.setSize(wd, ht); grade.uniforms.res.value.set(wd * d, ht * d); }
+    camera.aspect = wd / ht; camera.updateProjectionMatrix(); dustMat.uniforms.uScale.value = ht * d * 0.5;
+  }
   return { frame, resize, ptr, setPhase, renderer, camera, scene, P };
 }

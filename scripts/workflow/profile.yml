@@ -1,0 +1,59 @@
+# Living profile: swaps the hero to the current time of day in Navi Mumbai every 30 minutes
+# and rebuilds every stats card from the GitHub API every 6 hours.
+# Activate by moving this file to .github/workflows/profile.yml
+name: Living profile
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: living-profile
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Decide what to refresh
+        run: |
+          H=$(TZ=Asia/Kolkata date +%-H); M=$(TZ=Asia/Kolkata date +%-M); T=$((H * 60 + M))
+          if   [ "$T" -ge 300 ] && [ "$T" -lt 660 ];  then P=morning
+          elif [ "$T" -ge 660 ] && [ "$T" -lt 960 ];  then P=afternoon
+          elif [ "$T" -ge 960 ] && [ "$T" -lt 1170 ]; then P=evening
+          else P=night; fi
+          echo "PHASE=$P" >> "$GITHUB_ENV"
+          UH=$(date -u +%-H); UM=$(date -u +%-M)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] || { [ $((UH % 6)) -eq 0 ] && [ "$UM" -lt 30 ]; }; then echo "STATS=1" >> "$GITHUB_ENV"; fi
+
+      - uses: actions/setup-python@v5
+        if: env.STATS == '1'
+        with:
+          python-version: "3.12"
+
+      - name: Rebuild stats cards
+        if: env.STATS == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install --quiet fonttools brotli pillow
+          python scripts/build_stats.py docs/stats.json
+          python scripts/gen3.py docs/stats.json assets
+
+      - name: Swap hero to the current time of day
+        run: |
+          cp "assets/hero/$PHASE.webp" assets/hero.webp
+          sed -i -E "s#assets/hero\.webp(\?p=[a-z]+)?#assets/hero.webp?p=$PHASE#" README.md
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "Living profile: $PHASE${STATS:+, stats refreshed}" && git push)

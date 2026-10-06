@@ -1,33 +1,53 @@
 <div align="center">
 
-<img src="assets/current/hero.webp?p=evening" alt="Sujal Shah, AI Software Engineer. A backlit ginkgo grove whose light follows the time of day in Navi Mumbai." width="100%"/>
+<img src="assets/hero.webp?p=evening" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A cinematic ginkgo grove whose light follows the time of day in Navi Mumbai."/>
+
+<a href="#about"><img src="assets/nav-about.svg" height="48" alt="About"/></a>
+<a href="#toolkit"><img src="assets/nav-stack.svg" height="48" alt="Stack"/></a>
+<a href="#stats"><img src="assets/nav-stats.svg" height="48" alt="Stats"/></a>
+<a href="#work"><img src="assets/nav-work.svg" height="48" alt="Work"/></a>
+<a href="#path"><img src="assets/nav-path.svg" height="48" alt="Path"/></a>
+<a href="#contact"><img src="assets/nav-contact.svg" height="48" alt="Contact"/></a>
+
+<a href="https://sujal690.github.io/sujal690/"><img src="assets/cta-site.svg" height="48" alt="Walk through the living portfolio"/></a>
+
+<img src="assets/terminal.svg" width="100%" alt="whoami: Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. Focus: OCR and vision-language pipelines, computer vision, LLM integrations."/>
+
+<a id="about"></a>
+<img src="assets/h-about.svg" width="100%" alt="About"/>
+<img src="assets/about.svg" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. Sole technical owner of AI products. Focus: OCR, computer vision, LLM and VLM. Ships with Python, MERN, Docker, CI/CD. B.E. Computer Science, CGPA 9.0."/>
+
+<a id="toolkit"></a>
+<img src="assets/h-stack.svg" width="100%" alt="Toolkit"/>
+<img src="assets/stack.svg" width="100%" alt="Intelligence: machine learning, computer vision, NLP, OCR, LLM, VLM, RAG, Hugging Face, inference optimization. Build: Python, TypeScript, JavaScript, SQL, React, Next.js, Node.js, Express, MongoDB, Redux, Tailwind CSS, REST APIs, microservices. Ship: Docker, CI/CD, Git, Vercel, Render, Postman, system design, Agile."/>
+
+<a id="stats"></a>
+<img src="assets/h-stats.svg" width="100%" alt="GitHub stats"/>
+<img src="assets/stats-tiles.svg" width="100%" alt="Contributions, commits, repositories, active days and streaks over the last 12 months."/>
+<img src="assets/contrib.svg" width="100%" alt="Contribution calendar for the last year, with a caterpillar that crawls through and eats each green square."/>
+<img src="assets/insights.svg" width="100%" alt="Contributions per month, top languages and weekly rhythm."/>
+
+<a id="work"></a>
+<img src="assets/h-work.svg" width="100%" alt="Selected work"/>
+<img src="assets/work-a.svg" width="100%" alt="Intelligent Document Automation and Enterprise Order Tracking at Sky Gold and Diamonds."/>
+<img src="assets/work-b.svg" width="100%" alt="Visual Product Search and AI Security Intelligence at Sky Gold and Diamonds."/>
+
+<a href="https://github.com/sujal690/Culturama"><img src="assets/repo-culturama.svg" width="32%" alt="Culturama"/></a>
+<a href="https://github.com/sujal690/Odoo_Appointment_Booking"><img src="assets/repo-odoo.svg" width="32%" alt="Odoo Appointment Booking"/></a>
+<a href="https://github.com/sujal690/weapon_detection_assignment"><img src="assets/repo-weapon.svg" width="32%" alt="Weapon Detection"/></a>
+
+<a id="path"></a>
+<img src="assets/h-path.svg" width="100%" alt="Path"/>
+<img src="assets/path.svg" width="100%" alt="2024: Grand Finalist at Smart India Hackathon and NASA Space Apps Global Nominee. 2025: Full Stack Developer Intern at Chemtron Science Laboratories and 1st place at SCOE Avishkar. May 2026: B.E. Computer Science, CGPA 9.0. June 2026 to now: AI Software Engineer at Sky Gold and Diamonds."/>
+
+<a id="contact"></a>
+<img src="assets/h-contact.svg" width="100%" alt="Contact"/>
+<img src="assets/contact.svg" width="100%" alt="Let's build something that thinks."/>
+
+<a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/btn-linkedin.svg" height="48" alt="LinkedIn"/></a>
+<a href="mailto:sujalshah630@gmail.com"><img src="assets/btn-email.svg" height="48" alt="Email"/></a>
+<a href="https://sujal690.github.io/sujal690/"><img src="assets/btn-site.svg" height="48" alt="Living portfolio"/></a>
+
+<img src="assets/footer.svg" width="100%" alt="Crafted in Navi Mumbai with code and chlorophyll."/>
 
 </div>
-
-**AI Software Engineer at Sky Gold and Diamonds, based in Navi Mumbai.**
-
-I own production AI and full-stack systems end to end, from architecture through deployment and maintenance. My work is automation pipelines, computer vision and OCR, and LLM and vision-language model integrations, built with Python and the MERN stack. I have turned multi-day manual processes into automated workflows that finish in minutes, and I'm comfortable working with full technical autonomy while collaborating with external partners.
-
-<div align="center">
-
-<a href="https://sujal690.github.io/sujal690/"><img src="assets/current/cta.webp?p=evening" alt="Walk through the living portfolio: an interactive grove that follows your local time of day." width="100%"/></a>
-
-<img src="assets/current/now.webp?p=evening" alt="Now: AI Software Engineer at Sky Gold and Diamonds since June 2026. B.E. Computer Science, Saraswati College of Engineering, University of Mumbai, 2026, CGPA 9.0. Previously Full Stack Developer Intern at Chemtron Science Laboratories, 2025." width="100%"/>
-
-### Selected work
-
-<img src="assets/current/w12.webp?p=evening" alt="Intelligent Document Automation: an OCR-to-spreadsheet pipeline with a locally hosted vision-language model that turned a multi-day manual process into minutes. Enterprise Order Tracking: a real-time full-stack platform that is now the single source of truth for order status." width="100%"/>
-
-<img src="assets/current/w34.webp?p=evening" alt="Visual Product Search: find a gold design from a rough photo or SKU code with a multi-model computer-vision pipeline. AI Security Intelligence, in progress with an external technology firm: facial recognition plus a generative video-understanding model on NVIDIA edge hardware." width="100%"/>
-
-<img src="assets/current/skills.webp?p=evening" alt="Toolkit. Intelligence: machine learning, computer vision, NLP, OCR, LLM, VLM, RAG, Hugging Face, inference optimization. Interfaces and APIs: Python, TypeScript, JavaScript, SQL, React, Next.js, Node.js, Express, MongoDB, Redux, Tailwind, REST, microservices. Shipping: Docker, CI/CD, Git, Vercel, Render, Postman, system design." width="100%"/>
-
-<img src="assets/current/wins.webp?p=evening" alt="Grand Finalist at Smart India Hackathon 2024 (Ministry of Coal). 1st Place at SCOE Avishkar Project Competition 2025. Global Nominee at NASA Space Apps Challenge 2024." width="100%"/>
-
-</div>
-
-### Get in touch
-
-[Email](mailto:sujalshah630@gmail.com) · [LinkedIn](https://linkedin.com/in/sujal-shah-390154303) · [Interactive portfolio](https://sujal690.github.io/sujal690/)
-
-<sub>The hero and cards change with the time of day in Navi Mumbai: morning, afternoon, evening and night. The interactive portfolio uses your own local time.</sub>
