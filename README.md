@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="assets/banner.svg" alt="Sujal Shah - Full-Stack Developer, AI Enthusiast, Sustainable Tech Innovator" width="100%"/>
+<img src="assets/hero.webp" alt="Sujal Shah - Full-Stack Developer, AI Enthusiast, Sustainable Tech. A backlit ginkgo leaf drifts in golden light." width="100%"/>
 
 <a href="#about"><img src="assets/nav-about.svg" height="44" alt="About"/></a>
 <a href="#stack"><img src="assets/nav-stack.svg" height="44" alt="Stack"/></a>
