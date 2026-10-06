@@ -55,8 +55,6 @@
 
 <img src="https://streak-stats.demolab.com?user=sujal690&hide_border=false&background=050d0a&border=2af5a0&stroke=2af5a0&ring=22d3ee&fire=2af5a0&currStreakNum=c9fbe3&sideNums=c9fbe3&currStreakLabel=22d3ee&sideLabels=22d3ee&dates=6b8f80" alt="Streak stats"/>
 
-<img src="https://github-readme-activity-graph.vercel.app/graph?username=sujal690&bg_color=050d0a&color=2af5a0&line=22d3ee&point=ffffff&area=true&area_color=2af5a0&hide_border=true&radius=12" alt="Contribution activity graph" width="100%"/>
-
 </div>
 
 <img src="assets/divider.svg" width="100%" alt=""/>
