@@ -506,6 +506,52 @@ def footer():
     s.save('footer.svg')
 
 
+# ================================================================ same-page theme switch
+def _planet(cx, cy, col):
+    return (f'<g transform="translate({cx} {cy})"><circle r="6" fill="none" stroke="{col}" stroke-width="1.7"/>'
+            f'<g><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="12s" repeatCount="indefinite"/>'
+            f'<ellipse rx="11" ry="3.4" fill="none" stroke="{col}" stroke-width="1.4" transform="rotate(-22)"/></g></g>')
+
+
+def _leafic(cx, cy, col):
+    return (f'<g transform="translate({cx} {cy + 1})"><g><animateTransform attributeName="transform" type="rotate" values="-10;8;-10" dur="5s" repeatCount="indefinite" {SWAY}/>'
+            f'<path d="{G.GINKGO}" fill="{col}" transform="scale(1.1)"/></g></g>')
+
+
+def switch_halves():
+    h = 58
+    for side in ('space', 'leaf'):
+        w = 228
+        s = Svg(w, h, 'Show the Space theme' if side == 'space' else 'Show the Leaf theme')
+        r = h / 2
+        if side == 'space':
+            path = f'M{r} .75 H{w} V{h - .75} H{r} A{r - .75} {r - .75} 0 0 1 {r} .75 Z'
+            s += f'<path d="{path}" fill="#090d13" stroke="rgba(0,212,255,.45)" stroke-width="1.5"/>'
+            s += f'<path d="M{w - .75} 12 V{h - 12}" stroke="rgba(239,237,231,.12)"/>'
+            s += _planet(52, h / 2, CYAN)
+            s += s.t(76, 27, 'SPACE', 'O', 14, CREAM, ls=3) + s.t(76, 43, 'default view', 'M', 10, MUTED)
+        else:
+            path = f'M0 .75 H{w - r} A{r - .75} {r - .75} 0 0 1 {w - r} {h - .75} H0 Z'
+            s += f'<path d="{path}" fill="#0b130e" stroke="rgba(200,240,106,.45)" stroke-width="1.5"/>'
+            s += _leafic(40, h / 2, '#c8f06a')
+            s.chars['BB'] = s.chars.get('BB', '')
+            s += s.t(64, 27, 'LEAF', 'O', 14, CREAM, ls=3) + s.t(64, 43, 'with a ladybug', 'M', 10, MUTED)
+        s.save(f'switch-{side}.svg')
+
+
+def fold_tab(side):
+    w, h = 880, 38
+    col = CYAN if side == 'space' else '#c8f06a'
+    label = 'SPACE THEME' if side == 'space' else 'LEAF THEME'
+    s = Svg(w, h, f'{label.title()}: tap to fold or unfold')
+    lw = W('O', label, 11) + len(label) * 2.6
+    cx = w / 2
+    s += f'<path d="M24 {h / 2} H{cx - lw / 2 - 40}" stroke="rgba(239,237,231,.10)"/><path d="M{cx + lw / 2 + 40} {h / 2} H{w - 24}" stroke="rgba(239,237,231,.10)"/>'
+    s += (_planet(cx - lw / 2 - 18, h / 2, col) if side == 'space' else _leafic(cx - lw / 2 - 18, h / 2, col))
+    s += s.t(cx + 6, h / 2 + 4, label, 'O', 11, CREAM, 'middle', ls=2.6)
+    s.save(f'tab-{side}.svg')
+
+
 if __name__ == '__main__':
     from PIL import Image
     avp = os.path.join(HERE, 'avatar_cut.png')
@@ -513,7 +559,7 @@ if __name__ == '__main__':
         avp = os.path.join(os.environ['TEMP'], 'avatar_cut.png')
     av = Image.open(avp).resize((200, 200), Image.LANCZOS)
     b = io.BytesIO(); av.save(b, 'PNG', optimize=True); ab64 = base64.b64encode(b.getvalue()).decode()
-    toggle('space', 'toggle-space.svg'); toggle('leaf', 'toggle-leaf.svg')
+    switch_halves(); fold_tab('space'); fold_tab('leaf')
     for slug, label, kind in [('crew', 'CREW', 'crew'), ('modules', 'MODULES', 'modules'), ('telemetry', 'TELEMETRY', 'telemetry'),
                               ('missions', 'MISSIONS', 'missions'), ('flight', 'FLIGHT LOG', 'flight'), ('comms', 'COMMS', 'comms')]:
         hud_button(f'nav-{slug}.svg', label, kind)
@@ -532,3 +578,5 @@ if __name__ == '__main__':
         archive_card(slug, t, d, desc, stack, base64.b64encode(bb.getvalue()).decode())
     flight_log(); comms(); footer()
     print(len(os.listdir(OUT)), 'files', sum(os.path.getsize(os.path.join(OUT, f)) for f in os.listdir(OUT)) // 1024, 'KB')
+
+

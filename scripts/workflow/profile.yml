@@ -1,4 +1,4 @@
-# Refreshes the stats cards in both themes (Space in README.md, Leaf in LEAF.md) every 6 hours.
+# Refreshes the stats cards in both README themes (Space and Leaf) every 6 hours.
 # Activate by moving this file to .github/workflows/profile.yml
 name: Refresh profile stats
 
