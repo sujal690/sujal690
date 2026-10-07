@@ -17,7 +17,7 @@ const C = (h) => new THREE.Color(h);
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 
 // ---------------------------------------------------------------- ginkgo surface (shared by mesh and ladybug)
-function leafPoint(rho, a) {
+export function leafPoint(rho, a) {
   const th = a * 1.22;
   const ripple = 1 + 0.045 * Math.sin(th * 15) * rho;
   const notch = 1 - 0.30 * Math.exp(-Math.pow(th / 0.10, 2)) * Math.pow(rho, 3);
@@ -25,14 +25,14 @@ function leafPoint(rho, a) {
   const r = rho * ripple * notch * fan * 1.5;
   return V(r * Math.sin(th) * 1.18, r * Math.cos(th) + 0.18, 0.22 * rho * rho * Math.sin(th * 1.6) + 0.018 * Math.sin(th * 30) * rho + 0.06 * rho * rho);
 }
-function leafFrame(rho, a) {
+export function leafFrame(rho, a) {
   const p = leafPoint(rho, a), e = 1e-3;
   const dr = leafPoint(rho + e, a).sub(p), da = leafPoint(rho, a + e).sub(p);
   const n = new THREE.Vector3().crossVectors(dr, da).normalize();
   if (n.z < 0) n.negate();
   return { p, n };
 }
-function ginkgoGeometry(NA = 96, NR = 14) {
+export function ginkgoGeometry(NA = 96, NR = 14) {
   const pos = [], uv = [], col = [], idx = [];
   for (let i = 0; i <= NR; i++) {
     const rho = i / NR;
@@ -47,7 +47,7 @@ function ginkgoGeometry(NA = 96, NR = 14) {
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   g.setIndex(idx); g.computeVertexNormals(); return g;
 }
-function veinTexture() {
+export function veinTexture() {
   const c = document.createElement('canvas'); c.width = 512; c.height = 256; const x = c.getContext('2d'); x.fillStyle = '#808080'; x.fillRect(0, 0, 512, 256);
   for (let k = 0; k <= 46; k++) { const u = k / 46 * 512; x.strokeStyle = k % 2 ? '#5c5c5c' : '#4a4a4a'; x.lineWidth = k % 2 ? 1.4 : 2.2; x.beginPath(); x.moveTo(u, 256); x.lineTo(u, 20); x.stroke(); }
   const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
@@ -106,7 +106,7 @@ function makeTree(seed = 11) {
 }
 
 // ---------------------------------------------------------------- ladybug
-function makeLadybug() {
+export function makeLadybug() {
   const g = new THREE.Group();
   const red = new THREE.MeshStandardMaterial({ color: 0xd8262e, roughness: 0.28, metalness: 0.05 });
   const black = new THREE.MeshStandardMaterial({ color: 0x0d0d0f, roughness: 0.5 });
@@ -142,7 +142,7 @@ function makeLadybug() {
   g.userData = { halves, wings, legs };
   return g;
 }
-function poseLadybug(bug, t, walking, open) {
+export function poseLadybug(bug, t, walking, open) {
   const { halves, wings, legs } = bug.userData;
   halves.forEach(({ pivot, side }) => { pivot.rotation.z = -side * open * 1.1; pivot.rotation.x = -open * 0.35; });
   wings.forEach(({ w, s }) => { w.material.opacity = open * 0.5; w.rotation.z = s * (open * (0.6 + 0.5 * Math.sin(t * 60))); });
