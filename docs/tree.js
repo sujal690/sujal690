@@ -70,12 +70,13 @@ export async function createTree(canvas, base = 'sprites/') {
   let W = 0, H = 0, dpr = 1;
   const { root, order: ORDER, count: NB } = buildTree();
   const SX = new Float32Array(NB), SY = new Float32Array(NB), EX = new Float32Array(NB), EY = new Float32Array(NB), AN = new Float32Array(NB), FR = new Float32Array(NB), VIS = new Uint8Array(NB);
-  const FRUITS = new Array(80), FFF = new Float32Array(80); let nF = 0;
+  const FRUITS = new Array(80), FFF = new Float32Array(80), FHX = new Float32Array(80), FHY = new Float32Array(80), FHR = new Float32Array(80); let nF = 0, nHit = 0, buzzAt = -9; const BUG = { on: false, x: 0, y: 0, r: 0 };
   const AU = ['a1', 'a2', 'a3'];
   const BK = {};
   const paintBark = () => { BK.dark = rgb(mix(C.bark, [8, 6, 4], 0.5)); BK.light = rgb(mix(C.bark, [255, 240, 220], 0.16)); BK.mid = rgb(C.bark); BK.edge = rgb(mix(C.bark, [8, 6, 4], 0.6)); BK.fissure = rgb(mix(C.bark, [0, 0, 0], 0.55), 0.5); BK.root = rgb(mix(C.bark, [8, 6, 4], 0.35)); };
   paintBark();
-  function resize() { dpr = Math.min(devicePixelRatio || 1, 1.25); W = innerWidth; H = innerHeight; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; }
+  let scaleCap = innerWidth < 860 ? 2 : 1.25;
+  function resize() { dpr = Math.min(devicePixelRatio || 1, scaleCap); W = innerWidth; H = innerHeight; canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr); canvas.style.width = W + 'px'; canvas.style.height = H + 'px'; }
   resize(); addEventListener('resize', resize);
 
   // draw a leaf sprite so its blade is `px` wide, with the petiole base at (0,0)
@@ -83,7 +84,7 @@ export async function createTree(canvas, base = 'sprites/') {
   const layout = () => {
     const mobile = W < 860;
     return { mobile, baseX: mobile ? W * 0.74 : W * 0.7, baseY: H * 1.0, unit: mobile ? Math.min(W * 0.22, H * 0.13) : Math.min(W * 0.15, H * 0.2),
-      heroX: mobile ? W * 0.56 : W * 0.7, heroY: mobile ? H * 0.365 : H * 0.62, heroPx: mobile ? Math.min(W * 0.74, 330) : Math.min(W * 0.36, H * 0.74, 560) };
+      heroX: mobile ? W * 0.56 : W * 0.7, heroY: mobile ? H * 0.285 : H * 0.62, heroPx: mobile ? Math.min(W * 0.6, 240) : Math.min(W * 0.36, H * 0.74, 560) };
   };
   const bugOnLeaf = (t) => {
     const k = 0.5 - 0.5 * Math.cos(t * 0.42);
@@ -98,8 +99,9 @@ export async function createTree(canvas, base = 'sprites/') {
   const drawBug = (img, size, ang) => { ctx.save(); ctx.rotate(ang); ctx.drawImage(img, -size / 2, -size / 2, size, size); ctx.restore(); };
   const bugImg = (kind, i) => SB[kind][i];
 
-  function draw(S, t, reduce) {
+  function draw(S, t, reduce, env) {
     const { fly, fall, grow, fruit, ripe, autumn } = S;
+    const gust = env ? env.gust : 0; BUG.on = false;
     const Lo = layout();
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
     const sw = reduce ? 0 : 1;
@@ -120,7 +122,7 @@ export async function createTree(canvas, base = 'sprites/') {
         const id = b.id;
         if (grow <= b.t0) { VIS[id] = 0; return; }
         const f = smooth((grow - b.t0) / (b.t1 - b.t0));
-        const a = ang + b.ang + sw * Math.sin(t * 0.6 + b.sway) * 0.01 * b.depth;
+        const a = ang + b.ang + sw * Math.sin(t * 0.6 + b.sway) * 0.01 * b.depth * (1 + gust * 4);
         const len = b.len * Lo.unit * f, ex = x + Math.sin(a) * len, ey = y - Math.cos(a) * len;
         VIS[id] = 1; SX[id] = x; SY[id] = y; EX[id] = ex; EY[id] = ey; AN[id] = a; FR[id] = f;
         const mx = (x + ex) / 2 + Math.cos(a) * b.bend * len * 0.25, my = (y + ey) / 2 + Math.sin(a) * b.bend * len * 0.25;
@@ -157,17 +159,17 @@ export async function createTree(canvas, base = 'sprites/') {
           const l = b.leaves[li], lf = backOut((grow - l.t) / 0.06); if (lf <= 0.01) continue;
           const u = l.f * f, x = SX[id] + (EX[id] - SX[id]) * u, y = SY[id] + (EY[id] - SY[id]) * u;
           if (x < -cullM || x > W + cullM || y < -cullM || y > H + cullM) continue;
-          const ang = a + l.side * (0.95 + l.rot) + sw * Math.sin(t * 1.2 + l.tone * 9) * 0.05, px = Lo.unit * 0.165 * l.s * lf;
+          const ang = a + l.side * (0.95 + l.rot) + sw * Math.sin(t * 1.2 + l.tone * 9) * 0.05 * (1 + gust * 3), px = Lo.unit * 0.165 * l.s * lf;
           const n = autumn > l.auto * 0.7 + 0.04 ? (autumn > l.auto * 0.7 + 0.2 ? AU[Math.floor(l.tone * 3) % 3] : 'g3') : (depth < 4 ? (l.tone < 0.5 ? 'g1' : 'g2') : (l.tone < 0.5 ? 'g2' : 'g3'));
           const sp = SMALL[n], k = px / sp.blade, cs = Math.cos(ang) * k * dpr, sn = Math.sin(ang) * k * dpr;
           ctx.setTransform(cs, sn, -sn, cs, x * dpr, y * dpr); ctx.drawImage(sp.c, -sp.ax, -sp.ay);
         }
       }
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); nHit = nF;
       for (let i = 0; i < nF; i++) {
         const b = FRUITS[i], fr = b.fruit, ff = FFF[i], id = b.id, x = EX[id], y = EY[id];
         const hang = (0.5 + fr.hang * 0.6) * Lo.unit * 0.11, sway = sw * Math.sin(t * 1.0 + fr.hang * 7) * 0.1;
-        const fx = x + Math.sin(sway) * hang, fy = y + Math.cos(sway) * hang, r = Lo.unit * 0.068 * fr.s * ff;
+        const fx = x + Math.sin(sway) * hang, fy = y + Math.cos(sway) * hang, r = Lo.unit * 0.068 * fr.s * ff; FHX[i] = fx; FHY[i] = fy; FHR[i] = r;
         ctx.strokeStyle = BK.mid; ctx.lineWidth = 1.1; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(fx, fy - r * 0.6); ctx.stroke();
         ctx.globalAlpha = 0.28; ctx.fillStyle = '#000'; ctx.beginPath(); ctx.ellipse(fx + r * 0.18, fy + r * 0.2, r * 0.9, r * 0.95, 0, 0, TAU); ctx.fill(); ctx.globalAlpha = 1;
         ctx.drawImage(SF.fg, fx - r, fy - r * 0.8, 2 * r, 2 * r); if (ripe > 0) { ctx.globalAlpha = ripe; ctx.drawImage(SF.fr, fx - r, fy - r * 0.8, 2 * r, 2 * r); ctx.globalAlpha = 1; }
@@ -207,9 +209,11 @@ export async function createTree(canvas, base = 'sprites/') {
         const fe = easeOut(fly), ph = Math.floor(t * 9) % 4;
         ctx.save();
         if (fly <= 0.01) {
-          ctx.translate(bx, by);
+          { const m = ctx.getTransform(); BUG.on = true; BUG.x = (m.a * bx + m.c * by + m.e) / dpr; BUG.y = (m.b * bx + m.d * by + m.f) / dpr; BUG.r = size * 0.4; }
+          const bz = t - buzzAt, buzzing = bz >= 0 && bz < 1.1;
+          ctx.translate(bx, by - (buzzing ? Math.abs(Math.sin(bz * 10)) * size * 0.22 * (1 - bz / 1.1) : 0));
           ctx.globalAlpha = 0.16; ctx.fillStyle = '#0b1408'; ctx.save(); ctx.translate(size * 0.03, size * 0.05); ctx.rotate(bp.head); ctx.beginPath(); ctx.ellipse(0, 0, size * 0.2, size * 0.25, 0, 0, TAU); ctx.fill(); ctx.restore(); ctx.globalAlpha = 1;
-          drawBug(bp.moving > 0.2 && !reduce ? L.walk[ph] : L.walk[0], size, bp.head);
+          if (buzzing) drawBug(L.fly[Math.floor(t * 30) % 2], size * 1.08, bp.head + bz * 6.0 * (1 - bz / 1.1)); else drawBug(bp.moving > 0.2 && !reduce ? L.walk[ph] : L.walk[0], size, bp.head);
         } else {
           const x0 = bx, y0 = by, x1 = Lo.heroPx * 0.9 + fe * W * 0.45, y1 = -Lo.heroPx * 0.9 - fe * H * 0.8;
           const px2 = lerp(x0, x1, fe) + Math.sin(fe * 9) * 18 * (1 - fe), py2 = lerp(y0, y1, fe) - Math.sin(fe * Math.PI) * 60;
@@ -222,6 +226,16 @@ export async function createTree(canvas, base = 'sprites/') {
     }
     // the fallen leaf stays on the ground beside the trunk
     if (fall > 0.9) { ctx.save(); ctx.globalAlpha = 0.85 * smooth((fall - 0.9) / 0.1) * (1 - smooth(grow / 0.3) * 0.3); ctx.translate(Lo.baseX - Lo.unit * 0.55, Lo.baseY - 4); ctx.scale(1, 0.32); ctx.rotate(0.6); { const sp = SMALL.a2, kk = Lo.unit * 0.2 / sp.blade; ctx.drawImage(sp.c, -sp.ax * kk, -sp.ay * kk, sp.c.width * kk, sp.c.height * kk); } ctx.restore(); }
+    if (env) { // grade what was drawn with the sky's light, then add the foreground (grass, pollen, fireflies)
+      const tn = env.tint; { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'source-atop'; ctx.fillStyle = `rgba(${tn[0] | 0},${tn[1] | 0},${tn[2] | 0},${tn[3]})`; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore(); }
+      if (env.back) { ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.globalCompositeOperation = 'destination-over'; ctx.drawImage(env.back, 0, 0, canvas.width, canvas.height); ctx.restore(); }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0); env.fore(ctx, W, H, t, env.pointer, reduce);
+    }
   }
-  return { draw };
+  const hit = (x, y) => {
+    if (BUG.on && Math.hypot(x - BUG.x, y - BUG.y) < BUG.r * 1.5) return { type: 'bug' };
+    for (let i = 0; i < nHit; i++) if (Math.hypot(x - FHX[i], y - FHY[i]) < FHR[i] * 1.4 + 3) return { type: 'fruit', id: FRUITS[i].id };
+    return null;
+  };
+  return { draw, hit, buzz: (t) => { buzzAt = t; }, setScale: (s) => { if (s !== scaleCap) { scaleCap = s; resize(); } }, get scale() { return dpr; } };
 }

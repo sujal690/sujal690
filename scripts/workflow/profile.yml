@@ -1,35 +1,40 @@
-# Refreshes the stats cards in both README themes (Space and Leaf) every 6 hours.
+# Keeps the profile current: the banner follows the time of day (India time) and the stats refresh.
 # Activate by moving this file to .github/workflows/profile.yml
-name: Refresh profile stats
+# (pushing a workflow needs the `workflow` scope: gh auth refresh -h github.com -s workflow)
+name: Refresh profile
 
 on:
   schedule:
-    - cron: "17 */6 * * *"
+    - cron: "*/30 * * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  stats:
+  refresh:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Rebuild stats and both themes
+      - name: Banner for the current time of day
+        run: python scripts/phase.py
+      - name: Rebuild stats and cards (a few times a day)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          pip install --quiet fonttools brotli pillow
-          python scripts/build_stats.py docs/stats.json
-          python scripts/gen7.py space docs/stats.json assets/space scripts/thumbs
-          python scripts/gen7.py leaf docs/stats.json assets/leaf scripts/thumbs
-
+          if [ "$(date -u +%M)" -lt 30 ] && [ $(( $(date -u +%H) % 6 )) -eq 0 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            pip install --quiet fonttools brotli pillow
+            python scripts/build_stats.py docs/stats.json
+            python scripts/gen8.py space docs/stats.json assets/space scripts/thumbs
+            python scripts/gen8.py leaf docs/stats.json assets/leaf scripts/thumbs
+            python scripts/phase.py
+          fi
       - name: Commit if anything changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || (git commit -m "Refresh profile stats" && git push)
+          git diff --cached --quiet || (git commit -m "Refresh profile" && git push)

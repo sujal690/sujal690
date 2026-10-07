@@ -10,7 +10,7 @@
 
 <div align="center">
 
-<img src="assets/space/hero.webp" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A sunrise over a planet seen from orbit."/>
+<img src="assets/space/hero.webp" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. The Earth from orbit with the Moon, Mars, Jupiter and Saturn; the lighting follows the time of day in India."/>
 
 <a href="https://sujal-shah-portfolio.vercel.app"><img src="assets/space/btn-portfolio.svg" height="44" alt="Portfolio"/></a>
 <a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/space/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>
@@ -52,7 +52,7 @@
 
 <div align="center">
 
-<img src="assets/leaf/hero.webp" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A ladybug walks across a backlit ginkgo leaf."/>
+<img src="assets/leaf/hero.webp" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A ladybug walks across a ginkgo leaf with dew drops; the light follows the time of day in India."/>
 
 <a href="https://sujal-shah-portfolio.vercel.app"><img src="assets/leaf/btn-portfolio.svg" height="44" alt="Portfolio"/></a>
 <a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/leaf/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>

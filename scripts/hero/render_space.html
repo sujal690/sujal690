@@ -1,0 +1,39 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Orbitron:wght@600;700;800&display=swap">
+<style>
+ html,body{margin:0;background:#04060b}
+ #stage{position:relative;width:1200px;height:600px;overflow:hidden;font-family:Geist,sans-serif;color:#eef2f7}
+ canvas{position:absolute;inset:0;width:100%;height:100%}
+ .lab{position:absolute;font:500 11px/1 Geist,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:rgba(214,224,238,.62);white-space:nowrap}
+ .lab::before{content:'';position:absolute;left:50%;top:-14px;width:1px;height:9px;background:rgba(214,224,238,.35)}
+ .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,5,10,.74) 0%,rgba(3,5,10,.42) 33%,rgba(3,5,10,0) 56%),linear-gradient(0deg,rgba(3,5,10,.35),rgba(3,5,10,0) 30%)}
+ #txt{position:absolute;left:68px;top:128px;width:560px}
+ .chip{display:inline-flex;align-items:center;gap:10px;height:32px;padding:0 14px 0 6px;border-radius:99px;background:rgba(10,14,22,.55);box-shadow:inset 0 0 0 1px rgba(238,242,247,.18);font-size:14px;color:#cfd7e1;margin-bottom:26px}
+ .chip img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+ .chip i{width:6px;height:6px;border-radius:50%;background:#e1a95c;box-shadow:0 0 0 3px rgba(225,169,92,.18)}
+ h1{margin:0;font:700 66px/1 Orbitron,sans-serif;letter-spacing:.015em;text-shadow:0 2px 30px rgba(0,0,0,.45)}
+ .role{margin-top:20px;font-weight:500;font-size:22px;letter-spacing:-.005em}
+ .role em{font-style:normal;color:#a6b2c1;font-weight:400}
+ p{margin:14px 0 0;font-weight:300;font-size:17.5px;line-height:1.55;color:#c6cfda;max-width:430px}
+</style>
+<div id="stage">
+  <canvas id="c" width="1200" height="600"></canvas>
+  <div class="shade"></div>
+    <div id="txt">
+    <div class="chip"><img src="photo.png"><i></i><span id="greet">Good morning</span><span style="opacity:.55">· Navi Mumbai</span></div>
+    <h1>Sujal Shah</h1>
+    <div class="role">AI Software Engineer <em>at Sky Gold and Diamonds</em></div>
+    <p>Production AI and full-stack systems, from the first prototype to tools the whole company runs on.</p>
+  </div>
+</div>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import { createSolar } from './solar.js?v=8';
+const phase = new URLSearchParams(location.search).get('phase') || 'dawn';
+const pl = await createSolar({ canvas: document.getElementById('c'), width: 1200, height: 600, T: 12, phase });
+document.getElementById('greet').textContent = pl.greet;
+window.renderAt = (t) => pl.frame(t); window.pl = pl;
+await document.fonts.ready;
+await new Promise((r) => { const im = document.querySelector('.chip img'); im.complete ? r() : (im.onload = r); });
+window.ready = true;
+</script>

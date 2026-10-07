@@ -1,92 +1,104 @@
-import { createTree } from './tree.js?v=20261007e';
+import { createTree } from './tree.js?v=20261008a';
+import { createSky, phaseName, greeting } from './sky.js?v=20261008a';
+import { DIAG, WORK } from './diag.js?v=20261008a';
 
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
 const smooth = (v) => { v = clamp(v); return v * v * (3 - 2 * v); };
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// ---------------------------------------------------------------- hero text: letters rise in, the greeting follows the clock
+[['h1a', 'Sujal'], ['h1b', 'Shah']].forEach(([id, w], r) => { $('#' + id).innerHTML = [...w].map((c, i) => `<span class="ch" style="--i:${i + r * 5}">${c}</span>`).join(''); });
+requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.add('go')));
 
 // ---------------------------------------------------------------- statement that lights up as you read
 const ST = 'I own production AI and full-stack systems [end to end.] I build OCR and vision-language pipelines, computer vision tools and LLM integrations, and turn multi-day manual processes into workflows that finish in [minutes.]';
 (() => { const out = []; let hl = false, i = 0; ST.split(' ').forEach((w) => { if (w.startsWith('[')) { hl = true; w = w.slice(1); } const end = w.endsWith(']'); if (end) w = w.slice(0, -1); out.push(`<span class="wd${hl ? ' hl' : ''}" style="--i:${i++}">${w}</span>`); if (end) hl = false; }); $('#st').innerHTML = out.join(' '); $('#st').style.setProperty('--n', i); })();
 
 // ---------------------------------------------------------------- work
-const DIAG = {
-  docs: `<svg viewBox="0 0 400 150"><rect x="38" y="22" width="66" height="86" rx="7" fill="#1f2a21" stroke="rgba(236,233,223,.2)"/>${[44, 36, 46, 30, 40, 26].map((w, i) => `<rect x="48" y="${36 + i * 11}" width="${w}" height="4" rx="2" fill="rgba(238,248,239,.22)"/>`).join('')}
-    <g class="d-scan"><rect x="36" y="10" width="70" height="16" fill="url(#scanG)"/><rect x="34" y="25" width="74" height="2.4" rx="1.2" fill="#e3a868"/></g>
-    ${[114, 250].map((x) => `<path class="d-flow" d="M${x} 65 H${x + 40}" stroke="#9cbf7e" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/><path d="M${x + 36} 60 L${x + 42} 65 L${x + 36} 70" fill="none" stroke="#9cbf7e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`).join('')}
-    <rect x="164" y="38" width="76" height="54" rx="12" fill="rgba(227,168,104,.10)" stroke="rgba(227,168,104,.55)"/><rect class="d-blink" x="164" y="38" width="76" height="54" rx="12" fill="none" stroke="#e3a868"/>
-    <text x="202" y="63" text-anchor="middle" font-family="Outfit" font-weight="700" font-size="15" fill="#e3a868">VLM</text><text x="202" y="80" text-anchor="middle" font-family="Outfit" font-size="9.5" fill="#c3c7b7">ocr + vision</text>
-    ${Array.from({ length: 20 }, (_, k) => { const r = Math.floor(k / 4), c = k % 4, x = 298 + c * 22, y = 26 + r * 17; return r === 0 ? `<rect x="${x}" y="${y}" width="19" height="13" rx="3" fill="#d9a23a" fill-opacity=".75"/>` : `<rect x="${x}" y="${y}" width="19" height="13" rx="3" fill="rgba(255,255,255,.06)"/><rect class="d-cell" style="--dl:${(0.25 + (k - 4) * 0.19).toFixed(2)}s" x="${x}" y="${y}" width="19" height="13" rx="3" fill="#9cbf7e"/>`; }).join('')}
-    <defs><linearGradient id="scanG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#e3a868" stop-opacity=".55"/><stop offset="1" stop-color="#e3a868" stop-opacity="0"/></linearGradient></defs></svg>`,
-  orders: `<svg viewBox="0 0 400 150"><path d="M44 66 H356" stroke="rgba(255,255,255,.08)" stroke-width="4" stroke-linecap="round"/><path class="d-line" d="M44 66 H356" stroke="#9cbf7e" stroke-width="4" stroke-linecap="round"/>
-    ${[44, 122, 200, 278, 356].map((x, i) => `<circle cx="${x}" cy="66" r="10" fill="#1f2a21" stroke="rgba(236,233,223,.25)" stroke-width="2"/><circle class="lit${i}" cx="${x}" cy="66" r="6" fill="#e3a868"/>`).join('')}
-    <g class="d-pk"><circle cx="44" cy="66" r="7" fill="#d9a23a"/><circle class="d-ring" cx="44" cy="66" r="7" fill="none" stroke="#d9a23a" stroke-width="1.5"/></g>
-    <g transform="translate(316 12)"><rect width="56" height="22" rx="11" fill="rgba(156,191,126,.14)" stroke="rgba(156,191,126,.5)"/><circle class="d-blink" cx="13" cy="11" r="3.5" fill="#9cbf7e"/><text x="22" y="15" font-family="Outfit" font-weight="700" font-size="10.5" fill="#9cbf7e">live</text></g>
-    ${[180, 140, 160].map((w, i) => `<rect x="44" y="${96 + i * 11}" width="${w}" height="5" rx="2.5" fill="rgba(255,255,255,.07)"/>`).join('')}</svg>`,
-  search: `<svg viewBox="0 0 400 150"><rect x="30" y="16" width="104" height="96" rx="12" fill="#1f2a21" stroke="rgba(236,233,223,.2)"/><circle cx="82" cy="70" r="22" fill="none" stroke="#d9a23a" stroke-width="3"/><path d="M74 46 L82 38 L90 46 L82 54 Z" fill="#d9a23a" fill-opacity=".85"/>
-    ${[[36, 22, 1, 1], [128, 22, -1, 1], [36, 106, 1, -1], [128, 106, -1, -1]].map(([x, y, dx, dy]) => `<path d="M${x} ${y + 10 * dy} V${y} H${x + 10 * dx}" fill="none" stroke="#e3a868" stroke-width="2" stroke-linecap="round"/>`).join('')}
-    <rect class="d-hscan" x="34" y="20" width="2" height="88" fill="#e3a868" opacity=".85"/>
-    <path class="d-flow" d="M142 64 H176" stroke="#9cbf7e" stroke-width="2" stroke-dasharray="4 5" stroke-linecap="round"/><path d="M172 59 L178 64 L172 69" fill="none" stroke="#9cbf7e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    ${Array.from({ length: 6 }, (_, k) => { const r = Math.floor(k / 3), c = k % 3, x = 192 + c * 62, y = 16 + r * 50, rr = [14, 11, 16, 12, 15, 10][k] * 0.7; return `<rect x="${x}" y="${y}" width="54" height="44" rx="8" fill="#1f2a21" stroke="rgba(236,233,223,.2)"/><circle cx="${x + 27}" cy="${y + 24}" r="${rr.toFixed(1)}" fill="none" stroke="#d9a23a" stroke-opacity=".55" stroke-width="2"/>`; }).join('')}
-    <rect class="d-hop" x="189" y="13" width="60" height="50" rx="10" fill="none" stroke="#e3a868" stroke-width="2.4"/>
-    <g class="d-pop"><circle cx="306" cy="68" r="9" fill="#9cbf7e"/><path d="M301.5 68 L305 71.5 L311 64.5" fill="none" stroke="#0c110d" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></g></svg>`,
-  security: `<svg viewBox="0 0 400 150"><defs><linearGradient id="coneG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e3a868" stop-opacity=".35"/><stop offset="1" stop-color="#e3a868" stop-opacity="0"/></linearGradient></defs>
-    <path class="d-sweep" d="M88 52 L258 10 L258 94 Z" fill="url(#coneG)"/>
-    <rect x="38" y="38" width="50" height="28" rx="7" fill="#1f2a21" stroke="#c3c7b7" stroke-opacity=".7" stroke-width="1.6"/><circle cx="80" cy="52" r="7" fill="#0c110d" stroke="#e3a868" stroke-width="2"/><circle class="d-blink" cx="80" cy="52" r="2.5" fill="#e3a868"/><path d="M58 66 V82 M48 82 H68" stroke="#c3c7b7" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>
-    <circle cx="290" cy="54" r="17" fill="none" stroke="#ece9df" stroke-opacity=".75" stroke-width="2"/><path d="M262 98 C264 76 316 76 318 98" fill="none" stroke="#ece9df" stroke-opacity=".75" stroke-width="2"/>
-    ${[[250, 24, 1, 1], [330, 24, -1, 1], [250, 104, 1, -1], [330, 104, -1, -1]].map(([x, y, dx, dy]) => `<path d="M${x} ${y + 13 * dy} V${y} H${x + 13 * dx}" fill="none" stroke="#e3a868" stroke-width="2.4" stroke-linecap="round"/>`).join('')}
-    <rect class="d-vscan" x="254" y="28" width="72" height="2" fill="#e3a868" opacity=".8"/>
-    <g class="d-pop"><circle cx="330" cy="24" r="10" fill="#9cbf7e"/><path d="M325 24 L329 28 L335.5 20.5" fill="none" stroke="#0c110d" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></g>
-    <g transform="translate(30 104)"><rect width="88" height="22" rx="11" fill="rgba(217,162,58,.12)" stroke="rgba(217,162,58,.5)"/><text x="44" y="15" text-anchor="middle" font-family="Outfit" font-weight="700" font-size="10" fill="#d9a23a">NVIDIA edge</text></g></svg>`,
-};
-
-const WORK = [
-  ['docs', 'Intelligent Document Automation', 'An OCR-to-spreadsheet pipeline pairing state-of-the-art text recognition with a locally hosted vision-language model. A multi-day manual process now runs in minutes and is a core tool across the company.', ['OCR', 'VLM', 'Python']],
-  ['orders', 'Enterprise Order Tracking', 'A real-time, full-stack platform spanning the entire order lifecycle, adopted company-wide as the single source of truth for order status.', ['Full-stack', 'Real-time']],
-  ['search', 'Visual Product Search', 'Instant retrieval of gold design records from a rough photo or an SKU code, through a multi-model computer-vision pipeline built for accuracy and low latency.', ['Computer vision', 'Search']],
-  ['security', 'AI Security Intelligence', 'In progress with an external technology firm: facial recognition plus a generative video-understanding model on NVIDIA edge hardware, verifying security-check compliance in real time.', ['Edge AI', 'Video understanding']],
-];
 $('#rows').innerHTML = WORK.map(([d, t, p, tags], i) => `<div class="row" data-open="${i === 0}"><button aria-expanded="${i === 0}"><span class="t">${t}</span><span class="pm"></span></button><div class="body"><div><p>${p}</p><div class="vis">${DIAG[d]}</div><div class="tags">${tags.map((x) => `<span>${x}</span>`).join('')}</div></div></div></div>`).join('');
 const lit = document.createElement('style');
 lit.textContent = [0, 1, 2, 3, 4].map((i) => { const a = (80 * i / 4).toFixed(1); return `@keyframes lk${i}{0%,${Math.max(0, a - 0.1)}%{opacity:0}${(+a + 1.5).toFixed(1)}%,96%{opacity:1}100%{opacity:0}}.lit${i}{opacity:0;animation:lk${i} 4.5s ease-in-out infinite}`; }).join('');
 document.head.appendChild(lit);
-$$('.row').forEach((row) => $('button', row).addEventListener('click', () => {
-  const open = row.dataset.open === 'true';
-  $$('.row').forEach((r) => { r.dataset.open = 'false'; $('button', r).setAttribute('aria-expanded', 'false'); });
-  if (!open) { row.dataset.open = 'true'; $('button', row).setAttribute('aria-expanded', 'true'); }
-}));
+const openRow = (i) => { const rows = $$('.row'); rows.forEach((r, k) => { const on = k === i; r.dataset.open = on; $('button', r).setAttribute('aria-expanded', on); }); };
+$$('.row').forEach((row, i) => $('button', row).addEventListener('click', () => openRow(row.dataset.open === 'true' ? -1 : i)));
 
-// ---------------------------------------------------------------- activity (real GitHub data)
-const counters = [];
+// ---------------------------------------------------------------- activity: real GitHub data, a ladybug that eats the green days
+const counters = []; const crawl = { on: false, visible: false };
 fetch('stats.json?v=' + Date.now().toString().slice(0, 7)).then((r) => r.json()).then((S) => {
   const nz = S.calendar.map((d) => d.count).filter(Boolean).sort((a, b) => a - b);
   const q = nz.length ? [0.25, 0.5, 0.75].map((p) => nz[Math.floor(nz.length * p)]) : [1, 2, 3];
   const lv = (c) => (c === 0 ? 0 : 1 + q.filter((t) => c > t).length);
   const pad = new Date(S.calendar[0].date + 'T00:00:00').getDay();
   const best = new Date(S.best_day.date + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric' });
-  const tiles = [[S.contributions, 'contributions'], [S.commits, 'commits'], [S.repos, 'repositories'], [S.active_days, 'active days'], [S.longest_streak, 'day best streak'], [S.public_repos, 'public repositories']];
+  const tiles = [[S.contributions, 'contributions'], [S.commits, 'commits'], [S.repos, 'repositories'], [S.active_days, 'active days'], [S.longest_streak, 'day best streak'], [S.current_streak, 'day current streak'], [S.followers, 'follower'], [S.repos_contributed, 'repos contributed to']];
+  const mx = Math.max(...S.months.map((m) => m.count), 1), wd = S.weekday, wmx = Math.max(...wd, 1);
+  const mon = (m) => new Date(m + '-01T00:00:00').toLocaleString('en', { month: 'short' });
+  const LC = ['#6aa0d8', '#e6c552', '#8f8fc0', '#c58ad8', '#e6a965', '#8fbf7a'];
   $('#dash').insertAdjacentHTML('beforeend', `<div class="tiles">${tiles.map(([v, l]) => `<div class="tile"><div class="v" data-to="${v}">0</div><div class="l">${l}</div></div>`).join('')}</div>
-    <div class="grid" id="grid">${'<span style="visibility:hidden"></span>'.repeat(pad)}${S.calendar.map((d, i) => `<span data-l="${lv(d.count)}" data-d="${d.date}" data-c="${d.count}" style="--c:${Math.floor((i + pad) / 7)}"></span>`).join('')}</div>
-    <div class="cap"><span>${S.contributions} contributions</span><span>best day ${best}, ${S.best_day.count}</span></div>
-    <div class="langs">${S.languages.slice(0, 6).map((l) => `<span><b>${l.name}</b> ${l.pct}%</span>`).join('')}</div>`);
-  const tip = $('#tip');
-  $('#grid').addEventListener('pointerover', (e) => { const s = e.target.closest('span[data-d]'); if (!s) return; const r = s.getBoundingClientRect(); tip.textContent = `${s.dataset.c} on ${new Date(s.dataset.d + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`; tip.style.left = r.left + r.width / 2 + 'px'; tip.style.top = r.top + 'px'; tip.classList.add('on'); });
-  $('#grid').addEventListener('pointerleave', () => tip.classList.remove('on'));
+    <div class="gw"><div class="grid" id="grid">${'<span style="visibility:hidden"></span>'.repeat(pad)}${S.calendar.map((d, i) => `<span data-l="${lv(d.count)}" data-d="${d.date}" data-c="${d.count}" style="--c:${Math.floor((i + pad) / 7)}"></span>`).join('')}</div>
+      <div class="bug" id="bug"><img alt=""><img alt=""><img alt=""><img alt=""></div></div>
+    <div class="cap"><span>${S.contributions} contributions in the last year</span><span>best day <b>${best}</b>, ${S.best_day.count}</span></div>
+    <div class="two"><div class="mini"><h4>Per month</h4><div class="bars">${S.months.map((m, i) => `<i style="--h:${Math.max(6, m.count / mx * 100)};--k:${i}" data-t="${mon(m.month)}: ${m.count}"></i>`).join('')}</div><div class="axis">${S.months.map((m) => `<span>${mon(m.month)[0]}</span>`).join('')}</div></div>
+    <div class="mini"><h4>Week rhythm</h4><div class="bars">${wd.map((n, i) => `<i style="--h:${Math.max(6, n / wmx * 100)};--k:${i}" data-t="${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}: ${n}"></i>`).join('')}</div><div class="axis">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) => `<span>${d}</span>`).join('')}</div></div></div>
+    <div class="mini" style="margin-top:28px"><h4>Languages</h4><div class="lang">${S.languages.slice(0, 6).map((l, i) => `<i style="--w:${l.pct};--c:${LC[i]};--k:${i}"></i>`).join('')}</div><div class="llist">${S.languages.slice(0, 6).map((l, i) => `<span style="--c:${LC[i]}"><b>${l.name}</b> ${l.pct}%</span>`).join('')}</div></div>`);
+  const tip = $('#tip'), grid = $('#grid');
+  grid.addEventListener('pointerover', (e) => { const s = e.target.closest('span[data-d]'); if (!s) return; const r = s.getBoundingClientRect(); tip.textContent = `${s.dataset.c} on ${new Date(s.dataset.d + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`; tip.style.left = r.left + r.width / 2 + 'px'; tip.style.top = r.top + 'px'; tip.classList.add('on'); });
+  grid.addEventListener('pointerleave', () => tip.classList.remove('on'));
   counters.push(...$$('#dash [data-to]'));
+  setupBug(grid, pad);
   measure();
 }).catch((e) => console.warn('stats unavailable', e));
-function countUp(el) { const to = +el.dataset.to, t0 = performance.now(); const step = (n) => { const k = clamp((n - t0) / 1200), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(step); }; reduce ? (el.textContent = to) : requestAnimationFrame(step); }
+function countUp(el) { const to = +el.dataset.to, t0 = performance.now(); const step = (n) => { const k = clamp((n - t0) / 1300), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(step); }; reduce ? (el.textContent = to) : requestAnimationFrame(step); }
 
-// ---------------------------------------------------------------- path
-const PATH = [['June 2026 to now', 'AI Software Engineer, Sky Gold and Diamonds', 'Sole technical owner of the company’s AI and automation products, with Docker and CI/CD for every release.', true],
+function setupBug(grid, pad) {
+  const bug = $('#bug'), imgs = $$('img', bug), cells = $$('span', grid).slice(pad);
+  imgs.forEach((im, i) => { im.src = `sprites/bug_walk${i}.webp`; });
+  const ncol = Math.ceil((cells.length + pad) / 7), order = [];
+  for (let c = 0; c < ncol; c++) { const col = []; for (let r = 0; r < 7; r++) { const k = c * 7 + r - pad; if (k >= 0 && k < cells.length) col.push(k); } if (c % 2) col.reverse(); order.push(...col); }
+  const act = order.map((k) => +cells[k].dataset.l > 0), CH = 0.28, FAST = 0.05, START = 1.4, END = 2.4;
+  const cum = [START]; order.forEach((k, i) => cum.push(cum[i] + (act[i] ? CH : FAST)));
+  const total = cum[cum.length - 1] + END;
+  let centers = [], u = 0, fedFrom = null, gone = new Uint8Array(order.length), lastFrame = -1, heading = 0;
+  const wrap = grid.parentElement;
+  const layout = () => { const wr = wrap.getBoundingClientRect(); centers = order.map((k) => { const r = cells[k].getBoundingClientRect(); return [r.left - wr.left + r.width / 2, r.top - wr.top + r.height / 2]; }); const s = Math.max(24, cells[0].getBoundingClientRect().width * 3.2); bug.style.width = bug.style.height = s + 'px'; bug.style.margin = `${-s / 2}px 0 0 ${-s / 2}px`; };
+  layout(); addEventListener('resize', layout); new ResizeObserver(layout).observe(wrap);
+  const crumb = (x, y) => { if (reduce) return; for (let i = 0; i < 4; i++) { const c = document.createElement('i'); c.className = 'crumb'; c.style.left = x + 'px'; c.style.top = y + 'px'; wrap.appendChild(c); const a = Math.random() * 6.28, d = 8 + Math.random() * 12; c.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d - 6}px) scale(0)`, opacity: 0 }], { duration: 600, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => c.remove(); } };
+  grid.addEventListener('pointerdown', (e) => { const s = e.target.closest('span[data-d]'); if (!s) return; const k = cells.indexOf(s), i = order.indexOf(k); if (i >= 0) fedFrom = { from: u, to: cum[i], t0: performance.now() }; });
+  crawl.step = (dt) => {
+    if (!crawl.visible || !centers.length) return;
+    if (fedFrom) { const kk = clamp((performance.now() - fedFrom.t0) / 700); u = lerp(fedFrom.from, fedFrom.to, 1 - Math.pow(1 - kk, 3)); if (kk >= 1) fedFrom = null; }
+    else u += dt;
+    if (u >= total) { u = 0; }
+    // which cell the bug is on (binary search over cumulative times)
+    let lo = 0, hi = order.length; while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m + 1] <= u) lo = m + 1; else hi = m; }
+    const i = Math.min(lo, order.length - 1), j = Math.min(i + 1, order.length - 1);
+    const tt = clamp((u - cum[i]) / Math.max(1e-3, cum[i + 1] - cum[i])), pa = centers[i], pb = centers[j];
+    const x = lerp(pa[0], pb[0], act[i] ? smooth(tt * 0.6 + 0.4 * tt) : tt), y = lerp(pa[1], pb[1], act[i] ? smooth(tt * 0.6 + 0.4 * tt) : tt);
+    if (u < START) { bug.style.opacity = clamp(u / 0.5); } else bug.style.opacity = 1;
+    const dx = pb[0] - pa[0], dy = pb[1] - pa[1]; if (Math.hypot(dx, dy) > 0.1) { const h = Math.atan2(dx, -dy); let d = h - heading; d = Math.atan2(Math.sin(d), Math.cos(d)); heading += d * 0.35; }
+    bug.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${heading.toFixed(3)}rad)`;
+    const f = Math.floor(performance.now() / (act[i] ? 140 : 80)) % 4; imgs.forEach((im, n) => im.classList.toggle('on', n === f));
+    // cells flip to eaten when the bug reaches them, and all grow back when it starts over
+    for (let n = 0; n < order.length; n++) {
+      const want = act[n] && cum[n] + 0.1 <= u ? 1 : 0;
+      if (want !== gone[n]) { gone[n] = want; cells[order[n]].classList.toggle('gone', !!want); if (want && !reduce) crumb(centers[n][0], centers[n][1]); }
+    }
+  };
+}
+
+// ---------------------------------------------------------------- path: the line grows with the scroll, milestones ripen
+const PATH = [['June 2026 to now', 'AI Software Engineer, Sky Gold and Diamonds', 'Sole technical owner of the company’s AI and automation products, with Docker and CI/CD for every release.'],
   ['May 2026', 'B.E. Computer Science', 'Saraswati College of Engineering, University of Mumbai. CGPA 9.0.'],
   ['2025', 'Full Stack Developer Intern, Chemtron Science Laboratories', 'A MERN and Electron desktop app that cut manual billing and order work by 40%.'],
   ['2025', '1st Place, SCOE Avishkar', 'The college’s flagship project competition.'],
   ['2024', 'Grand Finalist and Global Nominee', 'Smart India Hackathon (Ministry of Coal) and NASA Space Apps Challenge.']];
-$('#steps').innerHTML = PATH.map(([y, h, p, now]) => `<div class="step${now ? ' now' : ''}"><div class="y">${y}</div><h3>${h}</h3><p>${p}</p></div>`).join('');
+$('#steps').innerHTML = PATH.map(([y, h, p]) => `<div class="step"><div class="y">${y}</div><h3>${h}</h3><p>${p}</p></div>`).join('');
 
-// ---------------------------------------------------------------- toolkit: hovering a skill names the projects that use it
+// ---------------------------------------------------------------- toolkit: hovering a skill names the projects that use it and lights them up
 const USED = { OCR: [0], VLM: [0], 'Computer vision': [2, 3], Python: [0], Docker: [0, 1, 2, 3], 'CI/CD': [0, 1, 2, 3] };
 const GROUPS = [['Intelligence', ['OCR', 'Computer vision', 'VLM', 'LLM', 'RAG', 'NLP', 'Machine learning', 'Hugging Face']],
   ['Build', ['Python', 'TypeScript', 'JavaScript', 'React', 'Next.js', 'Node.js', 'Express', 'MongoDB', 'PostgreSQL']],
@@ -100,9 +112,27 @@ $('#repos').innerHTML = [['Culturama', '.NET temple-heritage web app', 'Culturam
   .map(([n, d, s]) => `<a href="https://github.com/sujal690/${s}"><b>${n}</b><span>${d} ↗</span></a>`).join('');
 $('#copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText('sujalshah630@gmail.com'); } catch (e) { /* the toast still confirms */ } $('#toast').classList.add('on'); setTimeout(() => $('#toast').classList.remove('on'), 1800); });
 
+// ---------------------------------------------------------------- buttons: magnetic pull, fill from the pointer, ripple and a burst of leaves on press
+const BURST = ['#e6a965', '#a9c78b', '#7fa35a', '#f1d8a8', '#c98b4a'];
+function burst(x, y) {
+  if (reduce) return;
+  for (let i = 0; i < 9; i++) {
+    const l = document.createElement('i'); l.className = 'lf'; l.style.left = x + 'px'; l.style.top = y + 'px'; l.style.background = BURST[i % BURST.length]; document.body.appendChild(l);
+    const a = (i / 9) * 6.283 + Math.random() * 0.6, d = 46 + Math.random() * 58;
+    l.animate([{ transform: 'translate(0,0) rotate(0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d - 22}px) rotate(${(Math.random() - 0.5) * 540}deg) scale(.4)`, opacity: 0 }], { duration: 750 + Math.random() * 300, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => l.remove();
+  }
+}
+$$('.btn').forEach((b) => {
+  b.addEventListener('pointermove', (e) => { const r = b.getBoundingClientRect(); b.style.setProperty('--x', e.clientX - r.left + 'px'); b.style.setProperty('--y', e.clientY - r.top + 'px'); if (fine && !reduce) { b.style.setProperty('--tx', (e.clientX - r.left - r.width / 2) * 0.12 + 'px'); b.style.setProperty('--ty', (e.clientY - r.top - r.height / 2) * 0.2 + 'px'); } });
+  b.addEventListener('pointerleave', () => { b.style.setProperty('--tx', '0px'); b.style.setProperty('--ty', '0px'); });
+  b.addEventListener('pointerdown', (e) => { const r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2.2, rp = document.createElement('i'); rp.className = 'rip'; rp.style.cssText = `left:${e.clientX - r.left}px;top:${e.clientY - r.top}px;width:${s}px;height:${s}px`; b.appendChild(rp); setTimeout(() => rp.remove(), 800); burst(e.clientX, e.clientY); });
+});
+$$('.chip').forEach((c) => { if (!fine) return; c.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(); c.style.setProperty('--tx', (e.clientX - r.left - r.width / 2) * 0.12 + 'px'); c.style.setProperty('--ty', (e.clientY - r.top - r.height / 2) * 0.2 + 'px'); }); c.addEventListener('pointerleave', () => { c.style.setProperty('--tx', '0px'); c.style.setProperty('--ty', '0px'); }); });
+
 // ---------------------------------------------------------------- reveals + nav indicator
-const io = new IntersectionObserver((es) => es.forEach((e) => { if (!e.isIntersecting) return; e.target.classList.add('in'); $$('[data-to]', e.target).forEach(countUp); io.unobserve(e.target); }), { threshold: 0.15 });
+const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.target.id === 'stats' || e.target.closest('#stats')) crawl.visible = e.isIntersecting; if (!e.isIntersecting) return; e.target.classList.add('in'); $$('[data-to]', e.target).forEach(countUp); io.unobserve(e.target); }), { threshold: 0.15 });
 $$('.reveal').forEach((el, i) => { el.style.transitionDelay = (el.closest('#hero') ? i * 90 : 0) + 'ms'; io.observe(el); });
+new IntersectionObserver((es) => es.forEach((e) => { crawl.visible = e.isIntersecting; }), { rootMargin: '0px 0px 0px 0px', threshold: 0.05 }).observe($('#stats'));
 const links = $$('.links a:not(.ext)'), ind = $('.links .ind');
 const navIO = new IntersectionObserver((es) => es.forEach((e) => {
   if (!e.isIntersecting) return; const a = links.find((l) => l.getAttribute('href') === '#' + e.target.id);
@@ -110,35 +140,79 @@ const navIO = new IntersectionObserver((es) => es.forEach((e) => {
   if (a) { ind.style.opacity = 1; ind.style.width = a.offsetWidth + 'px'; ind.style.transform = `translateX(${a.offsetLeft - 5}px)`; } else ind.style.opacity = 0;
 }), { rootMargin: '-45% 0px -50% 0px' });
 ['hero', 'intro', 'work', 'stats', 'path', 'toolkit', 'contact'].forEach((id) => navIO.observe($('#' + id)));
+const stepIO = new IntersectionObserver((es) => es.forEach((e) => e.target.classList.toggle('on', e.isIntersecting || e.boundingClientRect.top < 0)), { rootMargin: '0px 0px -38% 0px' });
+$$('.step').forEach((s) => stepIO.observe(s));
+// card spotlight follows the pointer
+addEventListener('pointermove', (e) => { const c = e.target.closest && e.target.closest('.card'); if (!c) return; const r = c.getBoundingClientRect(); c.style.setProperty('--mx', e.clientX - r.left + 'px'); c.style.setProperty('--my', e.clientY - r.top + 'px'); }, { passive: true });
+
+// ---------------------------------------------------------------- the sky: follows the visitor's clock, can be set by hand
+const root = document.documentElement, meta = $('meta[name=theme-color]');
+const skyCanvas = document.createElement('canvas');
+const sky = createSky(skyCanvas, (P) => {
+  const c = P.card.map((v) => v | 0); root.style.setProperty('--card', `rgba(${c[0]},${c[1]},${c[2]},.93)`); root.style.setProperty('--bg', `rgb(${P.top.map((v) => v | 0)})`);
+  meta.setAttribute('content', `rgb(${P.top.map((v) => v | 0)})`);
+  updateGreeting();
+});
+const tsw = $('.tsw'), tind = $('.tsw .ind'), tbtn = $$('button', tsw);
+function markMode(m) { tbtn.forEach((b) => b.setAttribute('aria-checked', b.dataset.m === m)); const a = tbtn.find((b) => b.dataset.m === m); requestAnimationFrame(() => { tind.style.opacity = 1; tind.style.width = a.offsetWidth + 'px'; tind.style.transform = `translateX(${a.offsetLeft - 5}px)`; }); }
+tbtn.forEach((b) => b.addEventListener('click', () => { sky.setMode(b.dataset.m); markMode(b.dataset.m); }));
+document.fonts.ready.then(() => markMode(sky.mode)); addEventListener('resize', () => markMode(sky.mode));
+const SIGN = { Dawn: 'The first light is on the leaves.', Morning: 'A good morning for building.', Day: 'Bright and busy.', Evening: 'The light is turning gold.', Dusk: 'Fireflies soon.', Night: 'The tree is asleep. The fireflies are not.' };
+function updateGreeting() {
+  const ph = sky.phase(), hh = Math.floor(ph.hour), mm = Math.floor((ph.hour - hh) * 60);
+  const g = ph.greet, c = sky.mode === 'auto' ? `· ${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')} your time` : `· ${ph.name.toLowerCase()}`, sg = `Sujal Shah · ${SIGN[ph.name]}`;
+  if ($('#greet').textContent !== g) $('#greet').textContent = g; if ($('#clock').textContent !== c) $('#clock').textContent = c; if ($('#sign').textContent !== sg) $('#sign').textContent = sg;
+}
+setInterval(updateGreeting, 4000); updateGreeting();
 
 // ---------------------------------------------------------------- the tree story, driven by scroll position
 const tree = await createTree($('#tree'));
+const ptr = sky.ptr; let lastPT = performance.now(); const tipEl = $('#tip'), boop = $('#boop');
+const FRUIT_LABEL = ['Document automation', 'Order tracking', 'Visual search', 'Security intelligence', 'FamilyConnect', 'GreenMines', 'Schedulr', 'Weapon detection'];
+addEventListener('pointermove', (e) => {
+  const now = performance.now(), dt = Math.max(8, now - lastPT); lastPT = now;
+  const dx = e.clientX - ptr.px, dy = e.clientY - ptr.py; ptr.px = e.clientX; ptr.py = e.clientY; ptr.x = e.clientX / innerWidth; ptr.y = e.clientY / innerHeight;
+  ptr.speed = Math.hypot(dx, dy) / dt * 1000; ptr.gust = Math.max(ptr.gust, clamp(ptr.speed / 2400));
+  const onCard = e.target.closest && e.target.closest('.card, nav, .btn, a, button, .chip');
+  const h = onCard ? null : tree.hit(e.clientX, e.clientY);
+  document.body.style.cursor = h ? 'pointer' : '';
+  boop.classList.toggle('on', !!h && h.type === 'bug'); if (h && h.type === 'bug') { boop.style.left = e.clientX + 'px'; boop.style.top = e.clientY + 'px'; }
+  if (h && h.type === 'fruit') { tipEl.textContent = `${FRUIT_LABEL[h.id % FRUIT_LABEL.length]}: open`; tipEl.style.left = e.clientX + 'px'; tipEl.style.top = e.clientY + 'px'; tipEl.classList.add('on'); } else if (!e.target.closest('#grid')) tipEl.classList.remove('on');
+}, { passive: true });
+addEventListener('pointerdown', (e) => {
+  if (e.target.closest('.card, nav, .btn, a, button')) return; const h = tree.hit(e.clientX, e.clientY); if (!h) return;
+  if (h.type === 'bug') { tree.buzz(T); burst(e.clientX, e.clientY); }
+  else { const idx = h.id % FRUIT_LABEL.length; burst(e.clientX, e.clientY); if (idx < 4) { openRow(idx); $('#work').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); } else $('#repos').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' }); }
+});
 let M = {};
 function measure() {
   const top = (el) => el.getBoundingClientRect().top + scrollY;
-  M = { max: Math.max(1, document.documentElement.scrollHeight - innerHeight), hero: $('#hero').offsetHeight, intro: top($('#intro')), introH: $('#intro').offsetHeight };
+  M = { max: Math.max(1, document.documentElement.scrollHeight - innerHeight), hero: $('#hero').offsetHeight, intro: top($('#intro')), introH: $('#intro').offsetHeight, path: top($('#path')), pathH: $('#path').offsetHeight };
 }
 const S = { p: 0, fly: 0, fall: 0, grow: 0, fruit: 0, ripe: 0, autumn: 0 };
-let t = 0, last = performance.now();
+const STAGES = [[0.07, 'The leaf'], [0.2, 'The seed'], [0.45, 'Growing'], [0.62, 'The tree'], [0.78, 'Fruit sets'], [0.9, 'Ripening'], [1.1, 'Harvest']];
+let T = 0, last = performance.now(), stageIdx = -1, frameN = 0, lastY = 0, skyDt = 0, lastStep = 0, slowSum = 0, slowI = 0; const slowHist = new Uint8Array(90);
+const env = { back: skyCanvas, tint: [0, 0, 0, 0], fore: (c, w, h, t, p, r) => sky.fore(c, w, h, t, p, r), pointer: ptr, gust: 0 };
 function frame(now) {
-  const dt = Math.min(0.05, (now - last) / 1000); last = now;
-  t += dt;
-  const y = scrollY, vh = innerHeight;
-  const p = clamp(y / (M.max || 1));
-  const heroP = clamp(y / ((M.hero || vh) * 0.9));
+  const raw = (now - last) / 1000, dt = Math.min(0.05, raw); last = now; T += dt; frameN++;
+  // adaptive resolution: if more than half of the last 90 frames took over 24ms, drop the canvas scale a step (never back up)
+  if (document.visibilityState === 'visible' && raw < 0.25) { const f = raw > 0.024 ? 1 : 0; slowSum += f - slowHist[slowI]; slowHist[slowI] = f; slowI = (slowI + 1) % 90; if (slowSum > 45 && now - lastStep > 3000 && frameN > 120) { const cur = tree.scale; if (cur > 0.86) { tree.setScale(cur > 1.01 ? 1 : 0.85); lastStep = now; slowHist.fill(0); slowSum = 0; } } }
+  const y = scrollY, vh = innerHeight, p = clamp(y / (M.max || 1)), heroP = clamp(y / ((M.hero || vh) * 0.9));
   const target = {
-    p,
-    fly: smooth(heroP / 0.35),              // the ladybug leaves first
-    fall: smooth((heroP - 0.25) / 0.75),     // then the leaf drifts down and becomes the seed
-    grow: smooth((p - 0.12) / 0.58),         // the tree grows through the middle of the page
-    fruit: smooth((p - 0.62) / 0.18),        // fruit sets on the outer twigs
-    ripe: smooth((p - 0.74) / 0.14),         // and ripens from green to apricot
-    autumn: smooth((p - 0.88) / 0.11),       // the canopy turns gold at the end
+    p, fly: smooth(heroP / 0.35), fall: smooth((heroP - 0.25) / 0.75), grow: smooth((p - 0.12) / 0.58),
+    fruit: smooth((p - 0.62) / 0.18), ripe: smooth((p - 0.74) / 0.14), autumn: smooth((p - 0.88) / 0.11),
   };
   const k = reduce ? 1 : 1 - Math.pow(0.0015, dt);
   for (const key in S) S[key] += (target[key] - S[key]) * k;
-  if (M.intro !== undefined) $('#st').style.setProperty('--p', clamp((y + vh * 0.75 - M.intro) / (M.introH * 0.8), 0, 1.05).toFixed(4));
-  tree.draw(S, t, reduce);
+  ptr.gust *= Math.pow(0.12, dt);
+  if (M.intro !== undefined) { $('#st').style.setProperty('--p', clamp((y + vh * 0.75 - M.intro) / (M.introH * 0.8), 0, 1.05).toFixed(4)); $('#steps').style.setProperty('--fill', clamp((y + vh * 0.62 - M.path) / (M.pathH * 0.92)).toFixed(3)); }
+  if (frameN % 6 === 0) { const si = STAGES.findIndex(([m]) => p < m); if (si !== stageIdx) { stageIdx = si; $('#stn').textContent = si + 1; $('#stl').textContent = STAGES[si][1]; } $('#rail .bar i').style.setProperty('--p', p.toFixed(3)); }
+  // the sky is soft and slow: redraw it every frame while the page moves, every other frame while it rests
+  const moving = Math.abs(y - lastY) > 0.5 || ptr.speed > 20; lastY = y; ptr.speed *= 0.9;
+  if ((moving || (frameN & 1) === 0)) { sky.frame(T, skyDt + dt, p, ptr); skyDt = 0; } else skyDt += dt;
+  env.tint = sky.tint(); env.gust = ptr.gust;
+  tree.draw(S, T, reduce, env);
+  crawl.step && crawl.step(dt);
   requestAnimationFrame(frame);
 }
 addEventListener('resize', measure);

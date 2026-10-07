@@ -5,6 +5,9 @@ from fontTools import subset
 
 FD = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
 SPEC = {
+    'Syne600':  ('Syne[wght].ttf', {'wght': 600}),
+    'Man400':   ('Manrope[wght].ttf', {'wght': 400}),
+    'Man600':   ('Manrope[wght].ttf', {'wght': 600}),
     'Syne800':  ('Syne[wght].ttf', {'wght': 800}),
     'Syne700':  ('Syne[wght].ttf', {'wght': 700}),
     'Man500':   ('Manrope[wght].ttf', {'wght': 500}),
