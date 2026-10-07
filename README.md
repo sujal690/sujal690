@@ -1,53 +1,44 @@
 <div align="center">
 
-<img src="assets/hero.webp?p=evening" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A cinematic ginkgo grove whose light follows the time of day in Navi Mumbai."/>
+<img src="assets/header.svg" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds, Navi Mumbai."/>
 
-<a href="#about"><img src="assets/nav-about.svg" height="48" alt="About"/></a>
-<a href="#toolkit"><img src="assets/nav-stack.svg" height="48" alt="Stack"/></a>
-<a href="#stats"><img src="assets/nav-stats.svg" height="48" alt="Stats"/></a>
-<a href="#work"><img src="assets/nav-work.svg" height="48" alt="Work"/></a>
-<a href="#path"><img src="assets/nav-path.svg" height="48" alt="Path"/></a>
-<a href="#contact"><img src="assets/nav-contact.svg" height="48" alt="Contact"/></a>
-
-<a href="https://sujal690.github.io/sujal690/"><img src="assets/cta-site.svg" height="48" alt="Walk through the living portfolio"/></a>
-
-<img src="assets/terminal.svg" width="100%" alt="whoami: Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. Focus: OCR and vision-language pipelines, computer vision, LLM integrations."/>
-
-<a id="about"></a>
-<img src="assets/h-about.svg" width="100%" alt="About"/>
-<img src="assets/about.svg" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. Sole technical owner of AI products. Focus: OCR, computer vision, LLM and VLM. Ships with Python, MERN, Docker, CI/CD. B.E. Computer Science, CGPA 9.0."/>
-
-<a id="toolkit"></a>
-<img src="assets/h-stack.svg" width="100%" alt="Toolkit"/>
-<img src="assets/stack.svg" width="100%" alt="Intelligence: machine learning, computer vision, NLP, OCR, LLM, VLM, RAG, Hugging Face, inference optimization. Build: Python, TypeScript, JavaScript, SQL, React, Next.js, Node.js, Express, MongoDB, Redux, Tailwind CSS, REST APIs, microservices. Ship: Docker, CI/CD, Git, Vercel, Render, Postman, system design, Agile."/>
-
-<a id="stats"></a>
-<img src="assets/h-stats.svg" width="100%" alt="GitHub stats"/>
-<img src="assets/stats-tiles.svg" width="100%" alt="Contributions, commits, repositories, active days and streaks over the last 12 months."/>
-<img src="assets/contrib.svg" width="100%" alt="Contribution calendar for the last year, with a caterpillar that crawls through and eats each green square."/>
-<img src="assets/insights.svg" width="100%" alt="Contributions per month, top languages and weekly rhythm."/>
-
-<a id="work"></a>
-<img src="assets/h-work.svg" width="100%" alt="Selected work"/>
-<img src="assets/work-a.svg" width="100%" alt="Intelligent Document Automation and Enterprise Order Tracking at Sky Gold and Diamonds."/>
-<img src="assets/work-b.svg" width="100%" alt="Visual Product Search and AI Security Intelligence at Sky Gold and Diamonds."/>
-
-<a href="https://github.com/sujal690/Culturama"><img src="assets/repo-culturama.svg" width="32%" alt="Culturama"/></a>
-<a href="https://github.com/sujal690/Odoo_Appointment_Booking"><img src="assets/repo-odoo.svg" width="32%" alt="Odoo Appointment Booking"/></a>
-<a href="https://github.com/sujal690/weapon_detection_assignment"><img src="assets/repo-weapon.svg" width="32%" alt="Weapon Detection"/></a>
-
-<a id="path"></a>
-<img src="assets/h-path.svg" width="100%" alt="Path"/>
-<img src="assets/path.svg" width="100%" alt="2024: Grand Finalist at Smart India Hackathon and NASA Space Apps Global Nominee. 2025: Full Stack Developer Intern at Chemtron Science Laboratories and 1st place at SCOE Avishkar. May 2026: B.E. Computer Science, CGPA 9.0. June 2026 to now: AI Software Engineer at Sky Gold and Diamonds."/>
-
-<a id="contact"></a>
-<img src="assets/h-contact.svg" width="100%" alt="Contact"/>
-<img src="assets/contact.svg" width="100%" alt="Let's build something that thinks."/>
-
-<a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/btn-linkedin.svg" height="48" alt="LinkedIn"/></a>
-<a href="mailto:sujalshah630@gmail.com"><img src="assets/btn-email.svg" height="48" alt="Email"/></a>
-<a href="https://sujal690.github.io/sujal690/"><img src="assets/btn-site.svg" height="48" alt="Living portfolio"/></a>
-
-<img src="assets/footer.svg" width="100%" alt="Crafted in Navi Mumbai with code and chlorophyll."/>
+[Portfolio](https://sujal-shah-portfolio.vercel.app) &nbsp;·&nbsp; [LinkedIn](https://linkedin.com/in/sujal-shah-390154303) &nbsp;·&nbsp; [Email](mailto:sujalshah630@gmail.com)
 
 </div>
+
+<br/>
+
+I'm an AI Software Engineer at Sky Gold and Diamonds, where I own the company's AI and automation products end to end, from architecture through deployment and maintenance. I build OCR and vision-language pipelines, computer vision tools and LLM integrations with Python and the MERN stack, and I've turned multi-day manual processes into workflows that finish in minutes.
+
+### Selected work
+
+<img src="assets/work.svg" width="100%" alt="Production systems at Sky Gold and Diamonds: Intelligent Document Automation, Enterprise Order Tracking, Visual Product Search and AI Security Intelligence (in progress)."/>
+
+**Earlier projects**
+
+- **FamilyConnect**: an AI companion for children in orphanages, built on Gemini 1.5 Pro with Next.js and Supabase. [Demo](https://orphan-companion.vercel.app/) · [Source](https://github.com/77Oshnik/FamilyConnect)
+- **GreenMines**: carbon-footprint tracking and sustainability reporting for mining operations. [Demo](https://deployed-one.vercel.app/) · [Source](https://github.com/77Oshnik/GreenMines) · [Video](https://www.youtube.com/watch?v=y9yqTk89NcM)
+- **Schedulr**: multi-role appointment booking with refund-safe cancellations, in Next.js and PostgreSQL. [Demo](https://odoo-appointment-booking-n5n1.vercel.app/) · [Source](https://github.com/sujal690/Odoo_Appointment_Booking) · [Video](https://youtu.be/m92FbcjDhIg)
+
+### Toolkit
+
+**AI**: OCR, computer vision, LLMs and VLMs, RAG, Hugging Face, inference optimization  
+**Build**: Python, TypeScript, React, Next.js, Node.js, Express, MongoDB, PostgreSQL  
+**Ship**: Docker, CI/CD, Vercel, Render, system design
+
+### Activity
+
+<img src="assets/stats.svg" width="100%" alt="GitHub activity over the last 12 months: contributions, commits, repositories, active days, best streak, contribution calendar and top languages."/>
+
+<details>
+<summary><b>Experience and recognition</b></summary>
+<br/>
+
+- **2026 to now**: AI Software Engineer, Sky Gold and Diamonds
+- **2026**: B.E. Computer Science, University of Mumbai, CGPA 9.0
+- **2025**: Full Stack Developer Intern, Chemtron Science Laboratories
+- **2025**: 1st Place, SCOE Avishkar Project Competition
+- **2024**: Grand Finalist, Smart India Hackathon (Ministry of Coal)
+- **2024**: Global Nominee, NASA Space Apps Challenge
+
+</details>
