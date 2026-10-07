@@ -12,6 +12,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 THEME, STATS, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
 THUMBS = sys.argv[4] if len(sys.argv) > 4 else os.path.join(HERE, 'thumbs')
+PHASE = sys.argv[5] if len(sys.argv) > 5 else 'night'
 sys.argv = [sys.argv[0], STATS, OUT]
 import gen3 as G  # noqa: E402  helpers + project diagrams
 
@@ -31,10 +32,28 @@ T = {
                  pal=['#d79a5b', '#a3bd8a', '#c9b98a', '#7f9c6a', '#b59a7a', '#6b7562'],
                  F={'H': 'Syne700', 'B': 'Man400', 'BM': 'Man500', 'BS': 'Man600', 'M': 'GMono400'}),
 }[THEME]
+PHASES = {
+    'space': {
+        'night': dict(panel='#0c1220', panel2='#080c17', acc='#7fdcff', acc2='#f0b264', heat=['#141b2a', '#16344f', '#1d5d86', '#3aa0d8', '#bfeaff'], nebA='#4f7fd0', nebB='#8a5ad0'),
+        'dawn': dict(panel='#171320', panel2='#0f0c17', acc='#ffb38a', acc2='#9fd8ff', heat=['#1d1824', '#3c2838', '#6c3e52', '#c07070', '#ffd0a8'], nebA='#e08a7a', nebB='#7a6ad0'),
+        'day': dict(panel='#0d1a28', panel2='#09131e', acc='#6fd6ff', acc2='#ffd166', heat=['#132131', '#143f5a', '#1a6e94', '#38b2dc', '#c4f2ff'], nebA='#3fa0d8', nebB='#4ad0c0'),
+        'dusk': dict(panel='#1b1222', panel2='#120c18', acc='#ffa070', acc2='#c79bff', heat=['#1f1626', '#3c2140', '#6c3356', '#d0665e', '#ffc078'], nebA='#e0706a', nebB='#a060d0'),
+    },
+    'leaf': {
+        'dawn': dict(panel='#1c1b1a', panel2='#141312', acc='#ffa985', acc2='#a9cf8a', heat=['#22221f', '#3e4a30', '#62803f', '#a9c86a', '#ffb08a'], nebA='#ff9f80', nebB='#a9cf8a'),
+        'day': dict(panel='#13211a', panel2='#0e1913', acc='#f4c94e', acc2='#8fd16a', heat=['#182619', '#265c2b', '#3c8c3a', '#78c45a', '#f4c94e'], nebA='#f4c94e', nebB='#6fbf5a'),
+        'dusk': dict(panel='#211816', panel2='#181110', acc='#ff9a5a', acc2='#d9a65e', heat=['#271d19', '#4a3622', '#7a542a', '#c4823a', '#ff9a5a'], nebA='#ff8a5a', nebB='#c9705a'),
+        'night': dict(panel='#0e1619', panel2='#0a1113', acc='#dfe878', acc2='#8fc0dc', heat=['#131c1e', '#1c3a35', '#2a5e4e', '#4f9a6e', '#dfe878'], nebA='#9fd0ff', nebB='#5fa080'),
+    },
+}
+T.update(PHASES[THEME][PHASE])
+T['pal'] = [T['acc'], T['acc2'], '#b6cfe2' if THEME == 'space' else '#c9b98a', '#8b9fbe' if THEME == 'space' else '#7f9c6a', '#b8b0a2', '#6b7562']
+NEB_A, NEB_B = T['nebA'], T['nebB']
 P1, P2, TEXT, SOFT, MUTED, DIM, ACC, ACC2, HAIR, HEAT, PAL = (T[k] for k in ('panel', 'panel2', 'text', 'soft', 'muted', 'dim', 'acc', 'acc2', 'hair', 'heat', 'pal'))
 F = T['F']
 # the shared Svg class looks fonts up through G.F; map our roles plus the diagram roles gen3 uses
 G.F = {**F, 'D': F['H'], 'D7': F['H'], 'BB': F['BS'], 'MB': F['BM'], 'S': F['BM'], 'M': F['B']}
+G.F['MO'] = 'GMono500'
 G.LEAF, G.LIME, G.GOLD, G.MOSS = ACC2 if THEME == 'leaf' else ACC, ACC, T['acc2'] if THEME == 'space' else ACC, MUTED
 G.CREAM, G.SOFT, G.MUTED, G.LINE = TEXT, SOFT, MUTED, HAIR
 Svg, W, wrap, fade, EASE, SWAY = G.Svg, G.W, G.wrap, G.fade, G.EASE, G.SWAY
@@ -59,8 +78,8 @@ def decor(s, x, y, w, h, r, k):
     R = _rng(int(x * 7 + y * 13 + w * 31 + h * 17 + 5))
     o = f'<g clip-path="url(#{cid})">'
     if THEME == 'space':
-        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="#5b86c6" stop-opacity=".20"/><stop offset=".55" stop-color="#5b86c6" stop-opacity=".05"/><stop offset="1" stop-color="#5b86c6" stop-opacity="0"/></radialGradient>'
-            f'<radialGradient id="nb{k}b" cx="0" cy="1" r="1"><stop offset="0" stop-color="#9a6fc8" stop-opacity=".12"/><stop offset="1" stop-color="#9a6fc8" stop-opacity="0"/></radialGradient>')
+        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".22"/><stop offset=".55" stop-color="{NEB_A}" stop-opacity=".06"/><stop offset="1" stop-color="{NEB_A}" stop-opacity="0"/></radialGradient>'
+            f'<radialGradient id="nb{k}b" cx="0" cy="1" r="1"><stop offset="0" stop-color="{NEB_B}" stop-opacity=".14"/><stop offset="1" stop-color="{NEB_B}" stop-opacity="0"/></radialGradient>')
         o += f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}a)"/><rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}b)"/>'
         n = max(14, int(w * h / 5200))
         for i in range(n):
@@ -77,8 +96,8 @@ def decor(s, x, y, w, h, r, k):
             o += (f'<g transform="translate({cx:.0f} {cy:.0f}) rotate(-18)"><ellipse rx="{rx:.0f}" ry="{ry:.0f}" fill="none" stroke="rgba(190,214,255,.10)"/>'
                   f'<circle r="2.6" fill="#cfe0f8" opacity=".75"><animateMotion dur="38s" repeatCount="indefinite" path="M{rx:.0f} 0 A{rx:.0f} {ry:.0f} 0 1 1 {-rx:.0f} 0 A{rx:.0f} {ry:.0f} 0 1 1 {rx:.0f} 0"/></circle></g>')
     else:
-        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="#e0a45f" stop-opacity=".13"/><stop offset="1" stop-color="#e0a45f" stop-opacity="0"/></radialGradient>'
-            f'<radialGradient id="nb{k}b" cx="0" cy="1" r="1"><stop offset="0" stop-color="#7fa35a" stop-opacity=".16"/><stop offset="1" stop-color="#7fa35a" stop-opacity="0"/></radialGradient>')
+        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".15"/><stop offset="1" stop-color="{NEB_A}" stop-opacity="0"/></radialGradient>'
+            f'<radialGradient id="nb{k}b" cx="0" cy="1" r="1"><stop offset="0" stop-color="{NEB_B}" stop-opacity=".16"/><stop offset="1" stop-color="{NEB_B}" stop-opacity="0"/></radialGradient>')
         o += f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}a)"/><rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}b)"/>'
         if w > 300:  # leaf veins fanning from the lower right corner
             cx, cy = x + w + 10, y + h + 34
@@ -89,6 +108,23 @@ def decor(s, x, y, w, h, r, k):
             px, d = x + R() * w, 14 + R() * 12
             o += (f'<circle cx="{px:.1f}" cy="{y + h:.1f}" r="{0.8 + R() * 1.1:.2f}" fill="#f2e1b3" opacity="0"><animateTransform attributeName="transform" type="translate" values="0 0;{(R() - .5) * 26:.0f} {-h - 10:.0f}" dur="{d:.1f}s" begin="-{R() * d:.1f}s" repeatCount="indefinite"/>'
                   f'<animate attributeName="opacity" values="0;.5;.5;0" keyTimes="0;.12;.8;1" dur="{d:.1f}s" begin="-{R() * d:.1f}s" repeatCount="indefinite"/></circle>')
+    if THEME == 'space':
+        s.d(f'<linearGradient id="sc{k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{ACC}" stop-opacity="0"/><stop offset=".9" stop-color="{ACC}" stop-opacity=".05"/><stop offset="1" stop-color="{ACC}" stop-opacity=".13"/></linearGradient>')
+        d = 7 + (k % 4) * 1.3
+        o += (f'<rect x="{x}" y="{y - 70}" width="{w}" height="70" fill="url(#sc{k})"><animateTransform attributeName="transform" type="translate" values="0 0;0 {h + 70}" dur="{d:.1f}s" begin="-{(k * 1.7) % d:.1f}s" repeatCount="indefinite"/></rect>')
+    else:
+        s.d(f'<radialGradient id="dp{k}"><stop offset="0" stop-color="#fff3c8" stop-opacity=".09"/><stop offset="1" stop-color="#fff3c8" stop-opacity="0"/></radialGradient>')
+        rr = min(w, h) * 0.6
+        o += (f'<ellipse cx="{x + w * 0.3:.0f}" cy="{y + h * 0.4:.0f}" rx="{rr:.0f}" ry="{rr * 0.7:.0f}" fill="url(#dp{k})"><animateTransform attributeName="transform" type="translate" values="0 0;{w * 0.4:.0f} {h * 0.15:.0f};0 0" dur="{18 + k % 5 * 3}s" repeatCount="indefinite" {SWAY}/></ellipse>')
+    return o + '</g>'
+
+
+def brackets(x, y, w, h, arm=16):
+    if THEME != 'space':
+        return ''
+    o = f'<g stroke="{ACC}" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".75"><animate attributeName="opacity" values=".75;.4;.75" dur="5s" repeatCount="indefinite"/>'
+    for px, py, sx, sy in ((x + 6, y + 6, 1, 1), (x + w - 6, y + 6, -1, 1), (x + 6, y + h - 6, 1, -1), (x + w - 6, y + h - 6, -1, -1)):
+        o += f'<path d="M{px} {py + sy * arm} V{py} H{px + sx * arm}"/>'
     return o + '</g>'
 
 
@@ -97,7 +133,7 @@ def panel(s, x, y, w, h, r=16, gid='pg'):
         s.d(f'<linearGradient id="{gid}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{P1}"/><stop offset="1" stop-color="{P2}"/></linearGradient>')
     _pc[0] += 1
     return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="url(#{gid})"/>' + decor(s, x, y, w, h, r, _pc[0]) +
-            f'<rect x="{x + .5}" y="{y + .5}" width="{w - 1}" height="{h - 1}" rx="{r - .5}" fill="none" stroke="{HAIR}"/>')
+            f'<rect x="{x + .5}" y="{y + .5}" width="{w - 1}" height="{h - 1}" rx="{r - .5}" fill="none" stroke="{HAIR}"/>' + brackets(x, y, w, h))
 
 
 G.panel = panel  # project diagram cards from gen3 use this panel
@@ -167,11 +203,17 @@ def pill(name, label, primary=False):
     s.save(name)
 
 
+IDX = {'about': '01', 'build': '02', 'activity': '03', 'work': '04', 'earlier': '05', 'toolkit': '06', 'experience': '07', 'contact': '08'}
+
+
 def header(slug, title):
     w, h = 880, 44
     s = Svg(w, h, title)
-    s += s.t(2, 28, title, 'H', 21, TEXT)
-    lx = 2 + W('H', title, 21) + 18
+    n = IDX.get(slug, '')
+    s += s.t(2, 28, n, 'MO', 12, ACC, ls=2) if THEME == 'space' else s.t(2, 28, n, 'BS', 13, ACC)
+    tx = 2 + W('MO' if THEME == 'space' else 'BS', n, 12 if THEME == 'space' else 13) + (16 if THEME == 'space' else 12)
+    s += s.t(tx, 28, title, 'H', 21, TEXT)
+    lx = tx + W('H', title, 21) + 18
     s += f'<path d="M{lx:.0f} 21 H{w - 54}" stroke="{HAIR}"/>'
     ox, oy = w - 26, 21
     if THEME == 'space':   # a planet with a moon that keeps orbiting
@@ -382,6 +424,83 @@ def project_card(slug, title, date, desc, stack, thumb_b64):
     s.save(f'project-{slug}.svg')
 
 
+# ================================================================ time-of-day bar
+def timebar():
+    w, h = 880, 54
+    names = [('dawn', 'Morning'), ('day', 'Afternoon'), ('dusk', 'Evening'), ('night', 'Night')]
+    cur = [n for n, _ in names].index(PHASE)
+    s = Svg(w, h, f'This profile follows the time of day in India. Now showing: {names[cur][1].lower()}.')
+    s += panel(s, 0, 0, w, h, 27)
+    x0, x1, y = 230, 870, 27
+    s += s.t(24, y + 5, 'India time', 'BS', 13, MUTED) + s.t(24 + W('BS', 'India time', 13) + 10, y + 5, f'· {names[cur][1].lower()} edition', 'B', 13, DIM)
+    step = (x1 - x0) / 4
+    cx = x0 + step * (cur + 0.5)
+    for i, (n, lab) in enumerate(names):
+        x = x0 + step * (i + 0.5)
+        on = i == cur
+        if on:
+            if n == 'night':
+                icon = f'<path d="M5 -6 A7.5 7.5 0 1 0 6 5 A6 6 0 0 1 5 -6 Z" fill="{ACC}"/>'
+            else:
+                icon = f'<circle r="5.5" fill="{ACC}"/>' + ''.join(f'<path d="M{7.5 * __import__("math").cos(a):.1f} {7.5 * __import__("math").sin(a):.1f} L{10.5 * __import__("math").cos(a):.1f} {10.5 * __import__("math").sin(a):.1f}" stroke="{ACC}" stroke-width="1.6" stroke-linecap="round"/>' for a in [k * 0.785 for k in range(8)])
+            s += f'<rect x="{x - W("BS", lab, 13) / 2 - 38:.0f}" y="{y - 15}" width="{W("BS", lab, 13) + 50:.0f}" height="30" rx="15" fill="{ACC}" fill-opacity=".10" stroke="{ACC}" stroke-opacity=".4"/>'
+            s += (f'<g transform="translate({x - W("BS", lab, 13) / 2 - 18:.0f} {y})"><circle r="15" fill="{ACC}" opacity=".18"><animate attributeName="r" values="11;17;11" dur="3s" repeatCount="indefinite"/><animate attributeName="opacity" values=".25;.06;.25" dur="3s" repeatCount="indefinite"/></circle>'
+                  f'<g><animateTransform attributeName="transform" type="rotate" values="0;{-20 if n == "night" else 45};0" dur="6s" repeatCount="indefinite" {SWAY}/>{icon}</g></g>')
+            s += s.t(x + 4, y + 4.5, lab, 'BS', 13, TEXT, 'middle')
+        else:
+            s += f'<circle cx="{x - W("B", lab, 12.5) / 2 - 10:.0f}" cy="{y}" r="2.5" fill="{DIM}"/>' + s.t(x, y + 4.5, lab, 'B', 12.5, MUTED, 'middle')
+    s.save('timebar.svg')
+
+
+# ================================================================ toolkit
+TOOL = [('Intelligence', ['OCR', 'Computer vision', 'VLM', 'LLM', 'RAG', 'Hugging Face']),
+        ('Build', ['Python', 'TypeScript', 'React', 'Next.js', 'Node.js', 'MongoDB', 'PostgreSQL']),
+        ('Ship', ['Docker', 'CI/CD', 'Git', 'Vercel', 'System design'])]
+
+
+def toolkit():
+    w, h = 880, 360
+    s = Svg(w, h, 'Toolkit. ' + ' '.join(f'{g}: {", ".join(l)}.' for g, l in TOOL))
+    s += panel(s, 0, 0, w, h)
+    cols = [ACC, ACC2, SOFT]
+    # legend
+    for i, (g, l) in enumerate(TOOL if THEME == 'space' else []):
+        s += f'<circle cx="34" cy="{36 + i * 24}" r="4" fill="{cols[i]}"/>' + s.t(46, 40.5 + i * 24, g, 'BS', 13, TEXT) + s.t(46 + W('BS', g, 13) + 8, 40.5 + i * 24, f'{len(l)}', 'B', 12, MUTED)
+    if THEME == 'space':
+        cx, cy = 470, 196
+        orbits = [(150, 48, 70), (262, 86, 100), (378, 124, 130)]
+        s.d(f'<radialGradient id="core"><stop offset="0" stop-color="#fff6e0"/><stop offset=".35" stop-color="{ACC2}"/><stop offset="1" stop-color="{ACC2}" stop-opacity="0"/></radialGradient>')
+        for rx, ry, _ in orbits:
+            s += f'<ellipse cx="{cx}" cy="{cy}" rx="{rx}" ry="{ry}" fill="none" stroke="{ACC}" stroke-opacity=".16" stroke-dasharray="2 5"/>'
+        s += (f'<circle cx="{cx}" cy="{cy}" r="34" fill="url(#core)"><animate attributeName="r" values="32;37;32" dur="4s" repeatCount="indefinite"/></circle>'
+              f'<circle cx="{cx}" cy="{cy}" r="13" fill="{ACC2}"/>' + s.t(cx, cy + 4.5, 'AI', 'H', 12, '#1a1206', 'middle'))
+        for i, (g, l) in enumerate(TOOL):
+            rx, ry, dur = orbits[i]
+            path = f'M{cx + rx} {cy} A{rx} {ry} 0 1 1 {cx - rx} {cy} A{rx} {ry} 0 1 1 {cx + rx} {cy}'
+            for j, name in enumerate(l):
+                lw = W('BM', name, 12) + 22
+                beg = -dur * j / len(l)
+                s += (f'<g><animateMotion dur="{dur}s" begin="{beg:.1f}s" repeatCount="indefinite" path="{path}"/>'
+                      f'<rect x="{-lw / 2:.1f}" y="-12" width="{lw:.1f}" height="24" rx="12" fill="{P2}" stroke="{cols[i]}" stroke-opacity=".55"/>'
+                      f'<circle cx="{-lw / 2 + 11:.1f}" cy="0" r="3" fill="{cols[i]}"/>' + s.t(-lw / 2 + 18, 4.2, name, 'BM', 12, TEXT) + '</g>')
+    else:
+        rows = [96, 196, 296]
+        for i, (g, l) in enumerate(TOOL):
+            y0 = rows[i]
+            x0, x1 = 200, w - 30
+            vine = f'M{x0} {y0}' + ''.join(f' Q{x0 + (k + .5) * (x1 - x0) / 8:.0f} {y0 + (10 if k % 2 else -10)} {x0 + (k + 1) * (x1 - x0) / 8:.0f} {y0}' for k in range(8))
+            s += f'<path d="{vine}" fill="none" stroke="{ACC2}" stroke-opacity=".45" stroke-width="2" stroke-linecap="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"><animate attributeName="stroke-dashoffset" from="1" to="0" begin="{.2 + i * .3:.1f}s" dur="1.6s" fill="freeze" {EASE}/></path>'
+            s += f'<circle cx="34" cy="{y0}" r="4" fill="{cols[i]}"/>' + s.t(46, y0 + 5, g, 'BS', 14, TEXT)
+            step = (x1 - x0 - 40) / len(l)
+            for j, name in enumerate(l):
+                lx = x0 + 20 + j * step
+                b = .6 + i * .3 + j * .12
+                s += (f'<g transform="translate({lx:.0f} {y0})" opacity="0"><animate attributeName="opacity" from="0" to="1" begin="{b:.2f}s" dur=".5s" fill="freeze"/>'
+                      f'<g><animateTransform attributeName="transform" type="rotate" values="-10;10;-10" dur="{3.4 + (j % 3) * .6:.1f}s" begin="-{j * .7:.1f}s" repeatCount="indefinite" {SWAY}/>'
+                      f'<path d="{G.GINKGO}" fill="{cols[i]}" transform="translate(0 -15) scale(1.7)"/></g>' + s.t(0, 26, name, 'BM', 12, SOFT, 'middle') + '</g>')
+    s.save('toolkit.svg')
+
+
 # ================================================================ experience
 def experience():
     w, h = 880, 236
@@ -430,7 +549,7 @@ if __name__ == '__main__':
     pill('btn-portfolio.svg', 'Portfolio', primary=True); pill('btn-linkedin.svg', 'LinkedIn'); pill('btn-email.svg', 'Email')
     if THEME == 'leaf':
         pill('btn-site.svg', 'Leaf site')
-    for slug, title in [('about', 'About'), ('build', 'How I build'), ('activity', 'Activity'), ('work', 'Selected work'), ('earlier', 'Earlier projects'), ('experience', 'Experience'), ('contact', 'Contact')]:
+    for slug, title in [('about', 'About'), ('build', 'How I build'), ('activity', 'Activity'), ('work', 'Selected work'), ('earlier', 'Earlier projects'), ('toolkit', 'Toolkit'), ('experience', 'Experience'), ('contact', 'Contact')]:
         header(slug, title)
     about(); pipeline(); activity()
     G.work_pair('work-a.svg', G.WORK[:2]); G.work_pair('work-b.svg', G.WORK[2:])
@@ -449,5 +568,5 @@ if __name__ == '__main__':
         im = Image.open(os.path.join(THUMBS, f'thumb_{slug}.png')).convert('RGB').resize((540, 321), Image.LANCZOS)
         bb = io.BytesIO(); im.save(bb, 'JPEG', quality=74, optimize=True)
         project_card(slug, t, d, desc, stack, base64.b64encode(bb.getvalue()).decode())
-    experience(); contact()
+    timebar(); toolkit(); experience(); contact()
     print(THEME, len(os.listdir(OUT)), 'files', sum(os.path.getsize(os.path.join(OUT, f)) for f in os.listdir(OUT)) // 1024, 'KB')

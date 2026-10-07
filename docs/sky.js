@@ -11,19 +11,19 @@ const mixK = (a, b, t) => (Array.isArray(a) ? a.map((v, i) => mixK(v, b[i], t)) 
 
 // key looks over a 24 hour day (hours are local clock hours)
 const K = [
-  { h: 0, top: '#050a14', mid: '#0b1626', hor: '#16282f', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.10, mistC: '#2a3c52' },
-  { h: 5, top: '#060b16', mid: '#0d1828', hor: '#1a2b34', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.12, mistC: '#2a3c52' },
-  { h: 6.3, top: '#2a4c63', mid: '#b48c8e', hor: '#f4bf80', hill: ['#34463a', '#2a3b2f', '#1b2a20'], card: '#15221a', tint: [255, 168, 108, 0.15], star: 0.1, cloudC: '#ffd2b4', cloudA: 0.55, sunI: 1, rays: 0.10, mist: 0.34, mistC: '#f2cdb0' },
-  { h: 8.6, top: '#3f7aa0', mid: '#8fbcc6', hor: '#f1dcae', hill: ['#456a45', '#385a3b', '#26442d'], card: '#13241a', tint: [255, 236, 200, 0.06], star: 0, cloudC: '#ffffff', cloudA: 0.6, sunI: 1, rays: 0.09, mist: 0.2, mistC: '#e8eed8' },
-  { h: 12, top: '#2f6f9e', mid: '#78b3d0', hor: '#c6e2e6', hill: ['#44703f', '#37603a', '#264a2e'], card: '#12251a', tint: [255, 255, 240, 0.02], star: 0, cloudC: '#ffffff', cloudA: 0.7, sunI: 1, rays: 0.06, mist: 0.1, mistC: '#dcecec' },
-  { h: 16, top: '#3a76a2', mid: '#86b3c8', hor: '#ead9b0', hill: ['#46683c', '#385836', '#26442b'], card: '#13241a', tint: [255, 230, 190, 0.05], star: 0, cloudC: '#fff6e6', cloudA: 0.62, sunI: 1, rays: 0.09, mist: 0.12, mistC: '#ecdcb8' },
-  { h: 17.9, top: '#445f86', mid: '#cf9a7c', hor: '#f6b25e', hill: ['#4f4a30', '#3d4430', '#2a3626'], card: '#221a17', tint: [255, 160, 84, 0.16], star: 0, cloudC: '#ffc08a', cloudA: 0.6, sunI: 1, rays: 0.12, mist: 0.24, mistC: '#f0b88a' },
-  { h: 19.1, top: '#262c52', mid: '#86486a', hor: '#e07a4e', hill: ['#2c2531', '#221f2b', '#161922'], card: '#201919', tint: [255, 118, 84, 0.12], star: 0.35, cloudC: '#e8907c', cloudA: 0.45, sunI: 0.6, rays: 0.08, mist: 0.2, mistC: '#c88a8a' },
-  { h: 20.6, top: '#0e1630', mid: '#27294a', hor: '#583a4c', hill: ['#171a24', '#101520', '#0a0e16'], card: '#0f1514', tint: [56, 76, 150, 0.22], star: 0.85, cloudC: '#4c5478', cloudA: 0.3, sunI: 0, rays: 0, mist: 0.14, mistC: '#3a3a5a' },
-  { h: 22, top: '#050a14', mid: '#0b1626', hor: '#16282f', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.10, mistC: '#2a3c52' },
-  { h: 24, top: '#050a14', mid: '#0b1626', hor: '#16282f', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.10, mistC: '#2a3c52' },
+  { h: 0, acc: '#dfe878', top: '#050a14', mid: '#0b1626', hor: '#16282f', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.10, mistC: '#2a3c52' },
+  { h: 5, acc: '#dfe878', top: '#060b16', mid: '#0d1828', hor: '#1a2b34', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.12, mistC: '#2a3c52' },
+  { h: 6.3, acc: '#ffa985', top: '#2a4c63', mid: '#b48c8e', hor: '#f4bf80', hill: ['#34463a', '#2a3b2f', '#1b2a20'], card: '#15221a', tint: [255, 168, 108, 0.15], star: 0.1, cloudC: '#ffd2b4', cloudA: 0.55, sunI: 1, rays: 0.10, mist: 0.34, mistC: '#f2cdb0' },
+  { h: 8.6, acc: '#f6b85a', top: '#3f7aa0', mid: '#8fbcc6', hor: '#f1dcae', hill: ['#456a45', '#385a3b', '#26442d'], card: '#13241a', tint: [255, 236, 200, 0.06], star: 0, cloudC: '#ffffff', cloudA: 0.6, sunI: 1, rays: 0.09, mist: 0.2, mistC: '#e8eed8' },
+  { h: 12, acc: '#f4c94e', top: '#2f6f9e', mid: '#78b3d0', hor: '#c6e2e6', hill: ['#44703f', '#37603a', '#264a2e'], card: '#12251a', tint: [255, 255, 240, 0.02], star: 0, cloudC: '#ffffff', cloudA: 0.7, sunI: 1, rays: 0.06, mist: 0.1, mistC: '#dcecec' },
+  { h: 16, acc: '#f6b45a', top: '#3a76a2', mid: '#86b3c8', hor: '#ead9b0', hill: ['#46683c', '#385836', '#26442b'], card: '#13241a', tint: [255, 230, 190, 0.05], star: 0, cloudC: '#fff6e6', cloudA: 0.62, sunI: 1, rays: 0.09, mist: 0.12, mistC: '#ecdcb8' },
+  { h: 17.9, acc: '#ff9a5a', top: '#445f86', mid: '#cf9a7c', hor: '#f6b25e', hill: ['#4f4a30', '#3d4430', '#2a3626'], card: '#221a17', tint: [255, 160, 84, 0.16], star: 0, cloudC: '#ffc08a', cloudA: 0.6, sunI: 1, rays: 0.12, mist: 0.24, mistC: '#f0b88a' },
+  { h: 19.1, acc: '#ff8a72', top: '#262c52', mid: '#86486a', hor: '#e07a4e', hill: ['#2c2531', '#221f2b', '#161922'], card: '#201919', tint: [255, 118, 84, 0.12], star: 0.35, cloudC: '#e8907c', cloudA: 0.45, sunI: 0.6, rays: 0.08, mist: 0.2, mistC: '#c88a8a' },
+  { h: 20.6, acc: '#c9b0ff', top: '#0e1630', mid: '#27294a', hor: '#583a4c', hill: ['#171a24', '#101520', '#0a0e16'], card: '#0f1514', tint: [56, 76, 150, 0.22], star: 0.85, cloudC: '#4c5478', cloudA: 0.3, sunI: 0, rays: 0, mist: 0.14, mistC: '#3a3a5a' },
+  { h: 22, acc: '#dfe878', top: '#050a14', mid: '#0b1626', hor: '#16282f', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.10, mistC: '#2a3c52' },
+  { h: 24, acc: '#dfe878', top: '#050a14', mid: '#0b1626', hor: '#16282f', hill: ['#0d1a16', '#09130f', '#050c09'], card: '#0b1311', tint: [14, 26, 70, 0.42], star: 1, cloudC: '#3a4a66', cloudA: 0.22, sunI: 0, rays: 0, mist: 0.10, mistC: '#2a3c52' },
 ];
-const KP = K.map((k) => ({ h: k.h, top: hx(k.top), mid: hx(k.mid), hor: hx(k.hor), hill: k.hill.map(hx), card: hx(k.card), tint: k.tint, star: k.star, cloudC: hx(k.cloudC), cloudA: k.cloudA, sunI: k.sunI, rays: k.rays, mist: k.mist, mistC: hx(k.mistC) }));
+const KP = K.map((k) => ({ h: k.h, top: hx(k.top), mid: hx(k.mid), hor: hx(k.hor), hill: k.hill.map(hx), card: hx(k.card), tint: k.tint, star: k.star, cloudC: hx(k.cloudC), cloudA: k.cloudA, sunI: k.sunI, rays: k.rays, mist: k.mist, mistC: hx(k.mistC), acc: hx(k.acc) }));
 function sample(h) {
   h = ((h % 24) + 24) % 24; let i = 0; while (i < KP.length - 2 && h >= KP[i + 1].h) i++;
   const a = KP[i], b = KP[i + 1], f = smooth((h - a.h) / (b.h - a.h)), o = {};
@@ -103,7 +103,7 @@ export function createSky(canvas, onVars) {
     const key = P.hill[0].map((v) => v >> 3).join() + P.cloudC.map((v) => v >> 3).join() + (P.hill[1][1] >> 3);
     if (key !== buildKey && t - lastBuild > 0.12) { build(); buildKey = key; lastBuild = t; }
     // css variables follow the sky
-    const vk = P.card.map((v) => v | 0).join() + '|' + P.tint[3].toFixed(2);
+    const vk = P.card.map((v) => v | 0).join() + '|' + P.acc.map((v) => v | 0).join() + '|' + P.tint[3].toFixed(2);
     if (vk !== lastVarKey) { lastVarKey = vk; onVars && onVars(P, phase()); }
 
     const px = (pointer.x - 0.5), sc = scroll;
@@ -180,6 +180,10 @@ export function createSky(canvas, onVars) {
       c.fillStyle = `rgba(255,240,200,${0.5 * P.sunI})`;
       for (const m of motes) { m.y -= m.v * 0.016 * (reduce ? 0 : 1); if (m.y < -0.02) m.y = 1.02; const x = (m.x + 0.02 * Math.sin(t * 0.5 + m.ph)) * w, y = m.y * h; c.globalAlpha = 0.25 + 0.5 * Math.abs(Math.sin(t * 0.8 + m.ph)); c.beginPath(); c.arc(x, y, 0.9 + m.z * 1.3, 0, TAU); c.fill(); }
       c.globalAlpha = 1;
+    }
+    if (P.star > 0.45 && !reduce) { // a soft lantern glow follows the pointer at night
+      const a = clamp((P.star - 0.45) / 0.4), lx = pointer.x * w, ly = pointer.y * h, lg = c.createRadialGradient(lx, ly, 0, lx, ly, 180);
+      lg.addColorStop(0, `rgba(255,214,140,${0.16 * a})`); lg.addColorStop(1, 'rgba(255,214,140,0)'); c.globalCompositeOperation = 'lighter'; c.fillStyle = lg; c.fillRect(lx - 180, ly - 180, 360, 360); c.globalCompositeOperation = 'source-over';
     }
     if (P.star > 0.45) { // fireflies; they drift toward the pointer
       const a = clamp((P.star - 0.45) / 0.4);

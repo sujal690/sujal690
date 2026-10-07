@@ -1,7 +1,8 @@
-"""Pick the README banner for the current time of day (India time) and copy it over hero.webp in both themes.
+"""Switch the whole README to the current time of day (India time): banner, card colours and accents.
 
-Phases: dawn (morning, 05:00-11:30), day (afternoon, 11:30-16:30), dusk (evening, 16:30-20:00), night (otherwise).
-Run by the scheduled workflow every 30 minutes; prints the chosen phase.
+Each theme keeps four complete sets in assets/<theme>/phase/<dawn|day|dusk|night>/; the current one is copied
+over assets/<theme>/, which is what README.md shows. Phases: dawn 05:00-11:30 (morning), day 11:30-16:30
+(afternoon), dusk 16:30-20:00 (evening), night otherwise. Run every 30 minutes by the scheduled workflow.
 """
 import datetime as dt
 import filecmp
@@ -16,13 +17,15 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 def phase(now=None):
     now = now or dt.datetime.now(IST)
     h = now.hour + now.minute / 60
-    return 'dawn' if 5 <= h < 11.5 else 'day' if h < 16.5 and h >= 11.5 else 'dusk' if 16.5 <= h < 20 else 'night'
+    return 'dawn' if 5 <= h < 11.5 else 'day' if 11.5 <= h < 16.5 else 'dusk' if 16.5 <= h < 20 else 'night'
 
 
 if __name__ == '__main__':
     ph = sys.argv[1] if len(sys.argv) > 1 else phase()
     for theme in ('space', 'leaf'):
-        src, dst = (os.path.join(ROOT, 'assets', theme, f) for f in (f'hero-{ph}.webp', 'hero.webp'))
-        if not os.path.exists(dst) or not filecmp.cmp(src, dst, shallow=False):
-            shutil.copyfile(src, dst)
+        src_dir = os.path.join(ROOT, 'assets', theme, 'phase', ph)
+        for f in os.listdir(src_dir):
+            src, dst = os.path.join(src_dir, f), os.path.join(ROOT, 'assets', theme, f)
+            if not os.path.exists(dst) or not filecmp.cmp(src, dst, shallow=False):
+                shutil.copyfile(src, dst)
     print(ph)

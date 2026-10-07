@@ -1,0 +1,121 @@
+<!doctype html><meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&family=Orbitron:wght@600;700;800&display=swap">
+<style>
+ html,body{margin:0;background:#04060b}
+ #stage{position:relative;width:1200px;height:600px;overflow:hidden;font-family:Geist,sans-serif;color:#eef2f7}
+ canvas{position:absolute;inset:0;width:100%;height:100%}
+ .shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(3,5,10,.76) 0%,rgba(3,5,10,.44) 34%,rgba(3,5,10,0) 57%),linear-gradient(0deg,rgba(3,5,10,.38),rgba(3,5,10,0) 30%)}
+ #txt{position:absolute;left:68px;top:112px;width:600px}
+ .chip{display:inline-flex;align-items:center;gap:10px;height:32px;padding:0 14px 0 6px;border-radius:99px;background:rgba(8,14,24,.6);box-shadow:inset 0 0 0 1px rgba(127,220,255,.28);font-size:14px;color:#d4e3f2;margin-bottom:24px}
+ .chip img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+ .chip i{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+ .tag{font:500 11px 'Geist Mono',monospace;letter-spacing:.22em;color:#7fdcff;margin-bottom:10px;opacity:.85}
+ h1{position:relative;margin:0;font:800 68px/1 Orbitron,sans-serif;letter-spacing:.02em;color:#f2f6fb;text-shadow:0 2px 30px rgba(0,0,0,.45)}
+ h1 .ghost{position:absolute;inset:0;color:transparent;pointer-events:none}
+ .role{margin-top:20px;font-weight:500;font-size:21px;letter-spacing:-.005em;height:30px;white-space:nowrap}
+ .role em{font-style:normal;color:#a6b4c4;font-weight:400}
+ .rot{display:inline-block;position:relative;width:260px;height:30px;vertical-align:top;margin-left:6px}
+ .rot span{position:absolute;left:0;top:0;color:var(--acc);font-weight:600;white-space:nowrap}
+ p{margin:12px 0 0;font-weight:300;font-size:17px;line-height:1.55;color:#c6d0dc;max-width:440px}
+</style>
+<div id="stage">
+  <canvas id="c" width="1200" height="600"></canvas>
+  <div class="shade"></div>
+  <canvas id="hud" width="1200" height="600"></canvas>
+  <div id="txt">
+    <div class="chip"><img src="photo.png"><i></i><span id="greet">Good morning</span><span style="opacity:.55">· Navi Mumbai</span></div>
+    <div class="tag" id="tag">// AI SOFTWARE ENGINEER</div>
+    <h1 id="name">Sujal Shah</h1>
+    <div class="role">At Sky Gold and Diamonds, building<span class="rot" id="rot"><span>OCR pipelines</span><span>vision systems</span><span>LLM workflows</span><span>automation</span></span></div>
+    <p>Production AI and full-stack systems, from the first prototype to tools the whole company runs on.</p>
+  </div>
+</div>
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js","three/addons/":"./node_modules/three/examples/jsm/"}}</script>
+<script type="module">
+import { createSolar } from './solar3.js?v=7';
+const phase = new URLSearchParams(location.search).get('phase') || 'dawn';
+const T = 16;
+const ACC = { dawn: '#ffb38a', day: '#7fdcff', dusk: '#ffa070', night: '#9fe3ff' }[phase];
+const HOLO = '127,220,255';
+document.documentElement.style.setProperty('--acc', ACC);
+const pl = await createSolar({ canvas: document.getElementById('c'), width: 1200, height: 600, T, phase });
+document.getElementById('greet').textContent = pl.greet;
+const hud = document.getElementById('hud').getContext('2d');
+const words = [...document.querySelectorAll('#rot span')], name = document.getElementById('name');
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v)), ease = (v) => 1 - Math.pow(1 - clamp(v), 3), sm = (v) => { v = clamp(v); return v * v * (3 - 2 * v); };
+const PIPE = ['OCR', 'VISION', 'VLM', 'RAG', 'LLM', 'AUTOMATION'];
+function type(str, k) { const n = Math.floor(str.length * clamp(k)); return str.slice(0, n) + (k > 0 && k < 1 ? '▌' : ''); }
+
+function drawHUD(t, d) {
+  const x = hud, W = 1200, H = 600, w = (t / T) * Math.PI * 2;
+  x.clearRect(0, 0, W, H);
+  // frame brackets, like the main portfolio's HUD panels
+  x.strokeStyle = `rgba(${HOLO},.5)`; x.lineWidth = 1.4;
+  const br = (px, py, sx, sy) => { x.beginPath(); x.moveTo(px, py + sy * 22); x.lineTo(px, py); x.lineTo(px + sx * 22, py); x.stroke(); };
+  br(18, 18, 1, 1); br(W - 18, 18, -1, 1); br(18, H - 18, 1, -1); br(W - 18, H - 18, -1, -1);
+  x.font = '500 10px "Geist Mono"'; x.fillStyle = `rgba(${HOLO},.55)`; x.textAlign = 'right';
+  x.fillText(`SYS.ORBIT  ${phase.toUpperCase()}  ·  LOOP ${String(Math.floor(t * 10) % 1000).padStart(3, '0')}`, W - 30, 32); x.textAlign = 'left';
+  // holographic graticule on the planet, brightest under the sweep
+  const [cx, cy] = d.center, R = d.r;
+  const sweep = ((t % 8) / 8) * 1.6 - 0.3;                     // 0..1 across the disc, every 8 s
+  const sx = cx - R + sweep * 2 * R;
+  x.save(); x.beginPath(); x.arc(cx, cy, R * 1.002, 0, Math.PI * 2); x.clip();
+  for (const line of d.grat) {
+    x.beginPath(); let on = false;
+    for (const [px, py, v] of line) { if (v > 0.05) { on ? x.lineTo(px, py) : x.moveTo(px, py); on = true; } else on = false; }
+    x.strokeStyle = `rgba(${HOLO},.07)`; x.lineWidth = 0.8; x.stroke();
+  }
+  const sg = x.createLinearGradient(sx - 150, 0, sx + 40, 0); sg.addColorStop(0, `rgba(${HOLO},0)`); sg.addColorStop(0.7, `rgba(${HOLO},.08)`); sg.addColorStop(0.79, `rgba(${HOLO},.16)`); sg.addColorStop(1, `rgba(${HOLO},0)`);
+  x.fillStyle = sg; x.fillRect(sx - 150, 0, 190, H);
+  x.globalCompositeOperation = 'lighter';
+  for (const line of d.grat) { x.beginPath(); let on = false; for (const [px, py, v] of line) { if (v > 0.05 && px > sx - 160 && px < sx + 4) { on ? x.lineTo(px, py) : x.moveTo(px, py); on = true; } else on = false; } x.strokeStyle = `rgba(${HOLO},.22)`; x.lineWidth = 1; x.stroke(); }
+  x.restore(); x.globalCompositeOperation = 'source-over';
+  // orbit ring hugging the limb, with a data packet
+  x.save(); x.translate(cx, cy); x.rotate(-0.32); x.strokeStyle = `rgba(${HOLO},.22)`; x.lineWidth = 1; x.setLineDash([2, 6]); x.beginPath(); x.ellipse(0, 0, R * 1.2, R * 0.42, 0, Math.PI * 1.02, Math.PI * 1.98); x.stroke(); x.setLineDash([]);
+  const pa = Math.PI * 1.02 + (((t / 4) % 1) * Math.PI * 0.96); x.fillStyle = `rgba(${HOLO},.9)`; x.beginPath(); x.arc(Math.cos(pa) * R * 1.2, Math.sin(pa) * R * 0.42, 2.4, 0, 7); x.fill();
+  x.restore();
+  // reticle that locks onto Navi Mumbai
+  const [mx, my, mv] = d.mumbai;
+  if (mv > 0) {
+    const lock = ease((t % 16) / 1.6);
+    const r0 = 60 - 40 * lock;
+    x.strokeStyle = ACC; x.globalAlpha = 0.9; x.lineWidth = 1.4;
+    x.beginPath(); x.arc(mx, my, r0 * 0.5, 0, Math.PI * 2); x.stroke();
+    x.save(); x.translate(mx, my); x.rotate(t * 0.8); x.setLineDash([5, 7]); x.beginPath(); x.arc(0, 0, r0, 0, Math.PI * 2); x.stroke(); x.restore(); x.setLineDash([]);
+    for (const [a, b] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { x.beginPath(); x.moveTo(mx + a * (r0 + 3), my + b * (r0 + 3)); x.lineTo(mx + a * (r0 + 11), my + b * (r0 + 11)); x.stroke(); }
+    const pk = (t % 4) / 4; x.globalAlpha = 0.6 * (1 - pk); x.beginPath(); x.arc(mx, my, 6 + pk * 34, 0, Math.PI * 2); x.stroke();
+    x.globalAlpha = 1; x.fillStyle = ACC; x.beginPath(); x.arc(mx, my, 2.6, 0, 7); x.fill();
+    // leader and label, typed in
+    const flip = mx + 230 > W, lx = flip ? mx - 214 : mx + 48, ly = my - 92, k = clamp(((t % 16) - 1.0) / 1.2);
+    x.strokeStyle = `rgba(${HOLO},.7)`; x.lineWidth = 1; x.beginPath(); x.moveTo(mx + (flip ? -6 : 6), my - 6); const ex = flip ? lx + 160 : lx; x.lineTo(mx + 6 + (ex - mx - 6) * ease(k * 2), my - 6 + (ly + 10 - my + 6) * ease(k * 2)); if (k > 0.5) x.lineTo(flip ? ex - 160 * ease((k - 0.5) * 2) : lx + 160 * ease((k - 0.5) * 2), ly + 10); x.stroke();
+    x.fillStyle = 'rgba(6,12,22,.55)'; if (k > 0.6) x.fillRect(lx, ly - 34, 160, 40);
+    x.font = '600 12px "Geist Mono"'; x.fillStyle = '#e8f6ff'; x.fillText(type('NAVI MUMBAI', (k - 0.5) * 3), lx + 8, ly - 18);
+    x.font = '500 10px "Geist Mono"'; x.fillStyle = `rgba(${HOLO},.85)`; x.fillText(type('19.03°N  73.03°E', (k - 0.7) * 3.4), lx + 8, ly - 3);
+  }
+  // pipeline strip under the text: a packet runs through the stages
+  const bx = 68, by = 452; x.font = '500 10.5px "Geist Mono"';
+  let px = bx; const pos = [];
+  PIPE.forEach((s, i) => { const wdt = x.measureText(s).width; pos.push([px, wdt]); px += wdt + 30; });
+  const cyc = (t % 8) / 8 * (PIPE.length + 0.6), hit = Math.floor(cyc);
+  x.strokeStyle = `rgba(${HOLO},.25)`; x.beginPath(); x.moveTo(bx, by + 14); x.lineTo(px - 30, by + 14); x.stroke();
+  PIPE.forEach((s, i) => { const [p0, wdt] = pos[i], on = i === hit; x.fillStyle = on ? ACC : `rgba(${HOLO},${i < hit ? .75 : .38})`; x.fillText(s, p0, by + 4); if (i < PIPE.length - 1) { x.fillStyle = `rgba(${HOLO},.3)`; x.fillText('›', p0 + wdt + 11, by + 4); } });
+  const pp = Math.min(cyc, PIPE.length - 0.01), pi = Math.floor(pp), pf = pp - pi, pxx = pos[pi][0] + pos[pi][1] * pf;
+  x.fillStyle = ACC; x.shadowColor = ACC; x.shadowBlur = 8; x.beginPath(); x.arc(pxx, by + 14, 2.6, 0, 7); x.fill(); x.shadowBlur = 0;
+  // a comet once a loop
+  const ck = (t - 9) / 2.2; if (ck > 0 && ck < 1) { const x0 = 980 - ck * 520, y0 = 30 + ck * 120; const g = x.createLinearGradient(x0, y0, x0 + 140, y0 - 32); g.addColorStop(0, `rgba(255,250,240,${0.95 * (1 - ck * 0.6)})`); g.addColorStop(1, 'rgba(255,250,240,0)'); x.strokeStyle = g; x.lineWidth = 1.8; x.beginPath(); x.moveTo(x0, y0); x.lineTo(x0 + 140, y0 - 32); x.stroke(); }
+}
+
+function setText(t) {
+  // rotating words, 4 s each with a soft vertical slide
+  words.forEach((el, i) => { const u = ((t - i * 4) % 16 + 16) % 16; const inn = ease(u / 0.6), out = ease((u - 3.4) / 0.6); const y = (1 - inn) * 18 - out * 18, o = u < 4 ? Math.min(inn, 1 - out) : 0; el.style.transform = `translateY(${y}px)`; el.style.opacity = o; el.style.filter = `blur(${(1 - Math.min(inn, 1 - out)) * 4}px)`; });
+  // holographic flicker on the name, twice a loop
+  const g = [0.5, 8.5].some((s) => t > s && t < s + 0.22);
+  name.style.textShadow = g ? '-2px 0 rgba(255,80,110,.75), 2px 0 rgba(90,220,255,.85), 0 2px 30px rgba(0,0,0,.45)' : '0 2px 30px rgba(0,0,0,.45)';
+  name.style.transform = g ? `translateX(${Math.sin(t * 90) * 1.5}px)` : 'none';
+  document.getElementById('tag').textContent = type('// AI SOFTWARE ENGINEER', ((t % 16) - 0.2) / 1.4) || '//';
+}
+window.renderAt = (t) => { const d = pl.frame(t); setText(t); drawHUD(t, d); };
+await document.fonts.ready;
+await new Promise((r) => { const im = document.querySelector('.chip img'); im.complete ? r() : (im.onload = r); });
+window.ready = true;
+</script>

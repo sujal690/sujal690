@@ -190,8 +190,9 @@ export async function createTree(canvas, base = 'sprites/') {
       const sx = Lo.heroX, sy = Lo.heroY, tx = Lo.baseX - Lo.unit * 0.55, ty = Lo.baseY - 6;
       const cx = lerp(sx, tx, e) + Math.sin(e * Math.PI * 2) * Lo.heroPx * 0.22 * (1 - e), cy = lerp(sy, ty, e * e);
       const px = Lo.heroPx * lerp(1, 0.1, e);
-      const rot = (reduce ? 0 : Math.sin(t * 0.5) * (Lo.mobile ? 0.05 : 0.018)) + e * Math.PI * 1.7 * 0.5;
-      ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot); ctx.globalAlpha = 1 - smooth((fall - 0.9) / 0.1);
+      const li = env ? clamp(env.intro / 0.6) : 1, drop = 1 - easeOut(li), tilt = env && !reduce ? (env.pointer.x - 0.5) * 0.12 * (1 - e) : 0;
+      const rot = (reduce ? 0 : Math.sin(t * 0.5) * (Lo.mobile ? 0.05 : 0.018)) + e * Math.PI * 1.7 * 0.5 + tilt + drop * 0.8 * Math.sin(li * 11);
+      ctx.save(); ctx.translate(cx + drop * px * 0.25, cy - drop * H * 0.85); ctx.rotate(rot); ctx.globalAlpha = 1 - smooth((fall - 0.9) / 0.1);
       if (e < 0.5) { // warm backlight so the leaf reads as translucent
         const gl = ctx.createRadialGradient(0, -px * 0.45, 0, 0, -px * 0.45, px * 0.95); gl.addColorStop(0, 'rgba(236,205,120,0.20)'); gl.addColorStop(1, 'rgba(236,205,120,0)');
         ctx.globalAlpha *= 1 - e * 2; ctx.fillStyle = gl; ctx.beginPath(); ctx.arc(0, -px * 0.45, px * 0.95, 0, TAU); ctx.fill(); ctx.globalAlpha = 1 - smooth((fall - 0.9) / 0.1);
@@ -208,7 +209,11 @@ export async function createTree(canvas, base = 'sprites/') {
         const size = px * 0.21 / 0.62;
         const fe = easeOut(fly), ph = Math.floor(t * 9) % 4;
         ctx.save();
-        if (fly <= 0.01) {
+        const bi = env ? clamp((env.intro - 0.5) / 0.5) : 1;
+        if (bi < 1) { // the ladybug flies in and lands once the leaf has settled
+          const e2 = easeOut(bi); ctx.translate(bx + (1 - e2) * px * 1.6, by - (1 - e2) * px * 1.3 - Math.sin(e2 * Math.PI) * px * 0.12);
+          drawBug(L.fly[Math.floor(t * 30) % 2], size * (1 + (1 - e2) * 0.45), -0.9 * (1 - e2) + bp.head * e2);
+        } else if (fly <= 0.01) {
           { const m = ctx.getTransform(); BUG.on = true; BUG.x = (m.a * bx + m.c * by + m.e) / dpr; BUG.y = (m.b * bx + m.d * by + m.f) / dpr; BUG.r = size * 0.4; }
           const bz = t - buzzAt, buzzing = bz >= 0 && bz < 1.1;
           ctx.translate(bx, by - (buzzing ? Math.abs(Math.sin(bz * 10)) * size * 0.22 * (1 - bz / 1.1) : 0));

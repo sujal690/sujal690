@@ -1,4 +1,4 @@
-# Keeps the profile current: the banner follows the time of day (India time) and the stats refresh.
+# Keeps the profile current: the whole README (banner, colours, cards) follows the time of day in India, and the stats refresh.
 # Activate by moving this file to .github/workflows/profile.yml
 # (pushing a workflow needs the `workflow` scope: gh auth refresh -h github.com -s workflow)
 name: Refresh profile
@@ -28,8 +28,9 @@ jobs:
           if [ "$(date -u +%M)" -lt 30 ] && [ $(( $(date -u +%H) % 6 )) -eq 0 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             pip install --quiet fonttools brotli pillow
             python scripts/build_stats.py docs/stats.json
-            python scripts/gen8.py space docs/stats.json assets/space scripts/thumbs
-            python scripts/gen8.py leaf docs/stats.json assets/leaf scripts/thumbs
+            for t in space leaf; do for p in dawn day dusk night; do
+              python scripts/gen8.py $t docs/stats.json assets/$t/phase/$p scripts/thumbs $p
+            done; done
             python scripts/phase.py
           fi
       - name: Commit if anything changed

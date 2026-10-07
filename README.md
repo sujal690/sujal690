@@ -12,6 +12,8 @@
 
 <img src="assets/space/hero.webp" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. The Earth from orbit with the Moon, Mars, Jupiter and Saturn; the lighting follows the time of day in India."/>
 
+<img src="assets/space/timebar.svg" width="100%" alt="This profile follows the time of day in India: morning, afternoon, evening and night."/>
+
 <a href="https://sujal-shah-portfolio.vercel.app"><img src="assets/space/btn-portfolio.svg" height="44" alt="Portfolio"/></a>
 <a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/space/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>
 <a href="mailto:sujalshah630@gmail.com"><img src="assets/space/btn-email.svg" height="44" alt="Email"/></a>
@@ -36,6 +38,9 @@
 
 <sub>Open source: <a href="https://github.com/sujal690/Culturama">Culturama</a> · <a href="https://github.com/sujal690/Odoo_Appointment_Booking">Odoo Appointment Booking</a> · <a href="https://github.com/sujal690/weapon_detection_assignment">Weapon Detection</a></sub>
 
+<img src="assets/space/h-toolkit.svg" width="100%" alt="Toolkit"/>
+<img src="assets/space/toolkit.svg" width="100%" alt="Toolkit. Intelligence: OCR, computer vision, VLM, LLM, RAG, Hugging Face. Build: Python, TypeScript, React, Next.js, Node.js, MongoDB, PostgreSQL. Ship: Docker, CI/CD, Git, Vercel, system design."/>
+
 <img src="assets/space/h-experience.svg" width="100%" alt="Experience"/>
 <img src="assets/space/experience.svg" width="100%" alt="2024: Grand Finalist at Smart India Hackathon and NASA Space Apps Global Nominee. 2025: Full Stack Developer Intern at Chemtron Science Laboratories, 1st place at SCOE Avishkar. 2026: B.E. Computer Science, CGPA 9.0. Now: AI Software Engineer at Sky Gold and Diamonds."/>
 
@@ -53,6 +58,8 @@
 <div align="center">
 
 <img src="assets/leaf/hero.webp" width="100%" alt="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A ladybug walks across a ginkgo leaf with dew drops; the light follows the time of day in India."/>
+
+<img src="assets/leaf/timebar.svg" width="100%" alt="This profile follows the time of day in India: morning, afternoon, evening and night."/>
 
 <a href="https://sujal-shah-portfolio.vercel.app"><img src="assets/leaf/btn-portfolio.svg" height="44" alt="Portfolio"/></a>
 <a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/leaf/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>
@@ -78,6 +85,9 @@
 <a href="https://odoo-appointment-booking-n5n1.vercel.app/"><img src="assets/leaf/project-schedulr.svg" width="32%" alt="Schedulr: appointment booking. Opens the live demo."/></a>
 
 <sub>Open source: <a href="https://github.com/sujal690/Culturama">Culturama</a> · <a href="https://github.com/sujal690/Odoo_Appointment_Booking">Odoo Appointment Booking</a> · <a href="https://github.com/sujal690/weapon_detection_assignment">Weapon Detection</a></sub>
+
+<img src="assets/leaf/h-toolkit.svg" width="100%" alt="Toolkit"/>
+<img src="assets/leaf/toolkit.svg" width="100%" alt="Toolkit. Intelligence: OCR, computer vision, VLM, LLM, RAG, Hugging Face. Build: Python, TypeScript, React, Next.js, Node.js, MongoDB, PostgreSQL. Ship: Docker, CI/CD, Git, Vercel, system design."/>
 
 <img src="assets/leaf/h-experience.svg" width="100%" alt="Experience"/>
 <img src="assets/leaf/experience.svg" width="100%" alt="2024: Grand Finalist at Smart India Hackathon and NASA Space Apps Global Nominee. 2025: Full Stack Developer Intern at Chemtron Science Laboratories, 1st place at SCOE Avishkar. 2026: B.E. Computer Science, CGPA 9.0. Now: AI Software Engineer at Sky Gold and Diamonds."/>

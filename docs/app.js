@@ -1,8 +1,10 @@
-import { createTree } from './tree.js?v=20261008a';
-import { createSky, phaseName, greeting } from './sky.js?v=20261008a';
-import { DIAG, WORK } from './diag.js?v=20261008a';
+import { createTree } from './tree.js?v=20261008b';
+import { createSky, phaseName, greeting } from './sky.js?v=20261008b';
+import { DIAG, WORK } from './diag.js?v=20261008b';
 
+const BURST = ['#e6a965', '#a9c78b', '#7fa35a', '#f1d8a8', '#c98b4a']; let night = false;
 const $ = (s, el = document) => el.querySelector(s);
+const prog = document.getElementById('prog');
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine = matchMedia('(hover:hover) and (pointer:fine)').matches;
@@ -113,7 +115,7 @@ $('#repos').innerHTML = [['Culturama', '.NET temple-heritage web app', 'Culturam
 $('#copy').addEventListener('click', async () => { try { await navigator.clipboard.writeText('sujalshah630@gmail.com'); } catch (e) { /* the toast still confirms */ } $('#toast').classList.add('on'); setTimeout(() => $('#toast').classList.remove('on'), 1800); });
 
 // ---------------------------------------------------------------- buttons: magnetic pull, fill from the pointer, ripple and a burst of leaves on press
-const BURST = ['#e6a965', '#a9c78b', '#7fa35a', '#f1d8a8', '#c98b4a'];
+
 function burst(x, y) {
   if (reduce) return;
   for (let i = 0; i < 9; i++) {
@@ -126,6 +128,22 @@ $$('.btn').forEach((b) => {
   b.addEventListener('pointermove', (e) => { const r = b.getBoundingClientRect(); b.style.setProperty('--x', e.clientX - r.left + 'px'); b.style.setProperty('--y', e.clientY - r.top + 'px'); if (fine && !reduce) { b.style.setProperty('--tx', (e.clientX - r.left - r.width / 2) * 0.12 + 'px'); b.style.setProperty('--ty', (e.clientY - r.top - r.height / 2) * 0.2 + 'px'); } });
   b.addEventListener('pointerleave', () => { b.style.setProperty('--tx', '0px'); b.style.setProperty('--ty', '0px'); });
   b.addEventListener('pointerdown', (e) => { const r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2.2, rp = document.createElement('i'); rp.className = 'rip'; rp.style.cssText = `left:${e.clientX - r.left}px;top:${e.clientY - r.top}px;width:${s}px;height:${s}px`; b.appendChild(rp); setTimeout(() => rp.remove(), 800); burst(e.clientX, e.clientY); });
+});
+// every press answers: a ring of light where you click, leaves by day and fireflies by night, and a springy pop on whatever was pressed
+function spark(x, y) {
+  if (reduce) return;
+  const r = document.createElement('i'); r.className = 'ring'; r.style.left = x + 'px'; r.style.top = y + 'px'; document.body.appendChild(r);
+  r.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 0.9 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 }], { duration: 650, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => r.remove();
+  for (let i = 0; i < 6; i++) {
+    const l = document.createElement('i'); l.className = night ? 'ff' : 'lf'; l.style.left = x + 'px'; l.style.top = y + 'px'; if (!night) l.style.background = BURST[(i * 2) % BURST.length]; document.body.appendChild(l);
+    const ang = Math.random() * 6.283, d = 24 + Math.random() * 40;
+    l.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(ang) * d}px,${Math.sin(ang) * d - (night ? 30 : 10)}px) rotate(${(Math.random() - 0.5) * 360}deg) scale(.3)`, opacity: 0 }], { duration: 700 + Math.random() * 400, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => l.remove();
+  }
+}
+addEventListener('pointerdown', (e) => {
+  const el = e.target.closest && e.target.closest('a, button, .chip, .tile, .grid span, .step, .bars i');
+  if (el && !el.classList.contains('btn')) { spark(e.clientX, e.clientY); if (!reduce) el.animate([{ scale: '1' }, { scale: '.93' }, { scale: '1.04' }, { scale: '1' }], { duration: 420, easing: 'cubic-bezier(.34,1.56,.64,1)' }); }
+  else if (!el && !e.target.closest('.card')) spark(e.clientX, e.clientY);
 });
 $$('.chip').forEach((c) => { if (!fine) return; c.addEventListener('pointermove', (e) => { const r = c.getBoundingClientRect(); c.style.setProperty('--tx', (e.clientX - r.left - r.width / 2) * 0.12 + 'px'); c.style.setProperty('--ty', (e.clientY - r.top - r.height / 2) * 0.2 + 'px'); }); c.addEventListener('pointerleave', () => { c.style.setProperty('--tx', '0px'); c.style.setProperty('--ty', '0px'); }); });
 
@@ -149,7 +167,7 @@ addEventListener('pointermove', (e) => { const c = e.target.closest && e.target.
 const root = document.documentElement, meta = $('meta[name=theme-color]');
 const skyCanvas = document.createElement('canvas');
 const sky = createSky(skyCanvas, (P) => {
-  const c = P.card.map((v) => v | 0); root.style.setProperty('--card', `rgba(${c[0]},${c[1]},${c[2]},.93)`); root.style.setProperty('--bg', `rgb(${P.top.map((v) => v | 0)})`);
+  const c = P.card.map((v) => v | 0), ac = P.acc.map((v) => v | 0); root.style.setProperty('--card', `rgba(${c[0]},${c[1]},${c[2]},.93)`); root.style.setProperty('--acc', `rgb(${ac})`); root.style.setProperty('--accR', `${ac}`); root.style.setProperty('--accSoft', `rgba(${ac},.15)`); BURST[0] = `rgb(${ac})`; night = P.star > 0.45; root.style.setProperty('--bg', `rgb(${P.top.map((v) => v | 0)})`);
   meta.setAttribute('content', `rgb(${P.top.map((v) => v | 0)})`);
   updateGreeting();
 });
@@ -192,7 +210,7 @@ function measure() {
 const S = { p: 0, fly: 0, fall: 0, grow: 0, fruit: 0, ripe: 0, autumn: 0 };
 const STAGES = [[0.07, 'The leaf'], [0.2, 'The seed'], [0.45, 'Growing'], [0.62, 'The tree'], [0.78, 'Fruit sets'], [0.9, 'Ripening'], [1.1, 'Harvest']];
 let T = 0, last = performance.now(), stageIdx = -1, frameN = 0, lastY = 0, skyDt = 0, lastStep = 0, slowSum = 0, slowI = 0; const slowHist = new Uint8Array(90);
-const env = { back: skyCanvas, tint: [0, 0, 0, 0], fore: (c, w, h, t, p, r) => sky.fore(c, w, h, t, p, r), pointer: ptr, gust: 0 };
+const env = { intro: reduce ? 1 : 0, back: skyCanvas, tint: [0, 0, 0, 0], fore: (c, w, h, t, p, r) => sky.fore(c, w, h, t, p, r), pointer: ptr, gust: 0 };
 function frame(now) {
   const raw = (now - last) / 1000, dt = Math.min(0.05, raw); last = now; T += dt; frameN++;
   // adaptive resolution: if more than half of the last 90 frames took over 24ms, drop the canvas scale a step (never back up)
@@ -210,7 +228,8 @@ function frame(now) {
   // the sky is soft and slow: redraw it every frame while the page moves, every other frame while it rests
   const moving = Math.abs(y - lastY) > 0.5 || ptr.speed > 20; lastY = y; ptr.speed *= 0.9;
   if ((moving || (frameN & 1) === 0)) { sky.frame(T, skyDt + dt, p, ptr); skyDt = 0; } else skyDt += dt;
-  env.tint = sky.tint(); env.gust = ptr.gust;
+  env.tint = sky.tint(); env.gust = ptr.gust; if (env.intro < 1) env.intro = reduce ? 1 : clamp((T - 0.35) / 2.6);
+  prog.style.transform = `scaleX(${p.toFixed(4)})`;
   tree.draw(S, T, reduce, env);
   crawl.step && crawl.step(dt);
   requestAnimationFrame(frame);
