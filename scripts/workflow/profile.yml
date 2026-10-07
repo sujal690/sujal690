@@ -1,4 +1,4 @@
-# Refreshes the Activity card from the GitHub API every 6 hours.
+# Refreshes the stats cards in both themes (Space in README.md, Leaf in LEAF.md) every 6 hours.
 # Activate by moving this file to .github/workflows/profile.yml
 name: Refresh profile stats
 
@@ -18,13 +18,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Rebuild stats
+      - name: Rebuild stats and both themes
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           pip install --quiet fonttools brotli pillow
           python scripts/build_stats.py docs/stats.json
-          python scripts/gen.py docs/stats.json assets
+          python scripts/gen3.py docs/stats.json assets/leaf
+          python scripts/gen5.py docs/stats.json assets/space scripts/thumbs
       - name: Commit if anything changed
         run: |
           git config user.name "github-actions[bot]"

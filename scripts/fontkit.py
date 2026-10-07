@@ -5,7 +5,16 @@ from fontTools import subset
 
 FD = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fonts')
 SPEC = {
+    'Syne800':  ('Syne[wght].ttf', {'wght': 800}),
+    'Syne700':  ('Syne[wght].ttf', {'wght': 700}),
+    'Man500':   ('Manrope[wght].ttf', {'wght': 500}),
+    'Man700':   ('Manrope[wght].ttf', {'wght': 700}),
+    'Mono500':  ('JetBrainsMono[wght].ttf', {'wght': 500}),
+    'Mono700':  ('JetBrainsMono[wght].ttf', {'wght': 700}),
+    'InstrSerif': ('InstrumentSerif-Italic.ttf', None),
     'Orb600':   ('Orbitron[wght].ttf', {'wght': 600}),
+    'Orb700':   ('Orbitron[wght].ttf', {'wght': 700}),
+    'Orb800':   ('Orbitron[wght].ttf', {'wght': 800}),
     'Geist400': ('Geist[wght].ttf', {'wght': 400}),
     'Geist500': ('Geist[wght].ttf', {'wght': 500}),
     'Geist600': ('Geist[wght].ttf', {'wght': 600}),
