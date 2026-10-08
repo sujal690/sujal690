@@ -1,0 +1,39 @@
+# Keeps the profile current: the whole README (banner, colours, cards) follows the time of day in India, and the stats refresh.
+name: Refresh profile
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Banner for the current time of day
+        run: python scripts/phase.py
+      - name: Rebuild stats and cards (a few times a day)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$(date -u +%M)" -lt 30 ] && [ $(( $(date -u +%H) % 6 )) -eq 0 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            pip install --quiet fonttools brotli pillow
+            python scripts/build_stats.py docs/stats.json
+            for t in space leaf; do for p in dawn day dusk night; do
+              python scripts/gen8.py $t docs/stats.json assets/$t/phase/$p scripts/thumbs $p
+            done; done
+            python scripts/phase.py
+          fi
+      - name: Commit if anything changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || (git commit -m "Refresh profile" && git push)
