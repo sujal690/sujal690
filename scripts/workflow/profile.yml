@@ -23,7 +23,7 @@ jobs:
         run: python scripts/phase.py
       - name: Rebuild stats and cards (a few times a day)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           if [ "$(date -u +%M)" -lt 30 ] && [ $(( $(date -u +%H) % 6 )) -eq 0 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             pip install --quiet fonttools brotli pillow

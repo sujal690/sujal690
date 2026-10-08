@@ -306,17 +306,29 @@ def probe_shape():
             f'<ellipse cx="-8.4" cy="0" rx="3.2" ry="1.8" fill="{ACC}" opacity=".6"><animate attributeName="rx" values="3.2;4.8;3.2" dur=".5s" repeatCount="indefinite"/></ellipse></g>')
 
 
+def ship_shape():
+    """A small survey ship facing +x: pale hull, blue solar wings, engine flame."""
+    return (f'<g><path d="M-6 -7.5 L1 -1.6 L1 1.6 L-6 7.5 L-3.2 0Z" fill="#35588f"/><path d="M-5 -4.6 L8 0 L-5 4.6Z" fill="#dfe6ee" stroke="#8a97a8" stroke-width=".6"/>'
+            f'<circle cx="2" cy="0" r="1.7" fill="#25303d"/><circle cx="2" cy="0" r=".8" fill="{ACC}"/>'
+            f'<path d="M-5 0 L-11 -2.4 L-9 0 L-11 2.4Z" fill="{ACC}" opacity=".85"><animate attributeName="opacity" values=".9;.35;.9" dur=".35s" repeatCount="indefinite"/></path></g>')
+
+
 def activity():
     cal = S['calendar']
-    first = dt.date.fromisoformat(cal[0]['date'])
-    cell, gap = 11.4, 3.2
+    cell, gap = 11.4, 3.1
     st = cell + gap
     w = 880
-    gx, gy = 60, 182
-    h = int(gy + 7 * st + 76)
+    gx = 88
+    years = sorted({int(d['date'][:4]) for d in cal})
+    by = {y: [d for d in cal if int(d['date'][:4]) == y] for y in years}
+    ytot = {y: sum(d['count'] for d in by[y]) for y in years}
+    bandh = 7 * st + 30
+    gy0 = 214
+    h = int(gy0 + bandh * len(years) + 82)
     best = dt.date.fromisoformat(S['best_day']['date'])
-    s = Svg(w, h, f"GitHub activity, last 12 months: {S['contributions']} contributions, {S['commits']} commits, {S['repos']} repositories, {S['active_days']} active days, longest streak {S['longest_streak']} days. Best day {best.strftime('%b %d')} with {S['best_day']['count']}. "
-            + ('A ladybug crawls across the grid and eats the green days, which grow back.' if THEME == 'leaf' else 'A survey probe scans across the grid and collects the lit days, which light up again.'))
+    since = dt.date.fromisoformat(S.get('since_date', cal[0]['date']))
+    s = Svg(w, h, f"GitHub activity since the first day on GitHub ({since.strftime('%b %Y')}): {S['contributions']} contributions, {S['commits']} commits, {S['repos']} repositories, {S['active_days']} active days, longest streak {S['longest_streak']} days. Best day {best.strftime('%b %d, %Y')} with {S['best_day']['count']}. "
+            + ('A ladybug eats the green days and they sprout back.' if THEME == 'leaf' else 'A scan sweeps each year while a survey ship flies the constellation of the busiest days.'))
     s += panel(s, 0, 0, w, h)
     tiles = [(S['contributions'], 'contributions', ''), (S['commits'], 'commits', ''), (S['repos'], 'repositories', ''), (S['active_days'], 'active days', ''), (S['longest_streak'], 'day best streak', '')]
     cw = (w - 56) / len(tiles)
@@ -328,71 +340,151 @@ def activity():
         s += countup(s, xx, 78, v, 36, .3 + i * .08, suffix=suf)
         s += s.t(xx, 100, lab, 'B', 13, MUTED)
     s += f'<path d="M28 128 H{w - 28}" stroke="{HAIR}"/>'
-    s += s.t(28, 160, 'Last 12 months', 'BS', 14, TEXT) + s.t(w - 28, 160, f"best day {best.strftime('%b %d')}, {S['best_day']['count']} contributions", 'B', 12.5, MUTED, 'end')
+    s += s.t(28, 160, f"All time, since {since.strftime('%b %Y')}", 'BS', 14, TEXT)
+    ox = 28 + W('BS', f"All time, since {since.strftime('%b %Y')}", 14) + 22
+    for y in years:
+        lab = f'{y}  {ytot[y]}'
+        s += f'<circle cx="{ox + 3}" cy="156" r="3" fill="{ACC}" opacity="{.45 + .55 * ytot[y] / max(ytot.values()):.2f}"/>' + s.t(ox + 12, 160.5, lab, 'B', 12.5, MUTED)
+        ox += 12 + W('B', lab, 12.5) + 20
+    s += s.t(w - 28, 160, f"best day {best.strftime('%b %d, %Y')}, {S['best_day']['count']} contributions", 'B', 12.5, MUTED, 'end')
     nz = sorted(d['count'] for d in cal if d['count'])
     q = [nz[int(len(nz) * p)] for p in (.25, .5, .75)] if nz else [1, 2, 3]
     lvl = lambda c: 0 if c == 0 else 1 + sum(c > t for t in q)
-    rows, ncol = [], 0
-    for d in cal:
-        dd = dt.date.fromisoformat(d['date'])
-        col = ((dd - first).days + first.isoweekday() % 7) // 7
-        ncol = max(ncol, col + 1)
-        rows.append((col, d['weekday'], d['count'], d['date'], dd))
-    # the crawler visits every cell column by column, lingering on active days
+    bestk = S['best_day']['date']
+    CYC = 14.0                      # scan/constellation loop (Space)
+    allcells = []                   # (year index, col, row, count, date, cx, cy)
+    cells = ''
+    for yi, y in enumerate(years):
+        gy = gy0 + yi * bandh
+        jan1 = dt.date(y, 1, 1)
+        ncol = 53
+        s += s.t(28, gy + 22, str(y), 'H', 17, TEXT) + s.t(28, gy + 42, f'{ytot[y]}', 'BS', 13, ACC) + s.t(28, gy + 58, 'in total', 'B', 11, DIM)
+        lastm = None
+        # faint empty slots so every year reads as a full grid
+        empty = ''
+        for c in range(ncol):
+            for r in range(7):
+                empty += f'<rect x="{gx + c * st:.1f}" y="{gy + r * st:.1f}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[0]}" opacity=".45"/>'
+        cells += empty
+        for d in by[y]:
+            dd = dt.date.fromisoformat(d['date'])
+            c = ((dd - jan1).days + jan1.isoweekday() % 7) // 7
+            r = d['weekday']
+            x, yy = gx + c * st, gy + r * st
+            L = lvl(d['count'])
+            if dd.day <= 7 and r == 0 and dd.month != lastm:
+                s += s.t(x, gy - 8, dd.strftime('%b'), 'B', 10.5, DIM)
+                lastm = dd.month
+            allcells.append((yi, c, r, d['count'], d['date'], x + cell / 2, yy + cell / 2))
+            if L == 0:
+                cells += f'<rect x="{x:.1f}" y="{yy:.1f}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[0]}"><title>{d["date"]}: 0</title></rect>'
+    # active cells (each in a group so it can bloom and be eaten)
     order = []
-    for c in range(ncol):
-        cs = sorted([r for r in rows if r[0] == c], key=lambda r: r[1], reverse=(c % 2 == 1))
-        order += cs
-    START, END, EMPTY, CHEW, REGROW = 1.4, 2.4, 0.05, 0.30, 3.6
-    cum = [0.0]
-    for r in order:
-        cum.append(cum[-1] + (CHEW if lvl(r[2]) else EMPTY))
-    CYC = START + cum[-1] + END
-    tcell = {r[3]: START + cum[i] + 0.1 for i, r in enumerate(order)}
-    cells, lastm = '', None
-    for c, r, n, ds, dd in rows:
-        x, y = gx + c * st, gy + r * st
-        L = lvl(n)
-        anim = ''
-        if L:
-            t0 = tcell[ds] / CYC
-            t1 = min(0.985, t0 + REGROW / CYC)
-            anim = (f'<animate attributeName="fill" values="{HEAT[L]};{HEAT[L]};{HEAT[0]};{HEAT[0]};{HEAT[L]}" keyTimes="0;{t0:.4f};{min(.995, t0 + .006):.4f};{t1:.4f};{min(.999, t1 + .03):.4f}" dur="{CYC:.1f}s" repeatCount="indefinite"/>')
-        cells += f'<rect x="{x:.1f}" y="{y:.1f}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[L]}"><title>{ds}: {n}</title>{anim}</rect>'
-        if dd.day <= 7 and r == 0 and dd.month != lastm and c < ncol - 2:
-            s += s.t(x, gy - 10, dd.strftime('%b'), 'B', 11, DIM)
-            lastm = dd.month
-    gw = ncol * st
-    s.d(f'<clipPath id="rv"><rect x="{gx - 4}" y="{gy - 4}" width="0" height="{7 * st + 8}"><animate attributeName="width" from="0" to="{gw + 8:.0f}" begin=".5s" dur="1.6s" fill="freeze" {EASE}/></rect></clipPath>')
-    s += f'<g clip-path="url(#rv)">{cells}</g>'
-    for r, lab in ((1, 'Mon'), (3, 'Wed'), (5, 'Fri')):
-        s += s.t(28, gy + r * st + 9.5, lab, 'B', 11, DIM)
-    # crawler path, heading and timing
-    pts = [(gx + r[0] * st + cell / 2, gy + r[1] * st + cell / 2) for r in order]
-    kt = [(START + cum[i]) / CYC for i in range(len(order))]
-    keyt = '0;' + ';'.join(f'{k:.5f}' for k in kt) + ';1'
-    vals = [pts[0]] + pts + [pts[-1]]
-    angs = []
-    for i in range(len(order)):
-        j = min(i + 1, len(order) - 1)
-        dx, dy = pts[j][0] - pts[i][0], pts[j][1] - pts[i][1]
-        angs.append(angs[-1] if (abs(dx) + abs(dy) < .1 and angs) else (math.degrees(math.atan2(dy, dx)) if abs(dx) + abs(dy) > .1 else 0))
-    angv = [angs[0]] + angs + [angs[-1]]
-    trans = ';'.join(f'{x:.1f} {y:.1f}' for x, y in vals)
-    rot = ';'.join(f'{a:.0f}' for a in angv)
-    show = f'<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;{(START - .5) / CYC:.4f};{(CYC - .7) / CYC:.4f};{(CYC - .4) / CYC:.4f};1" dur="{CYC:.1f}s" repeatCount="indefinite"/>'
     if THEME == 'leaf':
-        body = ladybug_shape(1.3)
+        # the ladybug hunts the active days: it visits each one in time order, row by row, and flies between rows
+        for yi in range(len(years)):
+            row = [c for c in allcells if c[0] == yi and c[3] > 0]
+            row.sort(key=lambda c: (c[1], c[2] if c[1] % 2 == 0 else -c[2]))
+            order += row
+        START, END, CHEW, SPEED, FLY = 1.6, 2.0, 0.26, 150.0, 0.9
+        times = []
+        t = START
+        prev = None
+        for c in order:
+            if prev is not None:
+                dist = math.hypot(c[5] - prev[5], c[6] - prev[6])
+                t += FLY if c[0] != prev[0] else max(0.12, dist / SPEED)
+            times.append(t)
+            t += CHEW
+            prev = c
+        LCYC = t + END
+        when = {c[4]: times[i] + CHEW * 0.45 for i, c in enumerate(order)}
+    for c in [x for x in allcells if x[3] > 0]:
+        yi, col, r, n, ds, cx, cy = c
+        L = lvl(n)
+        isbest = ds == bestk
+        title = f'<title>{ds}: {n}</title>'
+        if THEME == 'leaf':
+            t0 = when[ds] / LCYC
+            t1 = min(0.97, t0 + 3.4 / LCYC)
+            b0 = (0.5 + yi * 0.5 + col * 0.016) / LCYC
+            pops = f'0;0;1.18;1;1;0;0;1.3;1'
+            kts = f'0;{b0:.4f};{b0 + .012:.4f};{b0 + .02:.4f};{t0:.4f};{min(.995, t0 + .005):.4f};{t1:.4f};{min(.998, t1 + .02):.4f};{min(.999, t1 + .035):.4f}'
+            anim = f'<animateTransform attributeName="transform" type="scale" values="{pops}" keyTimes="{kts}" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
+            col_anim = ''
+        else:
+            # radar sweep: the cell flashes when the scan line passes, then settles
+            ro = yi * 3.4
+            tt = (ro + 0.4 + col / 53 * 3.0) / CYC
+            hi = '#f2fbff'
+            kts = f'0;{max(0, tt - .001):.4f};{tt + .006:.4f};{min(.99, tt + .06):.4f};1'
+            anim = f'<animateTransform attributeName="transform" type="scale" values="1;1;1.45;1;1" keyTimes="{kts}" dur="{CYC}s" repeatCount="indefinite"/>'
+            col_anim = f'<animate attributeName="fill" values="{HEAT[L]};{HEAT[L]};{hi};{HEAT[L]};{HEAT[L]}" keyTimes="{kts}" dur="{CYC}s" repeatCount="indefinite"/>'
+        cells += (f'<g transform="translate({cx:.1f} {cy:.1f})"><g>{anim}<rect x="{-cell / 2}" y="{-cell / 2}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[L]}">{title}{col_anim}</rect></g></g>')
+    s += f'<g opacity="0"><animate attributeName="opacity" from="0" to="1" begin=".25s" dur=".9s" fill="freeze"/>{cells}</g>'
+    # ---- best day marker
+    bc = [c for c in allcells if c[4] == bestk]
+    if bc:
+        _, _, _, n, ds, bx, by_ = bc[0]
+        s += (f'<g><circle cx="{bx:.1f}" cy="{by_:.1f}" r="8" fill="none" stroke="{ACC}" stroke-width="1.4"><animate attributeName="r" values="8;19;8" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0;.9" dur="2.8s" repeatCount="indefinite"/></circle>'
+              f'<path d="M{bx:.1f} {by_ - 9:.1f} V{by_ - 26:.1f}" stroke="{ACC}" stroke-width="1"/>'
+              + f'<rect x="{bx - 38:.1f}" y="{by_ - 46:.1f}" width="76" height="20" rx="10" fill="{P2}" stroke="{ACC}" stroke-opacity=".7"/>' + s.t(bx, by_ - 32.5, f'best day {n}', 'BS', 11.5, TEXT, 'middle') + '</g>')
+    if THEME == 'leaf':
+        # ladybug path
+        pts = [(c[5], c[6]) for c in order]
+        kt = [0.0] + [tm / LCYC for tm in times]
+        # arrive at each cell at times[i], stay for CHEW, leave to next (linear between the end of one chew and the arrival at the next)
+        kts, vals, rots, scl = [0.0], [pts[0]], [0], [1]
+        for i, (px, py) in enumerate(pts):
+            arr, leave = times[i] / LCYC, (times[i] + CHEW) / LCYC
+            ang = 0
+            if i + 1 < len(pts):
+                ang = math.degrees(math.atan2(pts[i + 1][1] - py, pts[i + 1][0] - px))
+            if i > 0:
+                kts.append(arr); vals.append((px, py)); rots.append(rots[-1] if False else ang); scl.append(1.5 if order[i][0] != order[i - 1][0] else 1)
+            kts.append(max(arr, leave)); vals.append((px, py)); rots.append(ang); scl.append(1)
+        kts.append(1.0); vals.append(vals[-1]); rots.append(rots[-1]); scl.append(1)
+        for i in range(1, len(kts)):
+            if kts[i] <= kts[i - 1]:
+                kts[i] = kts[i - 1] + 1e-5
+        kts[-1] = 1.0
+        keyt = ';'.join(f'{k:.5f}' for k in kts)
+        trans = ';'.join(f'{x:.1f} {y:.1f}' for x, y in vals)
+        rot = ';'.join(f'{a:.0f}' for a in rots)
+        sc = ';'.join(f'{x}' for x in scl)
+        show = f'<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;{(START - .6) / LCYC:.4f};{(LCYC - .8) / LCYC:.4f};{(LCYC - .4) / LCYC:.4f};1" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
+        s += (f'<g opacity="0">{show}<g><animateTransform attributeName="transform" type="translate" values="{trans}" keyTimes="{keyt}" calcMode="linear" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
+              f'<g><animateTransform attributeName="transform" type="rotate" values="{rot}" keyTimes="{keyt}" calcMode="discrete" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
+              f'<g><animateTransform attributeName="transform" type="scale" values="{sc}" keyTimes="{keyt}" calcMode="linear" dur="{LCYC:.1f}s" repeatCount="indefinite"/>{ladybug_shape(1.35)}</g></g></g></g>')
     else:
-        mid = gy + 3.5 * st
-        s.d(f'<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{ACC}" stop-opacity="0"/><stop offset=".5" stop-color="{ACC}" stop-opacity=".22"/><stop offset="1" stop-color="{ACC}" stop-opacity="0"/></linearGradient>')
-        bx = ';'.join(f'{x:.1f} {mid:.1f}' for x, y in vals)
-        s += (f'<g opacity="0">{show}<g><animateTransform attributeName="transform" type="translate" values="{bx}" keyTimes="{keyt}" calcMode="linear" dur="{CYC:.1f}s" repeatCount="indefinite"/>'
-              f'<rect x="-6" y="{-3.9 * st:.1f}" width="12" height="{7.8 * st:.1f}" fill="url(#beam)"/></g></g>')
-        body = '<g transform="scale(1.35)">' + probe_shape() + '</g>'
-    s += (f'<g opacity="0">{show}<g><animateTransform attributeName="transform" type="translate" values="{trans}" keyTimes="{keyt}" calcMode="linear" dur="{CYC:.1f}s" repeatCount="indefinite"/>'
-          f'<g><animateTransform attributeName="transform" type="rotate" values="{rot}" keyTimes="{keyt}" calcMode="discrete" dur="{CYC:.1f}s" repeatCount="indefinite"/>{body}</g></g></g>')
-    ly = gy + 7 * st + 32
+        # constellations: the busiest days of each year are joined, the scan line sweeps, and a ship flies the route
+        s.d(f'<linearGradient id="trail" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="{ACC}" stop-opacity=".55"/><stop offset="1" stop-color="{ACC}" stop-opacity="0"/></linearGradient>')
+        for yi, y in enumerate(years):
+            gy = gy0 + yi * bandh
+            ro = yi * 3.4
+            top = sorted([c for c in allcells if c[0] == yi], key=lambda c: -c[3])[:7]
+            top.sort(key=lambda c: c[1])
+            if len(top) >= 2:
+                pts = [(c[5], c[6]) for c in top]
+                path = 'M' + ' L'.join(f'{x:.1f} {y_:.1f}' for x, y_ in pts)
+                plen = sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) for i in range(len(pts) - 1))
+                a0, a1 = (ro + 1.6) / CYC, (ro + 4.2) / CYC
+                s += (f'<path d="{path}" fill="none" stroke="{ACC}" stroke-opacity=".7" stroke-width="1.1" stroke-dasharray="3 4" opacity="0">'
+                      f'<animate attributeName="opacity" values="0;0;.9;.9;0;0" keyTimes="0;{a0:.4f};{a0 + .02:.4f};{min(.97, a1 + .35):.4f};{min(.985, a1 + .4):.4f};1" dur="{CYC}s" repeatCount="indefinite"/></path>')
+                for i, (px, py) in enumerate(pts):
+                    ta = (ro + 1.8 + i * .22) / CYC
+                    s += (f'<circle cx="{px:.1f}" cy="{py:.1f}" r="9" fill="none" stroke="{ACC}" stroke-width="1" opacity="0"><animate attributeName="opacity" values="0;0;.8;0;0" keyTimes="0;{ta:.4f};{ta + .01:.4f};{ta + .06:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+                          f'<animate attributeName="r" values="4;4;4;13;13" keyTimes="0;{ta:.4f};{ta + .005:.4f};{ta + .06:.4f};1" dur="{CYC}s" repeatCount="indefinite"/></circle>')
+                fa, fb = (ro + 2.2) / CYC, (ro + 5.4) / CYC
+                s += (f'<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;{fa:.4f};{fa + .01:.4f};{fb:.4f};{fb + .015:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+                      f'<g transform="scale(1.3)"><animateMotion dur="{CYC}s" repeatCount="indefinite" path="{path}" keyPoints="0;0;1;1" keyTimes="0;{fa:.4f};{fb:.4f};1" rotate="auto" calcMode="linear"/>{ship_shape()}</g></g>')
+            # the scan line
+            sa, sb = (ro + 0.4) / CYC, (ro + 3.4) / CYC
+            span = 53 * st
+            s += (f'<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;{sa:.4f};{sa + .008:.4f};{sb:.4f};{sb + .01:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+                  f'<g><animateTransform attributeName="transform" type="translate" values="{gx} 0;{gx} 0;{gx + span:.0f} 0;{gx + span:.0f} 0" keyTimes="0;{sa:.4f};{sb:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+                  f'<rect x="-70" y="{gy - 5}" width="70" height="{7 * st + 8:.0f}" fill="url(#trail)" opacity=".5"/><rect x="-1" y="{gy - 6}" width="2" height="{7 * st + 10:.0f}" fill="{ACC}"/></g></g>')
+    ly = gy0 + bandh * len(years) + 8
     langs = S['languages'][:6]
     x, bw = 28, w - 56
     for i, l in enumerate(langs):

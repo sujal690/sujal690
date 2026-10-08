@@ -1,6 +1,6 @@
-import { createTree } from './tree.js?v=20261008b';
-import { createSky, phaseName, greeting } from './sky.js?v=20261008b';
-import { DIAG, WORK } from './diag.js?v=20261008b';
+import { createTree } from './tree.js?v=20261008c';
+import { createSky, phaseName, greeting } from './sky.js?v=20261008c';
+import { DIAG, WORK } from './diag.js?v=20261008c';
 
 const BURST = ['#e6a965', '#a9c78b', '#7fa35a', '#f1d8a8', '#c98b4a']; let night = false;
 const $ = (s, el = document) => el.querySelector(s);
@@ -28,66 +28,85 @@ document.head.appendChild(lit);
 const openRow = (i) => { const rows = $$('.row'); rows.forEach((r, k) => { const on = k === i; r.dataset.open = on; $('button', r).setAttribute('aria-expanded', on); }); };
 $$('.row').forEach((row, i) => $('button', row).addEventListener('click', () => openRow(row.dataset.open === 'true' ? -1 : i)));
 
-// ---------------------------------------------------------------- activity: real GitHub data, a ladybug that eats the green days
+// ---------------------------------------------------------------- activity: every year since the first day on GitHub, a ladybug that eats the green days and they sprout back
 const counters = []; const crawl = { on: false, visible: false };
-fetch('stats.json?v=' + Date.now().toString().slice(0, 7)).then((r) => r.json()).then((S) => {
+fetch('stats.json?v=' + Date.now().toString().slice(0, 8)).then((r) => r.json()).then((S) => {
+  const cal = new Map(S.calendar.map((d) => [d.date, d.count]));
   const nz = S.calendar.map((d) => d.count).filter(Boolean).sort((a, b) => a - b);
   const q = nz.length ? [0.25, 0.5, 0.75].map((p) => nz[Math.floor(nz.length * p)]) : [1, 2, 3];
   const lv = (c) => (c === 0 ? 0 : 1 + q.filter((t) => c > t).length);
-  const pad = new Date(S.calendar[0].date + 'T00:00:00').getDay();
-  const best = new Date(S.best_day.date + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric' });
+  const best = new Date(S.best_day.date + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' });
+  const since = new Date((S.since_date || S.calendar[0].date) + 'T00:00:00').toLocaleString('en', { month: 'short', year: 'numeric' });
   const tiles = [[S.contributions, 'contributions'], [S.commits, 'commits'], [S.repos, 'repositories'], [S.active_days, 'active days'], [S.longest_streak, 'day best streak'], [S.current_streak, 'day current streak'], [S.followers, 'follower'], [S.repos_contributed, 'repos contributed to']];
-  const mx = Math.max(...S.months.map((m) => m.count), 1), wd = S.weekday, wmx = Math.max(...wd, 1);
   const mon = (m) => new Date(m + '-01T00:00:00').toLocaleString('en', { month: 'short' });
+  const mx = Math.max(...S.months.map((m) => m.count), 1), wd = S.weekday, wmx = Math.max(...wd, 1);
   const LC = ['#6aa0d8', '#e6c552', '#8f8fc0', '#c58ad8', '#e6a965', '#8fbf7a'];
+  const years = [...new Set(S.calendar.map((d) => +d.date.slice(0, 4)))].sort();
+  const yt = Object.fromEntries(years.map((y) => [y, S.calendar.filter((d) => d.date.startsWith(y)).reduce((s, d) => s + d.count, 0)]));
+  const iso = (d) => d.toISOString().slice(0, 10);
+  const grids = years.map((y, yi) => {
+    const jan = new Date(Date.UTC(y, 0, 1)), pad = jan.getUTCDay(), cells = [];
+    for (let i = 0; i < 371 && new Date(Date.UTC(y, 0, 1 + i)).getUTCFullYear() === y; i++) {
+      const d = new Date(Date.UTC(y, 0, 1 + i)), ds = iso(d), has = cal.has(ds), c = has ? cal.get(ds) : 0, col = Math.floor((i + pad) / 7);
+      cells.push(`<span${has ? ` data-l="${lv(c)}" data-d="${ds}" data-c="${c}"` : ' class="off"'}${S.best_day.date === ds ? ' data-best="1"' : ''} style="--c:${col};--y:${yi}"></span>`);
+    }
+    return `<div class="yr"><div class="yl"><b>${y}</b><span>${yt[y]}</span></div><div class="grid" data-y="${yi}">${'<span class="off" style="visibility:hidden"></span>'.repeat(pad)}${cells.join('')}</div></div>`;
+  }).join('');
+  const qmon = S.months.map((m, i) => (i % 3 === 0 ? `<span>${mon(m.month)}${m.month.slice(2, 4) !== (S.months[i - 3] || { month: '' }).month.slice(2, 4) ? ' ’' + m.month.slice(2, 4) : ''}</span>` : '<span></span>')).join('');
   $('#dash').insertAdjacentHTML('beforeend', `<div class="tiles">${tiles.map(([v, l]) => `<div class="tile"><div class="v" data-to="${v}">0</div><div class="l">${l}</div></div>`).join('')}</div>
-    <div class="gw"><div class="grid" id="grid">${'<span style="visibility:hidden"></span>'.repeat(pad)}${S.calendar.map((d, i) => `<span data-l="${lv(d.count)}" data-d="${d.date}" data-c="${d.count}" style="--c:${Math.floor((i + pad) / 7)}"></span>`).join('')}</div>
-      <div class="bug" id="bug"><img alt=""><img alt=""><img alt=""><img alt=""></div></div>
-    <div class="cap"><span>${S.contributions} contributions in the last year</span><span>best day <b>${best}</b>, ${S.best_day.count}</span></div>
-    <div class="two"><div class="mini"><h4>Per month</h4><div class="bars">${S.months.map((m, i) => `<i style="--h:${Math.max(6, m.count / mx * 100)};--k:${i}" data-t="${mon(m.month)}: ${m.count}"></i>`).join('')}</div><div class="axis">${S.months.map((m) => `<span>${mon(m.month)[0]}</span>`).join('')}</div></div>
+    <div class="gw" id="gw">${grids}<div class="bug" id="bug"><img alt=""><img alt=""><img alt=""><img alt=""><img alt="" class="fl"></div></div>
+    <div class="cap"><span>${S.contributions} contributions since ${since}</span><span>best day <b>${best}</b>, ${S.best_day.count}</span></div>
+    <div class="two"><div class="mini"><h4>Every month</h4><div class="bars thin">${S.months.map((m, i) => `<i style="--h:${Math.max(5, m.count / mx * 100)};--k:${i * 0.4}" data-t="${mon(m.month)} ${m.month.slice(0, 4)}: ${m.count}"></i>`).join('')}</div><div class="axis thin">${qmon}</div></div>
     <div class="mini"><h4>Week rhythm</h4><div class="bars">${wd.map((n, i) => `<i style="--h:${Math.max(6, n / wmx * 100)};--k:${i}" data-t="${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}: ${n}"></i>`).join('')}</div><div class="axis">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) => `<span>${d}</span>`).join('')}</div></div></div>
     <div class="mini" style="margin-top:28px"><h4>Languages</h4><div class="lang">${S.languages.slice(0, 6).map((l, i) => `<i style="--w:${l.pct};--c:${LC[i]};--k:${i}"></i>`).join('')}</div><div class="llist">${S.languages.slice(0, 6).map((l, i) => `<span style="--c:${LC[i]}"><b>${l.name}</b> ${l.pct}%</span>`).join('')}</div></div>`);
-  const tip = $('#tip'), grid = $('#grid');
-  grid.addEventListener('pointerover', (e) => { const s = e.target.closest('span[data-d]'); if (!s) return; const r = s.getBoundingClientRect(); tip.textContent = `${s.dataset.c} on ${new Date(s.dataset.d + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`; tip.style.left = r.left + r.width / 2 + 'px'; tip.style.top = r.top + 'px'; tip.classList.add('on'); });
-  grid.addEventListener('pointerleave', () => tip.classList.remove('on'));
+  const tip = $('#tip'), gw = $('#gw');
+  gw.addEventListener('pointerover', (e) => { const s = e.target.closest('span[data-d]'); if (!s) return; const r = s.getBoundingClientRect(); tip.textContent = `${s.dataset.c} on ${new Date(s.dataset.d + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric', year: 'numeric' })}`; tip.style.left = r.left + r.width / 2 + 'px'; tip.style.top = r.top + 'px'; tip.classList.add('on'); });
+  gw.addEventListener('pointerleave', () => tip.classList.remove('on'));
   counters.push(...$$('#dash [data-to]'));
-  setupBug(grid, pad);
+  setupBug(gw);
   measure();
 }).catch((e) => console.warn('stats unavailable', e));
 function countUp(el) { const to = +el.dataset.to, t0 = performance.now(); const step = (n) => { const k = clamp((n - t0) / 1300), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(to * e); if (k < 1) requestAnimationFrame(step); }; reduce ? (el.textContent = to) : requestAnimationFrame(step); }
 
-function setupBug(grid, pad) {
-  const bug = $('#bug'), imgs = $$('img', bug), cells = $$('span', grid).slice(pad);
-  imgs.forEach((im, i) => { im.src = `sprites/bug_walk${i}.webp`; });
-  const ncol = Math.ceil((cells.length + pad) / 7), order = [];
-  for (let c = 0; c < ncol; c++) { const col = []; for (let r = 0; r < 7; r++) { const k = c * 7 + r - pad; if (k >= 0 && k < cells.length) col.push(k); } if (c % 2) col.reverse(); order.push(...col); }
-  const act = order.map((k) => +cells[k].dataset.l > 0), CH = 0.28, FAST = 0.05, START = 1.4, END = 2.4;
-  const cum = [START]; order.forEach((k, i) => cum.push(cum[i] + (act[i] ? CH : FAST)));
-  const total = cum[cum.length - 1] + END;
-  let centers = [], u = 0, fedFrom = null, gone = new Uint8Array(order.length), lastFrame = -1, heading = 0;
-  const wrap = grid.parentElement;
-  const layout = () => { const wr = wrap.getBoundingClientRect(); centers = order.map((k) => { const r = cells[k].getBoundingClientRect(); return [r.left - wr.left + r.width / 2, r.top - wr.top + r.height / 2]; }); const s = Math.max(24, cells[0].getBoundingClientRect().width * 3.2); bug.style.width = bug.style.height = s + 'px'; bug.style.margin = `${-s / 2}px 0 0 ${-s / 2}px`; };
+// the ladybug hunts the active days in time order, flying down to the next year when a row is done; eaten days sprout back after the lap
+function setupBug(wrap) {
+  const bug = $('#bug'), walk = $$('img:not(.fl)', bug), flyImg = $('img.fl', bug);
+  walk.forEach((im, i) => { im.src = `sprites/bug_walk${i}.webp`; }); flyImg.src = 'sprites/bug_fly0.webp';
+  const cells = $$('span[data-d]', wrap).filter((s) => +s.dataset.c > 0);
+  const byYear = {}; cells.forEach((s) => { (byYear[s.parentElement.dataset.y] ||= []).push(s); });
+  const order = [];
+  Object.keys(byYear).sort().forEach((y) => { const row = byYear[y]; row.sort((a, b) => (+a.style.getPropertyValue('--c') - +b.style.getPropertyValue('--c')) || 0); order.push(...row); });
+  const CHEW = 0.3, SPEED = 190, FLY = 1.0, START = 1.4, END = 2.6;
+  let centers = [], times = [], total = 0, u = 0, fed = null, heading = 0, gone = new Uint8Array(order.length), flights = [];
+  const layout = () => {
+    const wr = wrap.getBoundingClientRect(); centers = order.map((k) => { const r = k.getBoundingClientRect(); return [r.left - wr.left + r.width / 2, r.top - wr.top + r.height / 2]; });
+    let t = START; times = []; flights = [];
+    centers.forEach((c, i) => { if (i) { const p = centers[i - 1], d = Math.hypot(c[0] - p[0], c[1] - p[1]), fl = order[i].parentElement !== order[i - 1].parentElement; flights[i] = fl; t += fl ? FLY : Math.max(0.1, d / SPEED); } times.push(t); t += CHEW; });
+    total = t + END;
+    const s = Math.max(24, (order[0] ? order[0].getBoundingClientRect().width : 11) * 3.2); bug.style.width = bug.style.height = s + 'px'; bug.style.margin = `${-s / 2}px 0 0 ${-s / 2}px`;
+  };
   layout(); addEventListener('resize', layout); new ResizeObserver(layout).observe(wrap);
   const crumb = (x, y) => { if (reduce) return; for (let i = 0; i < 4; i++) { const c = document.createElement('i'); c.className = 'crumb'; c.style.left = x + 'px'; c.style.top = y + 'px'; wrap.appendChild(c); const a = Math.random() * 6.28, d = 8 + Math.random() * 12; c.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(a) * d}px,${Math.sin(a) * d - 6}px) scale(0)`, opacity: 0 }], { duration: 600, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => c.remove(); } };
-  grid.addEventListener('pointerdown', (e) => { const s = e.target.closest('span[data-d]'); if (!s) return; const k = cells.indexOf(s), i = order.indexOf(k); if (i >= 0) fedFrom = { from: u, to: cum[i], t0: performance.now() }; });
+  wrap.addEventListener('pointerdown', (e) => {
+    const s = e.target.closest('span[data-d]'); if (!s) return; let i = order.indexOf(s); if (i < 0) i = order.findIndex((o) => o.dataset.d > s.dataset.d); if (i < 0) return;
+    fed = { from: u, to: times[i] - 0.05, t0: performance.now() };
+  });
   crawl.step = (dt) => {
     if (!crawl.visible || !centers.length) return;
-    if (fedFrom) { const kk = clamp((performance.now() - fedFrom.t0) / 700); u = lerp(fedFrom.from, fedFrom.to, 1 - Math.pow(1 - kk, 3)); if (kk >= 1) fedFrom = null; }
-    else u += dt;
-    if (u >= total) { u = 0; }
-    // which cell the bug is on (binary search over cumulative times)
-    let lo = 0, hi = order.length; while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m + 1] <= u) lo = m + 1; else hi = m; }
-    const i = Math.min(lo, order.length - 1), j = Math.min(i + 1, order.length - 1);
-    const tt = clamp((u - cum[i]) / Math.max(1e-3, cum[i + 1] - cum[i])), pa = centers[i], pb = centers[j];
-    const x = lerp(pa[0], pb[0], act[i] ? smooth(tt * 0.6 + 0.4 * tt) : tt), y = lerp(pa[1], pb[1], act[i] ? smooth(tt * 0.6 + 0.4 * tt) : tt);
-    if (u < START) { bug.style.opacity = clamp(u / 0.5); } else bug.style.opacity = 1;
-    const dx = pb[0] - pa[0], dy = pb[1] - pa[1]; if (Math.hypot(dx, dy) > 0.1) { const h = Math.atan2(dx, -dy); let d = h - heading; d = Math.atan2(Math.sin(d), Math.cos(d)); heading += d * 0.35; }
-    bug.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${heading.toFixed(3)}rad)`;
-    const f = Math.floor(performance.now() / (act[i] ? 140 : 80)) % 4; imgs.forEach((im, n) => im.classList.toggle('on', n === f));
-    // cells flip to eaten when the bug reaches them, and all grow back when it starts over
+    if (fed) { const kk = clamp((performance.now() - fed.t0) / 800); u = lerp(fed.from, fed.to, 1 - Math.pow(1 - kk, 3)); if (kk >= 1) fed = null; } else u += dt;
+    if (u >= total) u = 0;
+    let lo = 0, hi = order.length; while (lo < hi) { const m = (lo + hi) >> 1; if (times[m] + CHEW <= u) lo = m + 1; else hi = m; }
+    const i = Math.min(lo, order.length - 1);       // the cell being eaten or the next one on the route
+    let x, y, flying = false, tx, ty;
+    if (u < times[i]) { const p = i ? centers[i - 1] : centers[0], c = centers[i], a = i ? times[i - 1] + CHEW : START - 0.001, kk = clamp((u - a) / Math.max(1e-3, times[i] - a)); const e = flights[i] ? smooth(kk) : kk; x = lerp(p[0], c[0], e); y = lerp(p[1], c[1], e); tx = c[0] - p[0]; ty = c[1] - p[1]; flying = !!flights[i]; if (flying) y -= Math.sin(kk * Math.PI) * 26; }
+    else { x = centers[i][0]; y = centers[i][1]; tx = 0; ty = 0; }
+    bug.style.opacity = u < START - 0.6 ? 0 : clamp((u - (START - 0.6)) / 0.5) * (u > total - 0.7 ? clamp((total - u) / 0.5) : 1);
+    if (Math.hypot(tx, ty) > 0.1) { const h = Math.atan2(tx, -ty); let d = h - heading; d = Math.atan2(Math.sin(d), Math.cos(d)); heading += d * 0.3; }
+    bug.style.transform = `translate(${x.toFixed(1)}px,${y.toFixed(1)}px) rotate(${heading.toFixed(3)}rad) scale(${flying ? 1.45 : 1})`;
+    const f = Math.floor(performance.now() / (u >= times[i] ? 120 : 80)) % 4; walk.forEach((im, n) => im.classList.toggle('on', !flying && n === f)); flyImg.classList.toggle('on', flying);
     for (let n = 0; n < order.length; n++) {
-      const want = act[n] && cum[n] + 0.1 <= u ? 1 : 0;
-      if (want !== gone[n]) { gone[n] = want; cells[order[n]].classList.toggle('gone', !!want); if (want && !reduce) crumb(centers[n][0], centers[n][1]); }
+      const want = times[n] + CHEW * 0.4 <= u ? 1 : 0;
+      if (want !== gone[n]) { gone[n] = want; order[n].classList.toggle('gone', !!want); if (want && !reduce) crumb(centers[n][0], centers[n][1]); }
     }
   };
 }
@@ -130,14 +149,24 @@ $$('.btn').forEach((b) => {
   b.addEventListener('pointerdown', (e) => { const r = b.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2.2, rp = document.createElement('i'); rp.className = 'rip'; rp.style.cssText = `left:${e.clientX - r.left}px;top:${e.clientY - r.top}px;width:${s}px;height:${s}px`; b.appendChild(rp); setTimeout(() => rp.remove(), 800); burst(e.clientX, e.clientY); });
 });
 // every press answers: a ring of light where you click, leaves by day and fireflies by night, and a springy pop on whatever was pressed
+const MOODS = {
+  Dawn: { n: 9, cls: 'pt', life: [1300, 700], dx: 1, dy: -34, spin: 200, ring: 'rgba(255,170,150,.8)' },
+  Morning: { n: 8, cls: 'pt', life: [1200, 600], dx: 1, dy: -26, spin: 220, ring: 'rgba(255,200,130,.8)' },
+  Day: { n: 8, cls: 'lf', life: [900, 500], dx: 1, dy: 24, spin: 520, ring: '' },
+  Evening: { n: 10, cls: 'em', life: [1100, 600], dx: 0.6, dy: -58, spin: 0, ring: 'rgba(255,140,70,.85)' },
+  Dusk: { n: 10, cls: 'em', life: [1200, 600], dx: 0.6, dy: -64, spin: 0, ring: 'rgba(255,120,90,.85)' },
+  Night: { n: 7, cls: 'ff', life: [1500, 800], dx: 0.8, dy: -44, spin: 0, ring: 'rgba(200,236,120,.7)' },
+};
 function spark(x, y) {
   if (reduce) return;
-  const r = document.createElement('i'); r.className = 'ring'; r.style.left = x + 'px'; r.style.top = y + 'px'; document.body.appendChild(r);
+  const m = MOODS[sky.phase().name] || MOODS.Day;
+  const r = document.createElement('i'); r.className = 'ring'; r.style.left = x + 'px'; r.style.top = y + 'px'; if (m.ring) r.style.boxShadow = `0 0 0 1.5px ${m.ring}, 0 0 24px ${m.ring}`; document.body.appendChild(r);
   r.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 0.9 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 }], { duration: 650, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => r.remove();
-  for (let i = 0; i < 6; i++) {
-    const l = document.createElement('i'); l.className = night ? 'ff' : 'lf'; l.style.left = x + 'px'; l.style.top = y + 'px'; if (!night) l.style.background = BURST[(i * 2) % BURST.length]; document.body.appendChild(l);
-    const ang = Math.random() * 6.283, d = 24 + Math.random() * 40;
-    l.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(ang) * d}px,${Math.sin(ang) * d - (night ? 30 : 10)}px) rotate(${(Math.random() - 0.5) * 360}deg) scale(.3)`, opacity: 0 }], { duration: 700 + Math.random() * 400, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => l.remove();
+  for (let i = 0; i < m.n; i++) {
+    const l = document.createElement('i'); l.className = m.cls; l.style.left = x + 'px'; l.style.top = y + 'px'; if (m.cls === 'lf') l.style.background = BURST[(i * 2) % BURST.length]; document.body.appendChild(l);
+    const ang = Math.random() * 6.283, d = 22 + Math.random() * 46, wob = (Math.random() - 0.5) * 30;
+    const end = { transform: `translate(${Math.cos(ang) * d * m.dx + wob}px,${Math.sin(ang) * d * 0.5 + m.dy * (0.6 + Math.random() * 0.8)}px) rotate(${(Math.random() - 0.5) * m.spin * 2}deg) scale(${m.cls === 'em' ? 0.1 : 0.4})`, opacity: 0 };
+    l.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1, offset: 0 }, { opacity: m.cls === 'em' ? 0.9 : 1, offset: 0.4 }, end], { duration: m.life[0] + Math.random() * m.life[1], easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => l.remove();
   }
 }
 addEventListener('pointerdown', (e) => {
@@ -195,7 +224,7 @@ addEventListener('pointermove', (e) => {
   const h = onCard ? null : tree.hit(e.clientX, e.clientY);
   document.body.style.cursor = h ? 'pointer' : '';
   boop.classList.toggle('on', !!h && h.type === 'bug'); if (h && h.type === 'bug') { boop.style.left = e.clientX + 'px'; boop.style.top = e.clientY + 'px'; }
-  if (h && h.type === 'fruit') { tipEl.textContent = `${FRUIT_LABEL[h.id % FRUIT_LABEL.length]}: open`; tipEl.style.left = e.clientX + 'px'; tipEl.style.top = e.clientY + 'px'; tipEl.classList.add('on'); } else if (!e.target.closest('#grid')) tipEl.classList.remove('on');
+  if (h && h.type === 'fruit') { tipEl.textContent = `${FRUIT_LABEL[h.id % FRUIT_LABEL.length]}: open`; tipEl.style.left = e.clientX + 'px'; tipEl.style.top = e.clientY + 'px'; tipEl.classList.add('on'); } else if (!e.target.closest('#gw')) tipEl.classList.remove('on');
 }, { passive: true });
 addEventListener('pointerdown', (e) => {
   if (e.target.closest('.card, nav, .btn, a, button')) return; const h = tree.hit(e.clientX, e.clientY); if (!h) return;

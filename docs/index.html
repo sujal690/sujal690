@@ -168,12 +168,23 @@ h2{font:700 clamp(32px,3.7vw,48px)/1.06 var(--disp);letter-spacing:-.03em;margin
 .tile .v{font:700 38px/1 var(--disp);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 .tile .l{color:var(--muted);font-size:13.5px;margin-top:7px}
 .gw{position:relative}
-.grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-auto-columns:1fr;gap:2.5px;clip-path:inset(0 100% 0 0);transition:clip-path 1.8s var(--out) .2s}
-.in .grid{clip-path:inset(0 0 0 0)}
-.grid span{width:100%;aspect-ratio:1;border-radius:2.6px;background:rgba(244,241,230,.07);transition:transform .7s var(--spring) calc(var(--c)*9ms),opacity .7s calc(var(--c)*9ms),background .3s}
-.grid span[data-l="1"]{background:#31502a}.grid span[data-l="2"]{background:#4f7a3a}.grid span[data-l="3"]{background:#86ad52}.grid span[data-l="4"]{background:#e6a965}
-.grid span.gone{transform:scale(.15);opacity:.12;transition-delay:0s;transition-duration:.25s}
+.yr{margin-bottom:12px}
+.yl{display:flex;align-items:baseline;gap:9px;margin-bottom:5px}.yl b{font:700 14px var(--disp);letter-spacing:-.01em}.yl span{font:600 12px var(--sans);color:var(--acc)}.yl span::after{content:' contributions';color:var(--muted);font-weight:400}
+.grid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,auto);grid-auto-columns:1fr;gap:2.5px}
+.grid span{width:100%;aspect-ratio:1;border-radius:2.6px;background:rgba(244,241,230,.07);transform:scale(0);transition:transform .8s var(--spring) calc(var(--c)*14ms + var(--y,0)*420ms),opacity .7s calc(var(--c)*9ms),background .3s}
+.in .grid span{transform:none}
+.grid span.off{background:rgba(244,241,230,.035)}
+.grid span[data-l="1"]{background:#31502a}.grid span[data-l="2"]{background:#4f7a3a}.grid span[data-l="3"]{background:#86ad52}.grid span[data-l="4"]{background:#e6a965;box-shadow:0 0 8px rgba(var(--accR),.35)}
+.in .grid span.gone{transform:scale(.15);opacity:.12;transition:transform .25s,opacity .25s,background .3s}
 .grid span:hover{box-shadow:0 0 0 1.5px var(--ink)}
+.grid span[data-best]{position:relative}
+.grid span[data-best]::after{content:'';position:absolute;inset:-3px;border-radius:50%;border:1.5px solid var(--acc);animation:bestring 2.8s ease-out infinite;pointer-events:none}
+@keyframes bestring{0%{transform:scale(.7);opacity:.9}100%{transform:scale(2.2);opacity:0}}
+.bug img.fl{opacity:0}.bug img.fl.on{opacity:1}
+.bars.thin{gap:2px}.bars.thin i{border-radius:2px 2px 1px 1px}.axis.thin{gap:2px}.axis.thin span{font-size:10.5px;overflow:visible;white-space:nowrap}
+.pt{position:fixed;z-index:60;width:9px;height:13px;margin:-6px 0 0 -4px;pointer-events:none;border-radius:70% 0 70% 0;background:linear-gradient(135deg,#ffd0c0,#ff9fb0)}
+.em{position:fixed;z-index:60;width:5px;height:5px;margin:-3px 0 0 -3px;border-radius:50%;pointer-events:none;background:#ffb25a;box-shadow:0 0 9px 3px rgba(255,140,60,.85)}
+
 .bug{position:absolute;left:0;top:0;width:30px;height:30px;margin:-15px 0 0 -15px;pointer-events:none;z-index:3;will-change:transform;filter:drop-shadow(0 3px 3px rgba(0,0,0,.4))}
 .bug img{position:absolute;inset:0;width:100%;height:100%;opacity:0}
 .bug img.on{opacity:1}
@@ -267,7 +278,7 @@ footer{padding:28px clamp(18px,5vw,76px) 54px;color:var(--muted);font-size:14px}
   </div></section>
   <section class="s" id="intro"><div class="col"><div class="card"><p class="st" id="st"></p></div></div></section>
   <section class="s" id="work"><div class="col"><div class="card reveal"><div class="eyebrow">01 · Work</div><h2>Selected work</h2><p class="sub">Four production systems at Sky Gold and Diamonds.</p><div class="rows" id="rows"></div></div></div></section>
-  <section class="s" id="stats"><div class="col"><div class="card reveal" id="dash"><div class="eyebrow">02 · Activity</div><h2>Activity</h2><p class="sub">GitHub, last 12 months. Watch the ladybug eat the green days; tap a square to send it there.</p></div></div></section>
+  <section class="s" id="stats"><div class="col"><div class="card reveal" id="dash"><div class="eyebrow">02 · Activity</div><h2>Activity</h2><p class="sub">GitHub, every year since the first day. Watch the ladybug eat the green days and tap a square to send it there.</p></div></div></section>
   <section class="s" id="path"><div class="col"><div class="card reveal"><div class="eyebrow">03 · Path</div><h2>Path</h2><p class="sub">How it grew.</p><div class="path" id="steps"></div></div></div></section>
   <section class="s" id="toolkit"><div class="col"><div class="card reveal"><div class="eyebrow">04 · Toolkit</div><h2>Toolkit</h2><p class="sub">Hover a skill to see where it is used. Fruit on the tree is clickable once it ripens.</p><div id="cloud"></div><div class="repos" id="repos"></div></div></div></section>
   <section class="s" id="contact"><div class="col"><div class="card reveal">
@@ -279,6 +290,6 @@ footer{padding:28px clamp(18px,5vw,76px) 54px;color:var(--muted);font-size:14px}
 </main>
 <footer><span id="sign">Sujal Shah</span> · <a href="https://sujal-shah-portfolio.vercel.app" style="color:var(--acc)">main portfolio</a></footer>
 <div id="toast" role="status">Email address copied</div>
-<script type="module" src="app.js?v=20261008b"></script>
+<script type="module" src="app.js?v=20261008c"></script>
 </body>
 </html>
