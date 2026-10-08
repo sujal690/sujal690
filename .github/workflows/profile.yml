@@ -1,10 +1,22 @@
-# Keeps the profile current: the whole README (banner, colours, cards) follows the time of day in India, and the stats refresh.
+# Keeps the whole profile current: the README follows the time of day in India and the all-time stats refresh.
+# Built to survive late or skipped runs: it runs every 10 minutes (on odd minutes, which GitHub serves more reliably), every run is idempotent, and a missed run is
+# corrected by the next one. Edit this file only through a token with the `workflow` scope.
 name: Refresh profile
 
 on:
   schedule:
-    - cron: "*/30 * * * *"
+    - cron: "4-59/10 * * * *"   # minutes 4, 14, 24 ... (GitHub drops runs at :00 and :30 under load)
   workflow_dispatch:
+  issues:
+    types: [opened, edited, labeled]   # a spare trigger: open or label any issue to force a refresh
+  push:
+    branches: [main]
+    paths:
+      - "scripts/**"
+
+concurrency:
+  group: profile-refresh
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -12,28 +24,27 @@ permissions:
 jobs:
   refresh:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Banner for the current time of day
-        run: python scripts/phase.py
-      - name: Rebuild stats and cards (a few times a day)
+      - name: Install
+        run: pip install --quiet fonttools brotli pillow
+      - name: Refresh (edition by time of day, stats when stale)
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          if [ "$(date -u +%M)" -lt 30 ] && [ $(( $(date -u +%H) % 6 )) -eq 0 ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            pip install --quiet fonttools brotli pillow
-            python scripts/build_stats.py docs/stats.json
-            for t in space leaf; do for p in dawn day dusk night; do
-              python scripts/gen8.py $t docs/stats.json assets/$t/phase/$p scripts/thumbs $p
-            done; done
-            python scripts/phase.py
-          fi
-      - name: Commit if anything changed
+          GH_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
+        run: python scripts/refresh.py ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && '--force' || '' }}
+      - name: Commit and push (retries on conflicts)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
-          git diff --cached --quiet || (git commit -m "Refresh profile" && git push)
+          if git diff --cached --quiet; then echo "nothing to commit"; exit 0; fi
+          git commit -m "Refresh profile"
+          for i in 1 2 3 4 5; do
+            if git pull --rebase -q origin main && git push -q origin HEAD:main; then exit 0; fi
+            sleep $((i * 6))
+          done
+          echo "push failed after retries"; exit 1

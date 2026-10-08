@@ -1,12 +1,14 @@
 # Keeps the whole profile current: the README follows the time of day in India and the all-time stats refresh.
-# Built to survive late or skipped runs: it runs every 10 minutes, every run is idempotent, and a missed run is
+# Built to survive late or skipped runs: it runs every 10 minutes (on odd minutes, which GitHub serves more reliably), every run is idempotent, and a missed run is
 # corrected by the next one. Edit this file only through a token with the `workflow` scope.
 name: Refresh profile
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "4-59/10 * * * *"   # minutes 4, 14, 24 ... (GitHub drops runs at :00 and :30 under load)
   workflow_dispatch:
+  issues:
+    types: [opened, edited, labeled]   # a spare trigger: open or label any issue to force a refresh
   push:
     branches: [main]
     paths:
@@ -33,7 +35,7 @@ jobs:
       - name: Refresh (edition by time of day, stats when stale)
         env:
           GH_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
-        run: python scripts/refresh.py ${{ github.event_name != 'schedule' && '--force' || '' }}
+        run: python scripts/refresh.py ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && '--force' || '' }}
       - name: Commit and push (retries on conflicts)
         run: |
           git config user.name "github-actions[bot]"
