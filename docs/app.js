@@ -157,9 +157,21 @@ const MOODS = {
   Dusk: { n: 10, cls: 'em', life: [1200, 600], dx: 0.6, dy: -64, spin: 0, ring: 'rgba(255,120,90,.85)' },
   Night: { n: 7, cls: 'ff', life: [1500, 800], dx: 0.8, dy: -44, spin: 0, ring: 'rgba(200,236,120,.7)' },
 };
+function spaceSpark(x, y) {
+  [[0, 1], [110, 0.62]].forEach(([delay, sc]) => {
+    const r = document.createElement('i'); r.className = 'ring'; r.style.left = x + 'px'; r.style.top = y + 'px'; r.style.boxShadow = '0 0 0 1.5px rgba(127,220,255,.9),0 0 26px rgba(127,220,255,.55)'; document.body.appendChild(r);
+    r.animate([{ transform: `translate(-50%,-50%) scale(${.15 * sc})`, opacity: 0.95 }, { transform: `translate(-50%,-50%) scale(${1.3 * sc})`, opacity: 0 }], { duration: 760, delay, easing: 'cubic-bezier(.16,1,.3,1)', fill: 'backwards' }).onfinish = () => r.remove();
+  });
+  for (let i = 0; i < 9; i++) {
+    const p = document.createElement('i'); p.className = 'st-p'; p.style.left = x + 'px'; p.style.top = y + 'px'; p.style.scale = String(0.6 + Math.random() * 0.9); document.body.appendChild(p);
+    const ang = (i / 9) * 6.283 + Math.random() * 0.5, d = 34 + Math.random() * 56;
+    p.animate([{ transform: 'translate(0,0) rotate(0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(ang) * d}px,${Math.sin(ang) * d}px) rotate(${(Math.random() - 0.5) * 240}deg) scale(.1)`, opacity: 0 }], { duration: 820 + Math.random() * 400, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => p.remove();
+  }
+}
 function spark(x, y) {
   if (reduce) return;
   const m = MOODS[sky.phase().name] || MOODS.Day;
+  if (sky.space) return spaceSpark(x, y);
   const r = document.createElement('i'); r.className = 'ring'; r.style.left = x + 'px'; r.style.top = y + 'px'; if (m.ring) r.style.boxShadow = `0 0 0 1.5px ${m.ring}, 0 0 24px ${m.ring}`; document.body.appendChild(r);
   r.animate([{ transform: 'translate(-50%,-50%) scale(.2)', opacity: 0.9 }, { transform: 'translate(-50%,-50%) scale(1)', opacity: 0 }], { duration: 650, easing: 'cubic-bezier(.16,1,.3,1)' }).onfinish = () => r.remove();
   for (let i = 0; i < m.n; i++) {
@@ -200,6 +212,14 @@ const sky = createSky(skyCanvas, (P) => {
   meta.setAttribute('content', `rgb(${P.top.map((v) => v | 0)})`);
   updateGreeting();
 });
+const thmBtns = $$('.thm button'); const THEME_KEY = 'sujal-theme';
+function applyTheme(t, save = true) {
+  document.documentElement.dataset.theme = t; sky.setSpace(t === 'space'); thmBtns.forEach((b) => b.setAttribute('aria-checked', b.dataset.t === t));
+  if (save) { try { localStorage.setItem(THEME_KEY, t); } catch (e) { /* private mode */ } }
+  const u = new URL(location.href); u.searchParams.set('theme', t); history.replaceState(null, '', u); updateGreeting();
+}
+thmBtns.forEach((b) => b.addEventListener('click', () => applyTheme(b.dataset.t)));
+{ let t0 = new URLSearchParams(location.search).get('theme'); if (!t0) { try { t0 = localStorage.getItem(THEME_KEY); } catch (e) { /* ignore */ } } if (t0 === 'space') setTimeout(() => applyTheme('space', false), 0); }
 const tsw = $('.tsw'), tind = $('.tsw .ind'), tbtn = $$('button', tsw);
 function markMode(m) { tbtn.forEach((b) => b.setAttribute('aria-checked', b.dataset.m === m)); const a = tbtn.find((b) => b.dataset.m === m); requestAnimationFrame(() => { tind.style.opacity = 1; tind.style.width = a.offsetWidth + 'px'; tind.style.transform = `translateX(${a.offsetLeft - 5}px)`; }); }
 tbtn.forEach((b) => b.addEventListener('click', () => { sky.setMode(b.dataset.m); markMode(b.dataset.m); }));

@@ -35,8 +35,11 @@ export function phaseName(h) { h = ((h % 24) + 24) % 24; return h < 5 ? 'Night' 
 export function greeting(h) { h = ((h % 24) + 24) % 24; return h < 4.5 ? 'Good night' : h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : h < 21 ? 'Good evening' : 'Good night'; }
 const nowHour = () => { const d = new Date(); return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600; };
 
+const SPACE_P = { top: [2, 4, 12], mid: [6, 14, 40], hor: [14, 26, 62], hill: [[10, 18, 40], [8, 14, 32], [5, 9, 22]], card: [8, 14, 32], tint: [20, 70, 130, 0.34], star: 1, cloudC: [60, 80, 120], cloudA: 0, sunI: 0, rays: 0, mist: 0, mistC: [20, 40, 90], acc: [127, 220, 255] };
+
 export function createSky(canvas, onVars) {
   const ctx = canvas.getContext('2d');
+  let space = false, nebula = null;
   let W = 0, H = 0, mode = 'auto', hour = nowHour(), P = sample(hour), tw = null, lastVarKey = '', lastBuild = -1, buildKey = '';
   const ptr = { x: 0.5, y: 0.5, px: 0, py: 0, speed: 0, gust: 0 };
   let stars = null, hills = [], clouds = [], cloudSprites = [], birds = null, shoot = null, nextShoot = 6, nextBird = 9;
@@ -81,6 +84,26 @@ export function createSky(canvas, onVars) {
   function resize() { W = innerWidth; H = innerHeight; canvas.width = W; canvas.height = H; buildStars(); P = sample(hour); build(); buildKey = ''; }
   resize(); addEventListener('resize', resize);
 
+  // ---- the space skin: a nebula, a ringed planet with a moon
+  function buildNebula() {
+    nebula = document.createElement('canvas'); nebula.width = W; nebula.height = H; const x = nebula.getContext('2d'), r = rand(9);
+    for (let i = 0; i < 9; i++) { const cx = W * (0.1 + r() * 0.8), cy = H * (0.05 + r() * 0.9), rad = Math.max(W, H) * (0.18 + r() * 0.3), hue = [[60, 110, 230], [130, 70, 220], [40, 190, 210], [220, 90, 150]][i % 4], g = x.createRadialGradient(cx, cy, 0, cx, cy, rad); g.addColorStop(0, `rgba(${hue},${0.20 + r() * 0.12})`); g.addColorStop(0.5, `rgba(${hue},0.07)`); g.addColorStop(1, `rgba(${hue},0)`); x.fillStyle = g; x.fillRect(0, 0, W, H); }
+  }
+  function drawSpace(t, px, sc) {
+    if (!nebula || nebula.width !== W || nebula.height !== H) buildNebula();
+    ctx.globalAlpha = 0.9; ctx.drawImage(nebula, px * -10, sc * -30); ctx.globalAlpha = 1;
+    const R0 = Math.min(W, H) * 0.15, cx = W * 0.8 + px * -22, cy = H * 0.3 + sc * -90;
+    const halo = ctx.createRadialGradient(cx, cy, R0 * 0.8, cx, cy, R0 * 2.6); halo.addColorStop(0, 'rgba(110,190,255,.30)'); halo.addColorStop(1, 'rgba(110,190,255,0)'); ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(cx, cy, R0 * 2.6, 0, TAU); ctx.fill();
+    const ring = (front) => { ctx.save(); ctx.translate(cx, cy); ctx.rotate(-0.38); ctx.strokeStyle = 'rgba(210,230,255,.45)'; ctx.lineWidth = R0 * 0.16; ctx.beginPath(); ctx.ellipse(0, 0, R0 * 1.75, R0 * 0.48, 0, front ? 0 : Math.PI, front ? Math.PI : TAU); ctx.stroke(); ctx.strokeStyle = 'rgba(150,190,240,.35)'; ctx.lineWidth = R0 * 0.06; ctx.beginPath(); ctx.ellipse(0, 0, R0 * 2.0, R0 * 0.55, 0, front ? 0 : Math.PI, front ? Math.PI : TAU); ctx.stroke(); ctx.restore(); };
+    ring(false);
+    const g = ctx.createRadialGradient(cx - R0 * 0.4, cy - R0 * 0.4, R0 * 0.1, cx, cy, R0); g.addColorStop(0, '#bfe6ff'); g.addColorStop(0.35, '#4f9bdc'); g.addColorStop(0.75, '#1d3f8a'); g.addColorStop(1, '#0a1a44'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R0, 0, TAU); ctx.fill();
+    ctx.save(); ctx.beginPath(); ctx.arc(cx, cy, R0, 0, TAU); ctx.clip(); ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = R0 * 0.07; for (let i = -2; i <= 2; i++) { ctx.beginPath(); ctx.ellipse(cx, cy + i * R0 * 0.3, R0 * 1.1, R0 * 0.12, -0.2, 0, TAU); ctx.stroke(); } const sh = ctx.createLinearGradient(cx - R0, cy, cx + R0, cy); sh.addColorStop(0, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(2,6,20,.62)'); ctx.fillStyle = sh; ctx.fillRect(cx - R0, cy - R0, R0 * 2, R0 * 2); ctx.restore();
+    ring(true);
+    const a = t * 0.12, mx = cx + Math.cos(a) * R0 * 2.4, my = cy + Math.sin(a) * R0 * 0.7 - R0 * 0.2;
+    ctx.fillStyle = '#d6dbe6'; ctx.beginPath(); ctx.arc(mx, my, R0 * 0.14, 0, TAU); ctx.fill(); ctx.fillStyle = 'rgba(0,0,20,.35)'; ctx.beginPath(); ctx.arc(mx + R0 * 0.05, my + R0 * 0.03, R0 * 0.14, -1.2, 1.9); ctx.fill();
+  }
+  function setSpace(v) { space = !!v; buildKey = ''; if (space) buildNebula(); lastVarKey = ''; }
+
   // ---- control
   function setMode(m) {
     mode = m;
@@ -88,7 +111,7 @@ export function createSky(canvas, onVars) {
     const from = hour, d = (((to - from) % 24) + 24) % 24;
     tw = { from, to: from + (d < 0.01 ? 0 : d), t0: performance.now(), dur: m === 'auto' && d < 0.2 ? 500 : Math.min(2600, 900 + d * 160) };
   }
-  const phase = () => ({ hour: ((hour % 24) + 24) % 24, name: phaseName(hour), greet: greeting(hour), mode, night: P.star > 0.5, light: P.sunI > 0.5 });
+  const phase = () => ({ hour: ((hour % 24) + 24) % 24, name: space ? 'Space' : phaseName(hour), greet: space ? 'Welcome aboard' : greeting(hour), mode, night: P.star > 0.5, light: P.sunI > 0.5 });
 
   // ---- celestial positions
   const sunPos = () => { const t = clamp((((hour % 24) + 24) % 24 - 6) / 12.8, -0.12, 1.12); return { x: W * (0.1 + 0.8 * t), y: H * (0.84 - 0.7 * Math.sin(Math.PI * clamp(t, 0, 1))) , t }; };
@@ -98,7 +121,7 @@ export function createSky(canvas, onVars) {
     // time
     if (tw) { const k = clamp((performance.now() - tw.t0) / tw.dur), e = smooth(k); hour = lerp(tw.from, tw.to, e); if (k >= 1) { hour = tw.to; tw = null; } }
     else if (mode === 'auto') hour = nowHour();
-    P = sample(hour);
+    P = space ? SPACE_P : sample(hour);
     // keep derived layers in step with the palette, but not every frame
     const key = P.hill[0].map((v) => v >> 3).join() + P.cloudC.map((v) => v >> 3).join() + (P.hill[1][1] >> 3);
     if (key !== buildKey && t - lastBuild > 0.12) { build(); buildKey = key; lastBuild = t; }
@@ -117,6 +140,7 @@ export function createSky(canvas, onVars) {
       if (t > nextShoot && !shoot && P.star > 0.7) { shoot = { x: W * (0.3 + Math.random() * 0.6), y: H * (0.05 + Math.random() * 0.25), t0: t }; nextShoot = t + 9 + Math.random() * 9; }
       if (shoot) { const k = (t - shoot.t0) / 0.8; if (k > 1) shoot = null; else { const x0 = shoot.x - k * 260, y0 = shoot.y + k * 120, gg = ctx.createLinearGradient(x0, y0, x0 + 90, y0 - 42); gg.addColorStop(0, 'rgba(255,255,255,0)'); gg.addColorStop(1, `rgba(255,255,255,${0.85 * (1 - k)})`); ctx.strokeStyle = gg; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0 + 90, y0 - 42); ctx.stroke(); } }
     }
+    if (space) drawSpace(t, px, sc);
     // sun
     const S = sunPos();
     if (P.sunI > 0.01) {
@@ -128,7 +152,7 @@ export function createSky(canvas, onVars) {
       const d = ctx.createRadialGradient(S.x + px * -14, S.y, 0, S.x + px * -14, S.y, 34); d.addColorStop(0, `rgba(255,252,236,${P.sunI})`); d.addColorStop(0.55, `rgba(255,${240 - warm * 40 | 0},${200 - warm * 60 | 0},${0.9 * P.sunI})`); d.addColorStop(1, 'rgba(255,220,160,0)'); ctx.fillStyle = d; ctx.beginPath(); ctx.arc(S.x + px * -14, S.y, 34, 0, TAU); ctx.fill();
     }
     // moon
-    if (P.star > 0.3) {
+    if (P.star > 0.3 && !space) {
       const M = moonPos(), a = clamp((P.star - 0.3) / 0.5), mx = M.x + px * -10, my = M.y;
       const hg = ctx.createRadialGradient(mx, my, 10, mx, my, 150); hg.addColorStop(0, `rgba(190,208,255,${0.30 * a})`); hg.addColorStop(1, 'rgba(190,208,255,0)'); ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(mx, my, 150, 0, TAU); ctx.fill();
       ctx.globalAlpha = a; const mg = ctx.createRadialGradient(mx - 6, my - 6, 2, mx, my, 26); mg.addColorStop(0, '#fbfbf2'); mg.addColorStop(1, '#cdd3dc'); ctx.fillStyle = mg; ctx.beginPath(); ctx.arc(mx, my, 24, 0, TAU); ctx.fill();
@@ -142,7 +166,7 @@ export function createSky(canvas, onVars) {
       ctx.globalCompositeOperation = 'source-over';
     }
     // clouds drift on the breeze and parallax with the pointer
-    for (const c of clouds) {
+    if (!space) for (const c of clouds) {
       c.x += c.v * dt * c.z; if (c.x > W + 260) c.x = -480 * c.s;
       ctx.globalAlpha = P.cloudA * (0.55 + 0.45 * c.z); const w = 460 * c.s, h = 170 * c.s; ctx.drawImage(cloudSprites[c.i], c.x + px * -22 * c.z, c.y + sc * -34 * c.z, w, h);
     }
@@ -154,7 +178,7 @@ export function createSky(canvas, onVars) {
     } else birds = null;
     // ridges with mist between them
     const hy = H * 0.5;
-    for (let i = 0; i < 3; i++) {
+    if (!space) for (let i = 0; i < 3; i++) {
       const par = [0.25, 0.5, 0.8][i];
       ctx.drawImage(hills[i], px * -26 * par, H - hills[i].height + sc * -26 * par - 6 + [-0.04 * H, 0.04 * H, 0.12 * H][i] * 0.5);
       if (i < 2) { const my = H - hy * 0.9 + sc * -20 * par + i * H * 0.07; const mg = ctx.createLinearGradient(0, my - 90, 0, my + 70); mg.addColorStop(0, rgb(P.mistC, 0)); mg.addColorStop(0.55, rgb(P.mistC, P.mist * (i ? 0.7 : 1))); mg.addColorStop(1, rgb(P.mistC, 0)); ctx.fillStyle = mg; ctx.fillRect(0, my - 90, W, 160); }
@@ -167,6 +191,11 @@ export function createSky(canvas, onVars) {
   const flies = Array.from({ length: 16 }, () => ({ x: R(), y: 0.35 + R() * 0.6, ph: R() * TAU, k: 0.2 + R() * 0.4, bl: 0.6 + R() * 1.4 }));
   const glow = (() => { const c = document.createElement('canvas'); c.width = c.height = 48; const x = c.getContext('2d'), g = x.createRadialGradient(24, 24, 0, 24, 24, 24); g.addColorStop(0, 'rgba(255,250,180,1)'); g.addColorStop(0.2, 'rgba(236,246,120,.7)'); g.addColorStop(1, 'rgba(180,230,70,0)'); x.fillStyle = g; x.fillRect(0, 0, 48, 48); return c; })();
   function fore(c, w, h, t, pointer, reduce) {
+    if (space) { // drifting star dust instead of grass and fireflies
+      c.fillStyle = 'rgba(190,232,255,.75)';
+      for (const m of motes) { m.y -= m.v * 0.012 * (reduce ? 0 : 1); if (m.y < -0.02) m.y = 1.02; c.globalAlpha = 0.15 + 0.6 * Math.abs(Math.sin(t * 0.9 + m.ph)); c.beginPath(); c.arc((m.x + 0.02 * Math.sin(t * 0.4 + m.ph)) * w, m.y * h, 0.8 + m.z * 1.2, 0, TAU); c.fill(); }
+      c.globalAlpha = 1; return;
+    }
     const gust = reduce ? 0 : pointer.gust, g0 = P.hill[2];
     // grass along the bottom edge
     c.lineCap = 'round';
@@ -195,5 +224,5 @@ export function createSky(canvas, onVars) {
       c.globalAlpha = 1;
     }
   }
-  return { frame, fore, setMode, phase, ptr, get P() { return P; }, get hour() { return hour; }, get mode() { return mode; }, tint: () => P.tint };
+  return { frame, fore, setMode, setSpace, get space() { return space; }, phase, ptr, get P() { return P; }, get hour() { return hour; }, get mode() { return mode; }, tint: () => P.tint };
 }

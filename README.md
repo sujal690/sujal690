@@ -17,6 +17,7 @@
 <a href="https://sujal-shah-portfolio.vercel.app"><img src="assets/space/btn-portfolio.svg" height="44" alt="Portfolio"/></a>
 <a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/space/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>
 <a href="mailto:sujalshah630@gmail.com"><img src="assets/space/btn-email.svg" height="44" alt="Email"/></a>
+<a href="https://sujal690.github.io/sujal690/?theme=space"><img src="assets/space/btn-site.svg" height="44" alt="Space site"/></a>
 
 <a name="pic3"><img src="assets/space/h-about.svg" width="100%" alt="About"/></a>
 <a name="pic4"><img src="assets/space/about.svg" width="100%" alt="I'm the sole technical owner of the AI and automation products at Sky Gold and Diamonds. Role: AI Software Engineer since June 2026. Focus: OCR, computer vision, LLM and VLM. Stack: Python, TypeScript, MERN, Docker. Education: B.E. Computer Science, CGPA 9.0."/></a>
@@ -64,7 +65,7 @@
 <a href="https://sujal-shah-portfolio.vercel.app"><img src="assets/leaf/btn-portfolio.svg" height="44" alt="Portfolio"/></a>
 <a href="https://linkedin.com/in/sujal-shah-390154303"><img src="assets/leaf/btn-linkedin.svg" height="44" alt="LinkedIn"/></a>
 <a href="mailto:sujalshah630@gmail.com"><img src="assets/leaf/btn-email.svg" height="44" alt="Email"/></a>
-<a href="https://sujal690.github.io/sujal690/"><img src="assets/leaf/btn-site.svg" height="44" alt="Leaf site"/></a>
+<a href="https://sujal690.github.io/sujal690/?theme=leaf"><img src="assets/leaf/btn-site.svg" height="44" alt="Leaf site"/></a>
 
 <a name="pic21"><img src="assets/leaf/h-about.svg" width="100%" alt="About"/></a>
 <a name="pic22"><img src="assets/leaf/about.svg" width="100%" alt="I'm the sole technical owner of the AI and automation products at Sky Gold and Diamonds. Role: AI Software Engineer since June 2026. Focus: OCR, computer vision, LLM and VLM. Stack: Python, TypeScript, MERN, Docker. Education: B.E. Computer Science, CGPA 9.0."/></a>

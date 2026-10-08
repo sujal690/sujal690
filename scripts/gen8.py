@@ -683,8 +683,7 @@ if __name__ == '__main__':
     from PIL import Image
     switch(); tab('space'); tab('leaf')
     pill('btn-portfolio.svg', 'Portfolio', primary=True); pill('btn-linkedin.svg', 'LinkedIn'); pill('btn-email.svg', 'Email')
-    if THEME == 'leaf':
-        pill('btn-site.svg', 'Leaf site')
+    pill('btn-site.svg', 'Leaf site' if THEME == 'leaf' else 'Space site')
     for slug, title in [('about', 'About'), ('build', 'How I build'), ('activity', 'Activity'), ('work', 'Selected work'), ('earlier', 'Earlier projects'), ('toolkit', 'Toolkit'), ('experience', 'Experience'), ('contact', 'Contact')]:
         header(slug, title)
     about(); pipeline(); activity()

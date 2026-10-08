@@ -7,7 +7,7 @@
 <meta name="description" content="Sujal Shah, AI Software Engineer at Sky Gold and Diamonds. A living ginkgo that follows your time of day: a leaf becomes a tree as you read.">
 <meta name="theme-color" content="#0b1311">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700&family=Syne:wght@500;600;700;800&family=Orbitron:wght@500;700;800&family=Geist:wght@300;400;500;600&display=swap">
 <style>
 :root{
   --bg:#0b1311;--card:rgba(13,22,17,.93);--ink:#f4f1e6;--soft:#d3d8c7;--muted:#a1ab94;--line:rgba(244,241,230,.12);
@@ -39,6 +39,21 @@ nav>*{pointer-events:auto}
 .links a.on{color:var(--ink)}
 .pill .ind{position:absolute;z-index:0;top:5px;bottom:5px;left:0;border-radius:99px;background:var(--accSoft);opacity:0;transition:transform .55s var(--out),width .55s var(--out),opacity .3s}
 .links a.ext{color:var(--acc)}
+.thm button{position:relative;display:inline-flex;align-items:center;gap:7px;height:34px;padding:0 13px;border-radius:99px;color:var(--muted);font:700 13px var(--sans);transition:color .3s,background .35s var(--out),transform .25s var(--spring)}
+.thm button svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.thm button[aria-checked=true]{color:var(--ink);background:var(--accSoft)}
+.thm button:active{transform:scale(.92)}
+@media (hover:hover){.thm button:hover{color:var(--ink)}}
+@media (max-width:860px){.thm button span{display:none}.thm button{padding:0 10px}}
+[data-theme=space]{--disp:'Orbitron',system-ui,sans-serif;--sans:'Geist',system-ui,sans-serif}
+[data-theme=space] .tsw{display:none}
+[data-theme=space] h1{font-weight:800;letter-spacing:.01em;font-size:clamp(40px,6vw,86px);line-height:1.02}
+[data-theme=space] h2{font-weight:700;letter-spacing:.005em;font-size:clamp(26px,3vw,40px)}
+[data-theme=space] .st{font-weight:600;letter-spacing:0;font-size:clamp(20px,2vw,27px)}
+[data-theme=space] .tile .v{letter-spacing:.01em;font-size:32px}
+[data-theme=space] .card{box-shadow:0 0 0 1px rgba(var(--accR),.28),0 40px 90px -50px rgba(0,0,0,.9),0 0 38px -12px rgba(var(--accR),.25)}
+[data-theme=space] .brand i{border-radius:50%;box-shadow:0 0 0 3px rgba(var(--accR),.25)}
+.st-p{position:fixed;z-index:60;width:12px;height:12px;margin:-6px 0 0 -6px;pointer-events:none;background:#cdefff;clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);filter:drop-shadow(0 0 4px #7fdcff)}
 .tsw button{position:relative;z-index:1;display:inline-flex;align-items:center;gap:7px;height:34px;min-width:34px;justify-content:center;padding:0 10px;border-radius:99px;color:var(--muted);font:600 13px var(--sans);transition:color .3s,transform .25s var(--spring)}
 .tsw button svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
 .tsw button span{display:none}
@@ -255,6 +270,7 @@ footer{padding:28px clamp(18px,5vw,76px) 54px;color:var(--muted);font-size:14px}
 <nav aria-label="Primary">
   <a class="brand" href="#hero"><i></i><span>Sujal Shah</span></a>
   <div class="pill links"><span class="ind"></span><a href="#work">Work</a><a href="#stats">Activity</a><a href="#path">Path</a><a href="#toolkit">Toolkit</a><a class="ext" href="https://sujal-shah-portfolio.vercel.app" target="_blank" rel="noopener">Portfolio ↗</a></div>
+  <div class="pill thm" role="radiogroup" aria-label="Theme"><button role="radio" aria-checked="true" data-t="leaf"><svg viewBox="0 0 24 24"><path d="M5 19C5 10 10 5 19 5c0 9-5 14-14 14zM5 19 13 11"/></svg><span>Leaf</span></button><button role="radio" aria-checked="false" data-t="space"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M3 15c5 3 13 0 18-6"/></svg><span>Space</span></button></div>
   <div class="pill tsw" role="radiogroup" aria-label="Time of day"><span class="ind"></span>
     <button role="radio" aria-checked="true" data-m="auto" aria-label="Follow my local time" title="Follow my local time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg><span>Auto</span></button>
     <button role="radio" aria-checked="false" data-m="dawn" aria-label="Dawn" title="Dawn"><svg viewBox="0 0 24 24"><path d="M4 18h16M7 18a5 5 0 0 1 10 0M12 6v3M5.6 10.6l1.8 1.8M18.4 10.6l-1.8 1.8"/></svg><span>Dawn</span></button>
@@ -290,6 +306,6 @@ footer{padding:28px clamp(18px,5vw,76px) 54px;color:var(--muted);font-size:14px}
 </main>
 <footer><span id="sign">Sujal Shah</span> · <a href="https://sujal-shah-portfolio.vercel.app" style="color:var(--acc)">main portfolio</a></footer>
 <div id="toast" role="status">Email address copied</div>
-<script type="module" src="app.js?v=20261008c"></script>
+<script type="module" src="app.js?v=20261008d"></script>
 </body>
 </html>
