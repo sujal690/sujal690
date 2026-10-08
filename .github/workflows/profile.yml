@@ -1,12 +1,18 @@
 # Keeps the whole profile current: the README follows the time of day in India and the all-time stats refresh.
-# Built to survive late or skipped runs: it runs every 10 minutes (on odd minutes, which GitHub serves more reliably), every run is idempotent, and a missed run is
-# corrected by the next one. Edit this file only through a token with the `workflow` scope.
+# GitHub's cron has never fired for this repository, so the "Profile clock" workflow (clock.yml) is what really drives this one: it dispatches
+# it at every edition change and every 30 minutes. The schedule below is a second, independent trigger, every run is idempotent, and every
+# run restarts the clock if it is not running. Edit this file only through a token with the `workflow` scope.
 name: Refresh profile
 
 on:
   schedule:
-    - cron: "4-59/10 * * * *"   # minutes 4, 14, 24 ... (GitHub drops runs at :00 and :30 under load)
+    - cron: "4,14,24,34,44,54 * * * *"   # odd minutes: GitHub drops runs at :00 and :30 under load
   workflow_dispatch:
+    inputs:
+      force:
+        description: "Rebuild every card and the stats now (the clock does not set this)"
+        type: boolean
+        default: false
   issues:
     types: [opened, edited, labeled]   # a spare trigger: open or label any issue to force a refresh
   push:
@@ -20,6 +26,7 @@ concurrency:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   refresh:
@@ -35,7 +42,7 @@ jobs:
       - name: Refresh (edition by time of day, stats when stale)
         env:
           GH_TOKEN: ${{ secrets.PROFILE_TOKEN || secrets.GITHUB_TOKEN }}
-        run: python scripts/refresh.py ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'push') && '--force' || '' }}
+        run: python scripts/refresh.py ${{ (github.event_name == 'push' || inputs.force == true) && '--force' || '' }}
       - name: Commit and push (retries on conflicts)
         run: |
           git config user.name "github-actions[bot]"
@@ -48,3 +55,12 @@ jobs:
             sleep $((i * 6))
           done
           echo "push failed after retries"; exit 1
+      - name: Keep the clock running
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          active=$(gh api "repos/${{ github.repository }}/actions/workflows/clock.yml/runs?per_page=10" --jq '[.workflow_runs[] | select(.status=="queued" or .status=="in_progress" or .status=="waiting" or .status=="pending" or .status=="requested")] | length')
+          echo "clock runs alive: $active"
+          if [ "$active" = "0" ]; then gh workflow run clock.yml --ref main; fi

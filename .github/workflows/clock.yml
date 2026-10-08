@@ -1,0 +1,31 @@
+# The clock that keeps "Refresh profile" running on time. GitHub's own cron has never fired for this repository, so this job does
+# not depend on it: it stays alive, starts "Refresh profile" at every edition change and every 30 minutes, and passes the baton to a
+# fresh copy of itself before the six hour job limit (see scripts/clock.py). The schedule below is only a watchdog that restarts the
+# clock if it ever dies; every run of "Refresh profile" and every push to the clock files also restarts it when it is not running.
+name: Profile clock
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "11,26,41,56 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/clock.yml"
+      - "scripts/clock.py"
+      - "scripts/phase.py"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  clock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the clock
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python3 scripts/clock.py
