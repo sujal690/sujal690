@@ -32,6 +32,10 @@ function backdrop(P, seed) {
     const b = x.createRadialGradient(cx, cy, r * 0.5, cx, cy, r); b.addColorStop(0, `rgba(${col},${a * 0.7})`); b.addColorStop(0.86, `rgba(${col},${a * 1.2})`); b.addColorStop(1, `rgba(${col},0)`);
     x.fillStyle = b; x.beginPath(); x.arc(cx, cy, r, 0, TAU); x.fill();
   }
+  if (P.fireflies) { // a little starlight between the leaves, only a little
+    const SR = rand(404);
+    for (let i = 0; i < 30; i++) { const sx = W * (0.22 + SR() * 0.70), sy = SR() * H * 0.5, sr = 3.0 + SR() * 3.0, sa = 0.85 + SR() * 0.15; x.fillStyle = `rgba(232,244,255,${sa})`; x.beginPath(); x.arc(sx, sy, sr, 0, TAU); x.fill(); if (SR() < 0.18) { x.strokeStyle = `rgba(232,244,255,${sa * 0.5})`; x.lineWidth = 0.8; x.beginPath(); x.moveTo(sx - sr * 3, sy); x.lineTo(sx + sr * 3, sy); x.moveTo(sx, sy - sr * 3); x.lineTo(sx, sy + sr * 3); x.stroke(); } }
+  }
   const m = x.createLinearGradient(0, H * 0.55, 0, H); m.addColorStop(0, 'rgba(0,0,0,0)'); m.addColorStop(1, P.mist); x.fillStyle = m; x.fillRect(0, H * 0.5, W, H * 0.5);
   x.filter = 'blur(5px)'; x.drawImage(c, 0, 0); x.filter = 'none';
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
