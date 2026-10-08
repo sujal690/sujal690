@@ -34,21 +34,21 @@ T = {
 }[THEME]
 PHASES = {
     'space': {
-        'night': dict(panel='#0c1220', panel2='#080c17', acc='#7fdcff', acc2='#f0b264', heat=['#141b2a', '#16344f', '#1d5d86', '#3aa0d8', '#bfeaff'], nebA='#4f7fd0', nebB='#8a5ad0'),
-        'dawn': dict(panel='#171320', panel2='#0f0c17', acc='#ffb38a', acc2='#9fd8ff', heat=['#1d1824', '#3c2838', '#6c3e52', '#c07070', '#ffd0a8'], nebA='#e08a7a', nebB='#7a6ad0'),
-        'day': dict(panel='#0d1a28', panel2='#09131e', acc='#6fd6ff', acc2='#ffd166', heat=['#132131', '#143f5a', '#1a6e94', '#38b2dc', '#c4f2ff'], nebA='#3fa0d8', nebB='#4ad0c0'),
-        'dusk': dict(panel='#1b1222', panel2='#120c18', acc='#ffa070', acc2='#c79bff', heat=['#1f1626', '#3c2140', '#6c3356', '#d0665e', '#ffc078'], nebA='#e0706a', nebB='#a060d0'),
+        'night': dict(panel='#0c1430', panel2='#060a18', acc='#7fdcff', acc2='#f0b264', heat=['#141b2e', '#18365a', '#1f64a0', '#3aa6e8', '#c4efff'], nebA='#4f7fd0', nebB='#8a5ad0', hz='#2f55b8'),
+        'dawn': dict(panel='#2e1d34', panel2='#170f1f', acc='#ffb08a', acc2='#9fd8ff', heat=['#241a2a', '#4a2a42', '#7e405a', '#d27a72', '#ffdcb0'], nebA='#ff9a7a', nebB='#8a6ae0', hz='#ff9a6a'),
+        'day': dict(panel='#10304c', panel2='#091b2e', acc='#6fd6ff', acc2='#ffd166', heat=['#13273a', '#14486a', '#1a7aa6', '#3cc0ea', '#d0f6ff'], nebA='#3fb0ff', nebB='#40e0d0', hz='#7fd8ff'),
+        'dusk': dict(panel='#341a38', panel2='#190d1f', acc='#ff9a6a', acc2='#c79bff', heat=['#271a2e', '#4a2248', '#7c3462', '#dc6a60', '#ffc888'], nebA='#ff6a5a', nebB='#b050e0', hz='#ff8a50'),
     },
     'leaf': {
-        'dawn': dict(panel='#1c1b1a', panel2='#141312', acc='#ffa985', acc2='#a9cf8a', heat=['#22221f', '#3e4a30', '#62803f', '#a9c86a', '#ffb08a'], nebA='#ff9f80', nebB='#a9cf8a'),
-        'day': dict(panel='#13211a', panel2='#0e1913', acc='#f4c94e', acc2='#8fd16a', heat=['#182619', '#265c2b', '#3c8c3a', '#78c45a', '#f4c94e'], nebA='#f4c94e', nebB='#6fbf5a'),
-        'dusk': dict(panel='#211816', panel2='#181110', acc='#ff9a5a', acc2='#d9a65e', heat=['#271d19', '#4a3622', '#7a542a', '#c4823a', '#ff9a5a'], nebA='#ff8a5a', nebB='#c9705a'),
-        'night': dict(panel='#0e1619', panel2='#0a1113', acc='#dfe878', acc2='#8fc0dc', heat=['#131c1e', '#1c3a35', '#2a5e4e', '#4f9a6e', '#dfe878'], nebA='#9fd0ff', nebB='#5fa080'),
+        'dawn': dict(panel='#33231f', panel2='#1a1210', acc='#ffa985', acc2='#a9cf8a', heat=['#2a2220', '#4a4a30', '#6e8a3f', '#b4d070', '#ffb590'], nebA='#ffb08a', nebB='#a9cf8a', hz='#ffc7a0'),
+        'day': dict(panel='#17422a', panel2='#0e2417', acc='#f6d04e', acc2='#8fd16a', heat=['#1a2f1d', '#2a6a30', '#3f9a3e', '#82d062', '#f6d04e'], nebA='#f4d84e', nebB='#6fd05a', hz='#a6ec7a'),
+        'dusk': dict(panel='#3a2018', panel2='#1c0f0b', acc='#ff9650', acc2='#d9a65e', heat=['#2c1d17', '#52361e', '#86582a', '#cc8a3c', '#ff9a50'], nebA='#ff8a4a', nebB='#c9705a', hz='#ff7a3a'),
+        'night': dict(panel='#0d2229', panel2='#07131a', acc='#dfe878', acc2='#8fc0dc', heat=['#12212a', '#1c4a45', '#2a7a62', '#52b682', '#dfe878'], nebA='#8fd0ff', nebB='#5fa080', hz='#2c7a8a'),
     },
 }
 T.update(PHASES[THEME][PHASE])
 T['pal'] = [T['acc'], T['acc2'], '#b6cfe2' if THEME == 'space' else '#c9b98a', '#8b9fbe' if THEME == 'space' else '#7f9c6a', '#b8b0a2', '#6b7562']
-NEB_A, NEB_B = T['nebA'], T['nebB']
+NEB_A, NEB_B, HZ = T['nebA'], T['nebB'], T['hz']
 P1, P2, TEXT, SOFT, MUTED, DIM, ACC, ACC2, HAIR, HEAT, PAL = (T[k] for k in ('panel', 'panel2', 'text', 'soft', 'muted', 'dim', 'acc', 'acc2', 'hair', 'heat', 'pal'))
 F = T['F']
 # the shared Svg class looks fonts up through G.F; map our roles plus the diagram roles gen3 uses
@@ -78,9 +78,11 @@ def decor(s, x, y, w, h, r, k):
     R = _rng(int(x * 7 + y * 13 + w * 31 + h * 17 + 5))
     o = f'<g clip-path="url(#{cid})">'
     if THEME == 'space':
-        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".22"/><stop offset=".55" stop-color="{NEB_A}" stop-opacity=".06"/><stop offset="1" stop-color="{NEB_A}" stop-opacity="0"/></radialGradient>'
+        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".30"/><stop offset=".55" stop-color="{NEB_A}" stop-opacity=".08"/><stop offset="1" stop-color="{NEB_A}" stop-opacity="0"/></radialGradient>'
             f'<radialGradient id="nb{k}b" cx="0" cy="1" r="1"><stop offset="0" stop-color="{NEB_B}" stop-opacity=".14"/><stop offset="1" stop-color="{NEB_B}" stop-opacity="0"/></radialGradient>')
         o += f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}a)"/><rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}b)"/>'
+        s.d(f'<radialGradient id="hz{k}" cx=".5" cy="1.15" r=".75"><stop offset="0" stop-color="{HZ}" stop-opacity=".30"/><stop offset="1" stop-color="{HZ}" stop-opacity="0"/></radialGradient>')
+        o += f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#hz{k})"/>'
         n = max(14, int(w * h / 5200))
         for i in range(n):
             px, py, rr = x + R() * w, y + R() * h, 0.45 + R() * 0.7
@@ -96,9 +98,11 @@ def decor(s, x, y, w, h, r, k):
             o += (f'<g transform="translate({cx:.0f} {cy:.0f}) rotate(-18)"><ellipse rx="{rx:.0f}" ry="{ry:.0f}" fill="none" stroke="rgba(190,214,255,.10)"/>'
                   f'<circle r="2.6" fill="#cfe0f8" opacity=".75"><animateMotion dur="38s" repeatCount="indefinite" path="M{rx:.0f} 0 A{rx:.0f} {ry:.0f} 0 1 1 {-rx:.0f} 0 A{rx:.0f} {ry:.0f} 0 1 1 {rx:.0f} 0"/></circle></g>')
     else:
-        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".15"/><stop offset="1" stop-color="{NEB_A}" stop-opacity="0"/></radialGradient>'
+        s.d(f'<radialGradient id="nb{k}a" cx="1" cy="0" r="1"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".22"/><stop offset="1" stop-color="{NEB_A}" stop-opacity="0"/></radialGradient>'
             f'<radialGradient id="nb{k}b" cx="0" cy="1" r="1"><stop offset="0" stop-color="{NEB_B}" stop-opacity=".16"/><stop offset="1" stop-color="{NEB_B}" stop-opacity="0"/></radialGradient>')
         o += f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}a)"/><rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#nb{k}b)"/>'
+        s.d(f'<radialGradient id="hz{k}" cx=".5" cy="1.15" r=".75"><stop offset="0" stop-color="{HZ}" stop-opacity=".26"/><stop offset="1" stop-color="{HZ}" stop-opacity="0"/></radialGradient>')
+        o += f'<rect x="{x}" y="{y}" width="{w}" height="{h}" fill="url(#hz{k})"/>'
         if w > 300:  # leaf veins fanning from the lower right corner
             cx, cy = x + w + 10, y + h + 34
             for i in range(11):
@@ -313,22 +317,206 @@ def ship_shape():
             f'<path d="M-5 0 L-11 -2.4 L-9 0 L-11 2.4Z" fill="{ACC}" opacity=".85"><animate attributeName="opacity" values=".9;.35;.9" dur=".35s" repeatCount="indefinite"/></path></g>')
 
 
+def _doy(d):
+    return (d - dt.date(d.year, 1, 1)).days
+
+
+def galaxy(s, x0, y0, wv, hv, years, by, lvl, bestk):
+    """Contribution galaxy: one tilted orbit per year, a star for every active day, constellations, a supernova on the best day."""
+    cx, cy, ky = x0 + 236, y0 + hv / 2 + 4, 0.66
+    radii = [92, 142, 192]
+    radii = radii[:len(years)] if len(years) <= 3 else [60 + 32 * i for i in range(len(years))]
+    maxr = radii[-1] + 26
+    # level glows
+    for L in range(1, 5):
+        s.d(f'<radialGradient id="gl{L}"><stop offset="0" stop-color="{HEAT[L]}" stop-opacity=".95"/><stop offset=".35" stop-color="{HEAT[L]}" stop-opacity=".38"/><stop offset="1" stop-color="{HEAT[L]}" stop-opacity="0"/></radialGradient>')
+    s.d(f'<radialGradient id="gcore"><stop offset="0" stop-color="#fff7e4"/><stop offset=".25" stop-color="{ACC2}" stop-opacity=".95"/><stop offset="1" stop-color="{ACC2}" stop-opacity="0"/></radialGradient>')
+    s.d(f'<radialGradient id="gdisc"><stop offset="0" stop-color="{NEB_A}" stop-opacity=".30"/><stop offset=".6" stop-color="{NEB_B}" stop-opacity=".10"/><stop offset="1" stop-color="{NEB_B}" stop-opacity="0"/></radialGradient>')
+    s.d(f'<linearGradient id="gbeam" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="{ACC}" stop-opacity=".0"/><stop offset="1" stop-color="{ACC}" stop-opacity=".30"/></linearGradient>')
+    o = f'<g transform="translate({cx} {cy}) scale(1 {ky})">'
+    o += f'<circle r="{maxr + 14}" fill="url(#gdisc)"/>'
+    # spiral arms drawn as stacked translucent strokes
+    for arm in (0, 3.14159):
+        pts = []
+        for i in range(0, 120):
+            t = i / 119
+            r = 18 + t * (maxr - 6)
+            a = arm + t * 5.2
+            pts.append((r * math.cos(a), r * math.sin(a)))
+        d = 'M' + ' L'.join(f'{px:.1f} {py:.1f}' for px, py in pts)
+        for wdt, op in ((22, .035), (12, .05), (5, .07)):
+            o += f'<path d="{d}" fill="none" stroke="{NEB_A}" stroke-opacity="{op}" stroke-width="{wdt}" stroke-linecap="round"/>'
+    # month spokes and orbit rings
+    for m in range(12):
+        a = -math.pi / 2 + m * math.pi / 6
+        o += f'<path d="M{(radii[0] - 14) * math.cos(a):.1f} {(radii[0] - 14) * math.sin(a):.1f} L{(maxr - 8) * math.cos(a):.1f} {(maxr - 8) * math.sin(a):.1f}" stroke="{HAIR}" stroke-width=".8"/>'
+    for r in radii:
+        o += f'<circle r="{r}" fill="none" stroke="{ACC}" stroke-opacity=".20" stroke-dasharray="2 6"/>'
+    # a sweeping beam
+    o += (f'<g opacity=".8"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="9s" repeatCount="indefinite"/>'
+          f'<path d="M0 0 L{maxr} {-maxr * .22:.0f} A{maxr} {maxr} 0 0 1 {maxr} {maxr * .22:.0f} Z" fill="url(#gbeam)"/></g>')
+    # stars per year, each orbit turning at its own pace
+    spin = [140, -190, 240, -300]
+    for yi, y in enumerate(years):
+        r = radii[yi]
+        days = [(d, _doy(dt.date.fromisoformat(d['date']))) for d in by[y] if d['count'] > 0]
+        o += f'<g><animateTransform attributeName="transform" type="rotate" from="0" to="{360 if spin[yi % 4] > 0 else -360}" dur="{abs(spin[yi % 4])}s" repeatCount="indefinite"/>'
+        pos = {}
+        for d, doy in days:
+            a = -math.pi / 2 + 2 * math.pi * doy / 366
+            jit = ((doy * 37) % 11 - 5) * 0.9
+            px, py = (r + jit) * math.cos(a), (r + jit) * math.sin(a)
+            pos[d['date']] = (px, py, d['count'])
+            L = lvl(d['count'])
+            sz = 1.5 + math.sqrt(d['count']) * 0.95
+            begin = .4 + yi * .6 + doy / 366 * 2.2
+            o += (f'<g transform="translate({px:.1f} {py:.1f})"><g><animateTransform attributeName="transform" type="scale" values="0;1.5;1" keyTimes="0;.6;1" dur=".7s" begin="{begin:.2f}s" fill="freeze"/>'
+                  f'<circle r="{sz * 3:.1f}" fill="url(#gl{L})"/><circle r="{sz:.1f}" fill="{HEAT[L] if L < 4 else "#ffffff"}">' + (f'<animate attributeName="opacity" values="1;.55;1" dur="{2 + (doy % 5) * .7:.1f}s" begin="-{(doy % 7) * .5:.1f}s" repeatCount="indefinite"/>' if d['count'] > 1 else '') + '</circle></g></g>')
+        # the constellation of the busiest days
+        top = sorted(pos.items(), key=lambda kv: -kv[1][2])[:6]
+        top.sort(key=lambda kv: math.atan2(kv[1][1], kv[1][0]))
+        if len(top) >= 2:
+            path = 'M' + ' L'.join(f'{p[0]:.1f} {p[1]:.1f}' for _, p in top)
+            o += (f'<path d="{path}" fill="none" stroke="{ACC}" stroke-width="1" stroke-opacity=".75" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1">'
+                  f'<animate attributeName="stroke-dashoffset" values="1;1;0;0;1" keyTimes="0;.08;.3;.75;.9" dur="16s" begin="{yi * 2.5}s" repeatCount="indefinite"/></path>')
+        # the supernova
+        if bestk in pos:
+            px, py, _ = pos[bestk]
+            o += (f'<g transform="translate({px:.1f} {py:.1f})"><circle r="6" fill="none" stroke="#fff6e0" stroke-width="1.4"><animate attributeName="r" values="5;34;34" keyTimes="0;.5;1" dur="4s" repeatCount="indefinite"/><animate attributeName="opacity" values=".95;0;0" keyTimes="0;.5;1" dur="4s" repeatCount="indefinite"/></circle>'
+                  f'<path d="M-15 0 H15 M0 -15 V15" stroke="#fff6e0" stroke-width="1.2" stroke-linecap="round"><animate attributeName="opacity" values=".9;.2;.9" dur="2s" repeatCount="indefinite"/></path></g>')
+        o += '</g>'
+    o += f'<circle r="34" fill="url(#gcore)"><animate attributeName="r" values="30;38;30" dur="5s" repeatCount="indefinite"/></circle><circle r="6" fill="#fff7e4"/>'
+    o += '</g>'
+    s += o
+    # month letters around the rim (not squashed)
+    for m in range(12):
+        a = -math.pi / 2 + (m + .5) * math.pi / 6
+        s += s.t(cx + (maxr + 14) * math.cos(a), cy + (maxr + 14) * ky * math.sin(a) + 4, ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][m], 'B', 10.5, DIM, 'middle')
+    # a survey ship circling the outer rim and a comet crossing now and then
+    rx, ry = maxr + 4, (maxr + 4) * ky
+    path = f'M{cx + rx} {cy} A{rx} {ry} 0 1 1 {cx - rx} {cy} A{rx} {ry} 0 1 1 {cx + rx} {cy}'
+    s += f'<g transform="scale(1.1)" opacity="0"></g><g><animateMotion dur="26s" repeatCount="indefinite" path="{path}" rotate="auto"/><g transform="scale(1.15)">{ship_shape()}</g></g>'
+    s.d(f'<linearGradient id="gcom" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>')
+    s += (f'<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.55;.57;.66;.68;1" dur="14s" repeatCount="indefinite"/>'
+          f'<g><animateTransform attributeName="transform" type="translate" values="{x0 + 60} {y0 + 30};{x0 + 60} {y0 + 30};{x0 + 400} {y0 + hv - 40};{x0 + 400} {y0 + hv - 40}" keyTimes="0;.55;.68;1" dur="14s" repeatCount="indefinite"/>'
+          f'<path d="M0 0 L-70 -26" stroke="url(#gcom)" stroke-width="2" stroke-linecap="round"/><circle r="2.6" fill="#fff"/></g></g>')
+    return s
+
+
+def readouts(s, x0, y0, wv, hv, years, by, ytot, S):
+    """Right-hand mission log: per year count-up, month bars and the busiest day."""
+    by_year = {b['year']: b for b in S.get('by_year', [])}
+    rowh = hv / len(years)
+    for yi, y in enumerate(years):
+        ry = y0 + yi * rowh + 6
+        mo = [0] * 12
+        for d in by[y]:
+            mo[int(d['date'][5:7]) - 1] += d['count']
+        mm = max(max(mo), 1)
+        s += f'<path d="M{x0} {ry:.0f} H{x0 + wv}" stroke="{HAIR}"/>' if yi else ''
+        s += s.t(x0, ry + 30, str(y), 'H', 17, TEXT)
+        s += countup(s, x0 + 78, ry + 31, ytot[y], 26, .5 + yi * .25)
+        bd = max(by[y], key=lambda d: d['count'])
+        bdd = dt.date.fromisoformat(bd['date'])
+        cm = by_year.get(y, {}).get('commits')
+        s += s.t(x0, ry + 52, f"{cm} commits · " if cm is not None else '', 'B', 12, MUTED) + s.t(x0 + (W('B', f'{cm} commits · ', 12) if cm is not None else 0), ry + 52, f"best {bdd.strftime('%b %d')}, {bd['count']}", 'B', 12, ACC)
+        bx = x0 + 210
+        for m in range(12):
+            bh = max(2, 36 * mo[m] / mm)
+            s += (f'<rect x="{bx + m * 11:.0f}" y="{ry + 46 - bh:.1f}" width="8" height="{bh:.1f}" rx="2" fill="{ACC}" opacity="{.35 + .65 * mo[m] / mm:.2f}"><animate attributeName="height" from="0" to="{bh:.1f}" begin="{.6 + yi * .3 + m * .05:.2f}s" dur=".7s" fill="freeze" {EASE}/><animate attributeName="y" from="{ry + 46:.1f}" to="{ry + 46 - bh:.1f}" begin="{.6 + yi * .3 + m * .05:.2f}s" dur=".7s" fill="freeze" {EASE}/></rect>')
+    return s
+
+
+def vine(s, x0, y0, wv, hv, cal, lvl, bestk, since):
+    """A vine that grows across the card from the first day to today: a leaf unfurls for every active day, a fruit hangs from the best day,
+    then the leaves turn gold and fall and it grows again. A ladybug rides the growing tip."""
+    CYC = 26.0
+    N = len(cal)
+    xa, xb = x0 + 20, x0 + wv - 20
+    cy = y0 + hv * 0.50
+    ypos = lambda x: cy + 24 * math.sin(x / 64.0) + 9 * math.sin(x / 23.0 + 1)
+    xs = [xa + (xb - xa) * i / (N - 1) for i in range(N)]
+    pts = [(x, ypos(x)) for x in [xa + k * 5 for k in range(int((xb - xa) / 5) + 1)]]
+    d = 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in pts)
+    G0, G1 = 1.0 / CYC, 9.5 / CYC           # growth window
+    TA, TF = 17.0 / CYC, 19.5 / CYC         # turn gold, then fall
+    s.d(f'<linearGradient id="vn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6b5640"/><stop offset="1" stop-color="#7d6a48"/></linearGradient>')
+    # month ticks along the base
+    base = cy + 70
+    s += f'<path d="M{xa} {base} H{xb}" stroke="{HAIR}"/>'
+    mo = dt.date(since.year, since.month, 1)
+    lastyr = None
+    while True:
+        i = (mo - since).days
+        if i >= N:
+            break
+        x = xa + (xb - xa) * max(i, 0) / (N - 1)
+        if mo.month in (1, 4, 7, 10):
+            s += f'<path d="M{x:.1f} {base - 3} V{base + 3}" stroke="{DIM}"/>' + s.t(x, base + 17, mo.strftime('%b') if mo.month != 1 else mo.strftime('%Y'), 'BS' if mo.month == 1 else 'B', 11, TEXT if mo.month == 1 else DIM, 'middle')
+        mo = dt.date(mo.year + (mo.month // 12), mo.month % 12 + 1, 1)
+    # vine drawing in (dash), shadow and highlight
+    for wdt, col, op in ((8, '#1c140e', .55), (5.5, 'url(#vn)', 1), (1.8, '#b09a70', .85)):
+        s += (f'<path d="{d}" fill="none" stroke="{col}" stroke-opacity="{op}" stroke-width="{wdt}" stroke-linecap="round" stroke-linejoin="round" pathLength="1" stroke-dasharray="1" stroke-dashoffset="1">'
+              f'<animate attributeName="stroke-dashoffset" values="1;1;0;0;0" keyTimes="0;{G0:.4f};{G1:.4f};{TF:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+              f'<animate attributeName="opacity" values="1;1;1;0;0" keyTimes="0;{G0:.4f};{TF:.4f};{min(.999, TF + .05):.4f};1" dur="{CYC}s" repeatCount="indefinite"/></path>')
+    # leaves
+    act = [(i, c) for i, c in enumerate(cal) if c['count'] > 0]
+    out = ''
+    for k, (i, c) in enumerate(act):
+        x = xs[i]
+        y = ypos(x)
+        L = lvl(c['count'])
+        sz = 0.72 + 0.3 * math.sqrt(c['count'])
+        up = k % 2 == 0
+        ang = (-1 if (k // 2) % 2 else 1) * (28 + (k * 13) % 30) + (0 if up else 180)
+        tg = (G0 + (G1 - G0) * i / (N - 1)) + 0.004
+        col = {1: '#4a7a3a', 2: '#62984a', 3: '#84be5c', 4: '#b3df7e'}[L]
+        gold = '#e7b04a'
+        kt = f'0;{tg:.4f};{min(.995, tg + .012):.4f};{min(.996, tg + .03):.4f};1'
+        fall = (TF + (k % 9) * .004)
+        out += (f'<g transform="translate({x:.1f} {y:.1f})"><g><animateTransform attributeName="transform" type="translate" values="0 0;0 0;{(k % 5 - 2) * 8} {60 + (k % 4) * 14}" keyTimes="0;{fall:.4f};{min(.999, fall + .06):.4f}" dur="{CYC}s" repeatCount="indefinite"/>'
+                f'<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;{fall:.4f};{min(.999, fall + .06):.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+                f'<g transform="rotate({ang:.0f})"><g><animateTransform attributeName="transform" type="scale" values="0;0;1.25;1;1" keyTimes="0;{tg:.4f};{min(.995, tg + .012):.4f};{min(.996, tg + .03):.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+                f'<path d="{G.GINKGO}" transform="scale({sz:.2f}) translate(0 -9)" fill="{col}" stroke="rgba(255,255,255,.14)" stroke-width=".5">'
+                f'<animate attributeName="fill" values="{col};{col};{gold};{gold}" keyTimes="0;{TA:.4f};{min(.99, TA + .09):.4f};1" dur="{CYC}s" repeatCount="indefinite"/><title>{c["date"]}: {c["count"]}</title></path></g></g></g></g>')
+    s += f'<g>{out}</g>'
+    # the fruit on the best day
+    bi = next((i for i, c in enumerate(cal) if c['date'] == bestk), None)
+    if bi is not None:
+        x = xs[bi]
+        y = ypos(x)
+        tg = (G0 + (G1 - G0) * bi / (N - 1)) + 0.03
+        s.d(f'<radialGradient id="fruit" cx=".35" cy=".3"><stop offset="0" stop-color="#ffe9b0"/><stop offset=".5" stop-color="{ACC}"/><stop offset="1" stop-color="#b66a22"/></radialGradient>')
+        s += (f'<g transform="translate({x:.1f} {y:.1f})"><g><animateTransform attributeName="transform" type="scale" values="0;0;1.2;1;1" keyTimes="0;{tg:.4f};{tg + .015:.4f};{tg + .035:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+              f'<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;{TF:.4f};{TF + .05:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+              f'<path d="M0 0 Q3 14 0 26" stroke="#7d6a48" stroke-width="1.6" fill="none"/><circle cx="0" cy="34" r="12" fill="url(#fruit)"><animate attributeName="r" values="12;13.4;12" dur="2.6s" repeatCount="indefinite"/></circle>'
+              f'<circle cx="0" cy="34" r="17" fill="none" stroke="{ACC}" stroke-width="1"><animate attributeName="r" values="13;26" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".7;0" dur="2.8s" repeatCount="indefinite"/></circle>'
+              f'<rect x="-40" y="60" width="80" height="20" rx="10" fill="{P2}" stroke="{ACC}" stroke-opacity=".7"/>' + s.t(0, 73.5, f'best day {cal[bi]["count"]}', 'BS', 11.5, TEXT, 'middle') + '</g></g>')
+    # the ladybug rides the growing tip, then sits at the end and flies off as the leaves turn
+    s += (f'<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;{(G0 - .01):.4f};{G0:.4f};{TA:.4f};{TA + .03:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
+          f'<g><animateMotion dur="{CYC}s" repeatCount="indefinite" path="{d}" keyPoints="0;0;1;1" keyTimes="0;{G0:.4f};{G1:.4f};1" rotate="auto" calcMode="linear"/>'
+          f'<g transform="translate(0 -8)">{ladybug_shape(1.5)}</g></g></g>')
+    return s
+
+
 def activity():
     cal = S['calendar']
-    cell, gap = 11.4, 3.1
+    cell, gap = 9.6, 2.6
     st = cell + gap
     w = 880
     gx = 88
     years = sorted({int(d['date'][:4]) for d in cal})
     by = {y: [d for d in cal if int(d['date'][:4]) == y] for y in years}
     ytot = {y: sum(d['count'] for d in by[y]) for y in years}
-    bandh = 7 * st + 30
-    gy0 = 214
-    h = int(gy0 + bandh * len(years) + 82)
     best = dt.date.fromisoformat(S['best_day']['date'])
     since = dt.date.fromisoformat(S.get('since_date', cal[0]['date']))
+    vy0 = 184
+    VH = 330 if THEME == 'space' else 224
+    bandh = 7 * st + 26
+    gy0 = vy0 + VH + 52
+    h = int(gy0 + bandh * len(years) + 84)
     s = Svg(w, h, f"GitHub activity since the first day on GitHub ({since.strftime('%b %Y')}): {S['contributions']} contributions, {S['commits']} commits, {S['repos']} repositories, {S['active_days']} active days, longest streak {S['longest_streak']} days. Best day {best.strftime('%b %d, %Y')} with {S['best_day']['count']}. "
-            + ('A ladybug eats the green days and they sprout back.' if THEME == 'leaf' else 'A scan sweeps each year while a survey ship flies the constellation of the busiest days.'))
+            + ('A vine grows from the first day to today with a leaf for every active day and a fruit on the best day, then turns gold and grows again.' if THEME == 'leaf' else 'A contribution galaxy: one orbit per year with a star for every active day, constellations of the busiest days and a supernova on the best day.'))
     s += panel(s, 0, 0, w, h)
     tiles = [(S['contributions'], 'contributions', ''), (S['commits'], 'commits', ''), (S['repos'], 'repositories', ''), (S['active_days'], 'active days', ''), (S['longest_streak'], 'day best streak', '')]
     cw = (w - 56) / len(tiles)
@@ -340,8 +528,9 @@ def activity():
         s += countup(s, xx, 78, v, 36, .3 + i * .08, suffix=suf)
         s += s.t(xx, 100, lab, 'B', 13, MUTED)
     s += f'<path d="M28 128 H{w - 28}" stroke="{HAIR}"/>'
-    s += s.t(28, 160, f"All time, since {since.strftime('%b %Y')}", 'BS', 14, TEXT)
-    ox = 28 + W('BS', f"All time, since {since.strftime('%b %Y')}", 14) + 22
+    lab0 = f"All time, since {since.strftime('%b %Y')}"
+    s += s.t(28, 160, lab0, 'BS', 14, TEXT)
+    ox = 28 + W('BS', lab0, 14) + 22
     for y in years:
         lab = f'{y}  {ytot[y]}'
         s += f'<circle cx="{ox + 3}" cy="156" r="3" fill="{ACC}" opacity="{.45 + .55 * ytot[y] / max(ytot.values()):.2f}"/>' + s.t(ox + 12, 160.5, lab, 'B', 12.5, MUTED)
@@ -351,21 +540,22 @@ def activity():
     q = [nz[int(len(nz) * p)] for p in (.25, .5, .75)] if nz else [1, 2, 3]
     lvl = lambda c: 0 if c == 0 else 1 + sum(c > t for t in q)
     bestk = S['best_day']['date']
-    CYC = 14.0                      # scan/constellation loop (Space)
-    allcells = []                   # (year index, col, row, count, date, cx, cy)
+    if THEME == 'space':
+        s = galaxy(s, 20, vy0, 460, VH, years, by, lvl, bestk)
+        s = readouts(s, 520, vy0 + 6, 330, VH - 12, years, by, ytot, S)
+    else:
+        s = vine(s, 8, vy0, w - 16, VH, cal, lvl, bestk, since)
+    # ---- compact yearly grids for exact reading
+    s += s.t(28, gy0 - 22, 'Every day', 'BS', 13, TEXT) + s.t(28 + W('BS', 'Every day', 13) + 10, gy0 - 22, 'one square each, brighter means busier', 'B', 12, DIM)
     cells = ''
     for yi, y in enumerate(years):
         gy = gy0 + yi * bandh
         jan1 = dt.date(y, 1, 1)
-        ncol = 53
-        s += s.t(28, gy + 22, str(y), 'H', 17, TEXT) + s.t(28, gy + 42, f'{ytot[y]}', 'BS', 13, ACC) + s.t(28, gy + 58, 'in total', 'B', 11, DIM)
+        s += s.t(28, gy + 17, str(y), 'H', 14, TEXT) + s.t(28, gy + 34, f'{ytot[y]}', 'BS', 12, ACC)
         lastm = None
-        # faint empty slots so every year reads as a full grid
-        empty = ''
-        for c in range(ncol):
+        for c in range(53):
             for r in range(7):
-                empty += f'<rect x="{gx + c * st:.1f}" y="{gy + r * st:.1f}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[0]}" opacity=".45"/>'
-        cells += empty
+                cells += f'<rect x="{gx + c * st:.1f}" y="{gy + r * st:.1f}" width="{cell}" height="{cell}" rx="2.2" fill="{HEAT[0]}" opacity=".45"/>'
         for d in by[y]:
             dd = dt.date.fromisoformat(d['date'])
             c = ((dd - jan1).days + jan1.isoweekday() % 7) // 7
@@ -373,118 +563,16 @@ def activity():
             x, yy = gx + c * st, gy + r * st
             L = lvl(d['count'])
             if dd.day <= 7 and r == 0 and dd.month != lastm:
-                s += s.t(x, gy - 8, dd.strftime('%b'), 'B', 10.5, DIM)
+                s += s.t(x, gy - 6, dd.strftime('%b'), 'B', 10, DIM)
                 lastm = dd.month
-            allcells.append((yi, c, r, d['count'], d['date'], x + cell / 2, yy + cell / 2))
-            if L == 0:
-                cells += f'<rect x="{x:.1f}" y="{yy:.1f}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[0]}"><title>{d["date"]}: 0</title></rect>'
-    # active cells (each in a group so it can bloom and be eaten)
-    order = []
-    if THEME == 'leaf':
-        # the ladybug hunts the active days: it visits each one in time order, row by row, and flies between rows
-        for yi in range(len(years)):
-            row = [c for c in allcells if c[0] == yi and c[3] > 0]
-            row.sort(key=lambda c: (c[1], c[2] if c[1] % 2 == 0 else -c[2]))
-            order += row
-        START, END, CHEW, SPEED, FLY = 1.6, 2.0, 0.26, 150.0, 0.9
-        times = []
-        t = START
-        prev = None
-        for c in order:
-            if prev is not None:
-                dist = math.hypot(c[5] - prev[5], c[6] - prev[6])
-                t += FLY if c[0] != prev[0] else max(0.12, dist / SPEED)
-            times.append(t)
-            t += CHEW
-            prev = c
-        LCYC = t + END
-        when = {c[4]: times[i] + CHEW * 0.45 for i, c in enumerate(order)}
-    for c in [x for x in allcells if x[3] > 0]:
-        yi, col, r, n, ds, cx, cy = c
-        L = lvl(n)
-        isbest = ds == bestk
-        title = f'<title>{ds}: {n}</title>'
-        if THEME == 'leaf':
-            t0 = when[ds] / LCYC
-            t1 = min(0.97, t0 + 3.4 / LCYC)
-            b0 = (0.5 + yi * 0.5 + col * 0.016) / LCYC
-            pops = f'0;0;1.18;1;1;0;0;1.3;1'
-            kts = f'0;{b0:.4f};{b0 + .012:.4f};{b0 + .02:.4f};{t0:.4f};{min(.995, t0 + .005):.4f};{t1:.4f};{min(.998, t1 + .02):.4f};{min(.999, t1 + .035):.4f}'
-            anim = f'<animateTransform attributeName="transform" type="scale" values="{pops}" keyTimes="{kts}" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
-            col_anim = ''
-        else:
-            # radar sweep: the cell flashes when the scan line passes, then settles
-            ro = yi * 3.4
-            tt = (ro + 0.4 + col / 53 * 3.0) / CYC
-            hi = '#f2fbff'
-            kts = f'0;{max(0, tt - .001):.4f};{tt + .006:.4f};{min(.99, tt + .06):.4f};1'
-            anim = f'<animateTransform attributeName="transform" type="scale" values="1;1;1.45;1;1" keyTimes="{kts}" dur="{CYC}s" repeatCount="indefinite"/>'
-            col_anim = f'<animate attributeName="fill" values="{HEAT[L]};{HEAT[L]};{hi};{HEAT[L]};{HEAT[L]}" keyTimes="{kts}" dur="{CYC}s" repeatCount="indefinite"/>'
-        cells += (f'<g transform="translate({cx:.1f} {cy:.1f})"><g>{anim}<rect x="{-cell / 2}" y="{-cell / 2}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[L]}">{title}{col_anim}</rect></g></g>')
-    s += f'<g opacity="0"><animate attributeName="opacity" from="0" to="1" begin=".25s" dur=".9s" fill="freeze"/>{cells}</g>'
-    # ---- best day marker
-    bc = [c for c in allcells if c[4] == bestk]
-    if bc:
-        _, _, _, n, ds, bx, by_ = bc[0]
-        s += (f'<g><circle cx="{bx:.1f}" cy="{by_:.1f}" r="8" fill="none" stroke="{ACC}" stroke-width="1.4"><animate attributeName="r" values="8;19;8" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0;.9" dur="2.8s" repeatCount="indefinite"/></circle>'
-              f'<path d="M{bx:.1f} {by_ - 9:.1f} V{by_ - 26:.1f}" stroke="{ACC}" stroke-width="1"/>'
-              + f'<rect x="{bx - 38:.1f}" y="{by_ - 46:.1f}" width="76" height="20" rx="10" fill="{P2}" stroke="{ACC}" stroke-opacity=".7"/>' + s.t(bx, by_ - 32.5, f'best day {n}', 'BS', 11.5, TEXT, 'middle') + '</g>')
-    if THEME == 'leaf':
-        # ladybug path
-        pts = [(c[5], c[6]) for c in order]
-        kt = [0.0] + [tm / LCYC for tm in times]
-        # arrive at each cell at times[i], stay for CHEW, leave to next (linear between the end of one chew and the arrival at the next)
-        kts, vals, rots, scl = [0.0], [pts[0]], [0], [1]
-        for i, (px, py) in enumerate(pts):
-            arr, leave = times[i] / LCYC, (times[i] + CHEW) / LCYC
-            ang = 0
-            if i + 1 < len(pts):
-                ang = math.degrees(math.atan2(pts[i + 1][1] - py, pts[i + 1][0] - px))
-            if i > 0:
-                kts.append(arr); vals.append((px, py)); rots.append(rots[-1] if False else ang); scl.append(1.5 if order[i][0] != order[i - 1][0] else 1)
-            kts.append(max(arr, leave)); vals.append((px, py)); rots.append(ang); scl.append(1)
-        kts.append(1.0); vals.append(vals[-1]); rots.append(rots[-1]); scl.append(1)
-        for i in range(1, len(kts)):
-            if kts[i] <= kts[i - 1]:
-                kts[i] = kts[i - 1] + 1e-5
-        kts[-1] = 1.0
-        keyt = ';'.join(f'{k:.5f}' for k in kts)
-        trans = ';'.join(f'{x:.1f} {y:.1f}' for x, y in vals)
-        rot = ';'.join(f'{a:.0f}' for a in rots)
-        sc = ';'.join(f'{x}' for x in scl)
-        show = f'<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;{(START - .6) / LCYC:.4f};{(LCYC - .8) / LCYC:.4f};{(LCYC - .4) / LCYC:.4f};1" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
-        s += (f'<g opacity="0">{show}<g><animateTransform attributeName="transform" type="translate" values="{trans}" keyTimes="{keyt}" calcMode="linear" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
-              f'<g><animateTransform attributeName="transform" type="rotate" values="{rot}" keyTimes="{keyt}" calcMode="discrete" dur="{LCYC:.1f}s" repeatCount="indefinite"/>'
-              f'<g><animateTransform attributeName="transform" type="scale" values="{sc}" keyTimes="{keyt}" calcMode="linear" dur="{LCYC:.1f}s" repeatCount="indefinite"/>{ladybug_shape(1.35)}</g></g></g></g>')
-    else:
-        # constellations: the busiest days of each year are joined, the scan line sweeps, and a ship flies the route
-        s.d(f'<linearGradient id="trail" x1="1" y1="0" x2="0" y2="0"><stop offset="0" stop-color="{ACC}" stop-opacity=".55"/><stop offset="1" stop-color="{ACC}" stop-opacity="0"/></linearGradient>')
-        for yi, y in enumerate(years):
-            gy = gy0 + yi * bandh
-            ro = yi * 3.4
-            top = sorted([c for c in allcells if c[0] == yi], key=lambda c: -c[3])[:7]
-            top.sort(key=lambda c: c[1])
-            if len(top) >= 2:
-                pts = [(c[5], c[6]) for c in top]
-                path = 'M' + ' L'.join(f'{x:.1f} {y_:.1f}' for x, y_ in pts)
-                plen = sum(math.hypot(pts[i + 1][0] - pts[i][0], pts[i + 1][1] - pts[i][1]) for i in range(len(pts) - 1))
-                a0, a1 = (ro + 1.6) / CYC, (ro + 4.2) / CYC
-                s += (f'<path d="{path}" fill="none" stroke="{ACC}" stroke-opacity=".7" stroke-width="1.1" stroke-dasharray="3 4" opacity="0">'
-                      f'<animate attributeName="opacity" values="0;0;.9;.9;0;0" keyTimes="0;{a0:.4f};{a0 + .02:.4f};{min(.97, a1 + .35):.4f};{min(.985, a1 + .4):.4f};1" dur="{CYC}s" repeatCount="indefinite"/></path>')
-                for i, (px, py) in enumerate(pts):
-                    ta = (ro + 1.8 + i * .22) / CYC
-                    s += (f'<circle cx="{px:.1f}" cy="{py:.1f}" r="9" fill="none" stroke="{ACC}" stroke-width="1" opacity="0"><animate attributeName="opacity" values="0;0;.8;0;0" keyTimes="0;{ta:.4f};{ta + .01:.4f};{ta + .06:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
-                          f'<animate attributeName="r" values="4;4;4;13;13" keyTimes="0;{ta:.4f};{ta + .005:.4f};{ta + .06:.4f};1" dur="{CYC}s" repeatCount="indefinite"/></circle>')
-                fa, fb = (ro + 2.2) / CYC, (ro + 5.4) / CYC
-                s += (f'<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;{fa:.4f};{fa + .01:.4f};{fb:.4f};{fb + .015:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
-                      f'<g transform="scale(1.3)"><animateMotion dur="{CYC}s" repeatCount="indefinite" path="{path}" keyPoints="0;0;1;1" keyTimes="0;{fa:.4f};{fb:.4f};1" rotate="auto" calcMode="linear"/>{ship_shape()}</g></g>')
-            # the scan line
-            sa, sb = (ro + 0.4) / CYC, (ro + 3.4) / CYC
-            span = 53 * st
-            s += (f'<g opacity="0"><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;{sa:.4f};{sa + .008:.4f};{sb:.4f};{sb + .01:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
-                  f'<g><animateTransform attributeName="transform" type="translate" values="{gx} 0;{gx} 0;{gx + span:.0f} 0;{gx + span:.0f} 0" keyTimes="0;{sa:.4f};{sb:.4f};1" dur="{CYC}s" repeatCount="indefinite"/>'
-                  f'<rect x="-70" y="{gy - 5}" width="70" height="{7 * st + 8:.0f}" fill="url(#trail)" opacity=".5"/><rect x="-1" y="{gy - 6}" width="2" height="{7 * st + 10:.0f}" fill="{ACC}"/></g></g>')
-    ly = gy0 + bandh * len(years) + 8
+            if L:
+                bg = .6 + yi * .5 + c * .014
+                cells += (f'<g transform="translate({x + cell / 2:.1f} {yy + cell / 2:.1f})"><g><animateTransform attributeName="transform" type="scale" values="0;1.3;1" keyTimes="0;.6;1" dur=".6s" begin="{bg:.2f}s" fill="freeze"/>'
+                          f'<rect x="{-cell / 2}" y="{-cell / 2}" width="{cell}" height="{cell}" rx="2.2" fill="{HEAT[L]}"><title>{d["date"]}: {d["count"]}</title></rect></g></g>')
+            if d['date'] == bestk:
+                cells += (f'<circle cx="{x + cell / 2:.1f}" cy="{yy + cell / 2:.1f}" r="7" fill="none" stroke="{ACC}" stroke-width="1.2"><animate attributeName="r" values="6;15;6" dur="2.8s" repeatCount="indefinite"/><animate attributeName="opacity" values=".9;0;.9" dur="2.8s" repeatCount="indefinite"/></circle>')
+    s += f'<g opacity="0"><animate attributeName="opacity" from="0" to="1" begin=".2s" dur=".6s" fill="freeze"/>{cells}</g>'
+    ly = gy0 + bandh * len(years) + 6
     langs = S['languages'][:6]
     x, bw = 28, w - 56
     for i, l in enumerate(langs):

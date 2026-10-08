@@ -115,7 +115,7 @@ if old.get('repos', 0) > u['repositories']['totalCount']:  # limited token: keep
 else:
     repos_total, public_total, stars = u['repositories']['totalCount'], sum(1 for n in repos if not n['isPrivate']), sum(n['stargazerCount'] for n in repos)
 stats = {
-    'generated': now.strftime('%Y-%m-%d'),
+    'generated': now.strftime('%Y-%m-%d'), 'refreshed_at': now.strftime('%Y-%m-%dT%H:%M:%SZ'),
     'user': USER, 'name': u['name'], 'since': u['createdAt'][:4], 'since_date': since,
     'followers': u['followers']['totalCount'], 'repos': repos_total, 'public_repos': public_total, 'stars': stars,
     'contributions': keep('contributions', sum(counts) if sum(counts) >= tot['contributions'] else tot['contributions']),
