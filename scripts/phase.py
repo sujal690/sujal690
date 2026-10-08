@@ -1,7 +1,7 @@
 """Switch the whole README to the current time of day (India time): banner, card colours and accents.
 
 Each theme keeps four complete sets in assets/<theme>/phase/<dawn|day|dusk|night>/; the current one is copied
-over assets/<theme>/, which is what README.md shows. Phases: dawn 05:00-11:30 (morning), day 11:30-16:30
+over assets/<theme>/, which is what README.md shows. Phases: dawn 05:00-12:00 (morning), day 12:00-16:30
 (afternoon), dusk 16:30-20:00 (evening), night otherwise. Run every 30 minutes by the scheduled workflow.
 """
 import datetime as dt
@@ -17,7 +17,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 def phase(now=None):
     now = now or dt.datetime.now(IST)
     h = now.hour + now.minute / 60
-    return 'dawn' if 5 <= h < 11.5 else 'day' if 11.5 <= h < 16.5 else 'dusk' if 16.5 <= h < 20 else 'night'
+    return 'dawn' if 5 <= h < 12 else 'day' if 12 <= h < 16.5 else 'dusk' if 16.5 <= h < 20 else 'night'
 
 
 if __name__ == '__main__':
