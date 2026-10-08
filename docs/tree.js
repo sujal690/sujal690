@@ -207,18 +207,18 @@ export async function createTree(canvas, base = 'sprites/') {
         const bp = bugOnLeaf(reduce ? 2 : t), m = meta.hero, k = px / (3.0 * m.unit);
         const bx = (m.w / 2 + bp.lx * m.unit - m.anchor[0]) * k, by = (m.unit * (1.8 - bp.ly) - m.anchor[1]) * k;
         const size = px * 0.21 / 0.62;
-        const fe = easeOut(fly), ph = Math.floor(t * 9) % 4;
+        const fe = easeOut(fly), ph = Math.abs(Math.floor(t * 9)) % 4;
         ctx.save();
         const bi = env ? clamp((env.intro - 0.5) / 0.5) : 1;
         if (bi < 1) { // the ladybug flies in and lands once the leaf has settled
           const e2 = easeOut(bi); ctx.translate(bx + (1 - e2) * px * 1.6, by - (1 - e2) * px * 1.3 - Math.sin(e2 * Math.PI) * px * 0.12);
-          drawBug(L.fly[Math.floor(t * 30) % 2], size * (1 + (1 - e2) * 0.45), -0.9 * (1 - e2) + bp.head * e2);
+          drawBug(L.fly[Math.abs(Math.floor(t * 30)) % 2], size * (1 + (1 - e2) * 0.45), -0.9 * (1 - e2) + bp.head * e2);
         } else if (fly <= 0.01) {
           { const m = ctx.getTransform(); BUG.on = true; BUG.x = (m.a * bx + m.c * by + m.e) / dpr; BUG.y = (m.b * bx + m.d * by + m.f) / dpr; BUG.r = size * 0.4; }
           const bz = t - buzzAt, buzzing = bz >= 0 && bz < 1.1;
           ctx.translate(bx, by - (buzzing ? Math.abs(Math.sin(bz * 10)) * size * 0.22 * (1 - bz / 1.1) : 0));
           ctx.globalAlpha = 0.16; ctx.fillStyle = '#0b1408'; ctx.save(); ctx.translate(size * 0.03, size * 0.05); ctx.rotate(bp.head); ctx.beginPath(); ctx.ellipse(0, 0, size * 0.2, size * 0.25, 0, 0, TAU); ctx.fill(); ctx.restore(); ctx.globalAlpha = 1;
-          if (buzzing) drawBug(L.fly[Math.floor(t * 30) % 2], size * 1.08, bp.head + bz * 6.0 * (1 - bz / 1.1)); else drawBug(bp.moving > 0.2 && !reduce ? L.walk[ph] : L.walk[0], size, bp.head);
+          if (buzzing) drawBug(L.fly[Math.abs(Math.floor(t * 30)) % 2], size * 1.08, bp.head + bz * 6.0 * (1 - bz / 1.1)); else drawBug(bp.moving > 0.2 && !reduce ? L.walk[ph] : L.walk[0], size, bp.head);
         } else {
           const x0 = bx, y0 = by, x1 = Lo.heroPx * 0.9 + fe * W * 0.45, y1 = -Lo.heroPx * 0.9 - fe * H * 0.8;
           const px2 = lerp(x0, x1, fe) + Math.sin(fe * 9) * 18 * (1 - fe), py2 = lerp(y0, y1, fe) - Math.sin(fe * Math.PI) * 60;

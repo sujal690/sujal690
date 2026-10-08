@@ -1,6 +1,6 @@
-import { createTree } from './tree.js?v=20261008c';
-import { createSky, phaseName, greeting } from './sky.js?v=20261008c';
-import { DIAG, WORK } from './diag.js?v=20261008c';
+import { createTree } from './tree.js?v=20261008e';
+import { createSky, phaseName, greeting } from './sky.js?v=20261008e';
+import { DIAG, WORK } from './diag.js?v=20261008e';
 
 const BURST = ['#e6a965', '#a9c78b', '#7fa35a', '#f1d8a8', '#c98b4a']; let night = false;
 const $ = (s, el = document) => el.querySelector(s);
@@ -261,7 +261,7 @@ const STAGES = [[0.07, 'The leaf'], [0.2, 'The seed'], [0.45, 'Growing'], [0.62,
 let T = 0, last = performance.now(), stageIdx = -1, frameN = 0, lastY = 0, skyDt = 0, lastStep = 0, slowSum = 0, slowI = 0; const slowHist = new Uint8Array(90);
 const env = { intro: reduce ? 1 : 0, back: skyCanvas, tint: [0, 0, 0, 0], fore: (c, w, h, t, p, r) => sky.fore(c, w, h, t, p, r), pointer: ptr, gust: 0 };
 function frame(now) {
-  const raw = (now - last) / 1000, dt = Math.min(0.05, raw); last = now; T += dt; frameN++;
+  const raw = Math.max(0, (now - last) / 1000), dt = Math.min(0.05, raw); last = now; T += dt; frameN++;
   // adaptive resolution: if more than half of the last 90 frames took over 24ms, drop the canvas scale a step (never back up)
   if (document.visibilityState === 'visible' && raw < 0.25) { const f = raw > 0.024 ? 1 : 0; slowSum += f - slowHist[slowI]; slowHist[slowI] = f; slowI = (slowI + 1) % 90; if (slowSum > 45 && now - lastStep > 3000 && frameN > 120) { const cur = tree.scale; if (cur > 0.86) { tree.setScale(cur > 1.01 ? 1 : 0.85); lastStep = now; slowHist.fill(0); slowSum = 0; } } }
   const y = scrollY, vh = innerHeight, p = clamp(y / (M.max || 1)), heroP = clamp(y / ((M.hero || vh) * 0.9));
