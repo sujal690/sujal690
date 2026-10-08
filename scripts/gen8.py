@@ -308,14 +308,33 @@ def probe_shape():
 
 def activity():
     cal = S['calendar']
-    first = dt.date.fromisoformat(cal[0]['date'])
     cell, gap = 11.4, 3.2
     st = cell + gap
     w = 880
-    gx, gy = 60, 182
-    h = int(gy + 7 * st + 76)
+    gx, gy = 88, 182
+    year_gap = 34
+    by_year = {}
+    for d in cal:
+        by_year.setdefault(int(d['date'][:4]), []).append(d)
+    years = sorted(by_year)
+    rows, year_meta = [], {}
+    max_ncol = 0
+    for yi, year in enumerate(years):
+        yoff = gy + yi * (7 * st + year_gap)
+        first = dt.date.fromisoformat(by_year[year][0]['date'])
+        ncol = 0
+        for d in by_year[year]:
+            dd = dt.date.fromisoformat(d['date'])
+            col = ((dd - first).days + first.isoweekday() % 7) // 7
+            ncol = max(ncol, col + 1)
+            rows.append((year, yi, col, d['weekday'], d['count'], d['date'], dd, yoff))
+        year_meta[year] = (first, ncol, yoff)
+        max_ncol = max(max_ncol, ncol)
+    grid_h = len(years) * (7 * st) + max(0, len(years) - 1) * year_gap
+    h = int(gy + grid_h + 76)
     best = dt.date.fromisoformat(S['best_day']['date'])
-    s = Svg(w, h, f"GitHub activity, last 12 months: {S['contributions']} contributions, {S['commits']} commits, {S['repos']} repositories, {S['active_days']} active days, longest streak {S['longest_streak']} days. Best day {best.strftime('%b %d')} with {S['best_day']['count']}. "
+    r0, r1 = S.get('range', {}).get('from', cal[0]['date']), S.get('range', {}).get('to', cal[-1]['date'])
+    s = Svg(w, h, f"GitHub activity, all time ({r0} to {r1}): {S['contributions']} contributions, {S['commits']} commits, {S['repos']} repositories, {S['active_days']} active days, longest streak {S['longest_streak']} days. Best day {best.strftime('%b %d')} with {S['best_day']['count']}. "
             + ('A ladybug crawls across the grid and eats the green days, which grow back.' if THEME == 'leaf' else 'A survey probe scans across the grid and collects the lit days, which light up again.'))
     s += panel(s, 0, 0, w, h)
     tiles = [(S['contributions'], 'contributions', ''), (S['commits'], 'commits', ''), (S['repos'], 'repositories', ''), (S['active_days'], 'active days', ''), (S['longest_streak'], 'day best streak', '')]
@@ -328,30 +347,42 @@ def activity():
         s += countup(s, xx, 78, v, 36, .3 + i * .08, suffix=suf)
         s += s.t(xx, 100, lab, 'B', 13, MUTED)
     s += f'<path d="M28 128 H{w - 28}" stroke="{HAIR}"/>'
-    s += s.t(28, 160, 'Last 12 months', 'BS', 14, TEXT) + s.t(w - 28, 160, f"best day {best.strftime('%b %d')}, {S['best_day']['count']} contributions", 'B', 12.5, MUTED, 'end')
+    s += s.t(28, 160, f'All time · {r0[:4]}–{r1[:4]}', 'BS', 14, TEXT) + s.t(w - 28, 160, f"best day {best.strftime('%b %d')}, {S['best_day']['count']} contributions", 'B', 12.5, MUTED, 'end')
     nz = sorted(d['count'] for d in cal if d['count'])
     q = [nz[int(len(nz) * p)] for p in (.25, .5, .75)] if nz else [1, 2, 3]
     lvl = lambda c: 0 if c == 0 else 1 + sum(c > t for t in q)
-    rows, ncol = [], 0
-    for d in cal:
-        dd = dt.date.fromisoformat(d['date'])
-        col = ((dd - first).days + first.isoweekday() % 7) // 7
-        ncol = max(ncol, col + 1)
-        rows.append((col, d['weekday'], d['count'], d['date'], dd))
-    # the crawler visits every cell column by column, lingering on active days
+    # the crawler visits every cell year by year, column by column, lingering on active days
     order = []
-    for c in range(ncol):
-        cs = sorted([r for r in rows if r[0] == c], key=lambda r: r[1], reverse=(c % 2 == 1))
-        order += cs
+    for year in years:
+        yrows = [r for r in rows if r[0] == year]
+        ncol = year_meta[year][1]
+        for c in range(ncol):
+            cs = sorted([r for r in yrows if r[2] == c], key=lambda r: r[3], reverse=(c % 2 == 1))
+            order += cs
     START, END, EMPTY, CHEW, REGROW = 1.4, 2.4, 0.05, 0.30, 3.6
     cum = [0.0]
     for r in order:
-        cum.append(cum[-1] + (CHEW if lvl(r[2]) else EMPTY))
+        cum.append(cum[-1] + (CHEW if lvl(r[4]) else EMPTY))
     CYC = START + cum[-1] + END
-    tcell = {r[3]: START + cum[i] + 0.1 for i, r in enumerate(order)}
-    cells, lastm = '', None
-    for c, r, n, ds, dd in rows:
-        x, y = gx + c * st, gy + r * st
+    tcell = {r[5]: START + cum[i] + 0.1 for i, r in enumerate(order)}
+    cells = ''
+    for year in years:
+        first_y, ncol, yoff = year_meta[year]
+        s += s.t(28, yoff + 11, str(year), 'BS', 12, MUTED)
+        if year != years[-1]:
+            sep = yoff + 7 * st + year_gap / 2
+            s += f'<path d="M28 {sep:.1f} H{w - 28}" stroke="{HAIR}" stroke-opacity=".7"/>'
+        last_m = None
+        for d in by_year[year]:
+            dd = dt.date.fromisoformat(d['date'])
+            col = ((dd - first_y).days + first_y.isoweekday() % 7) // 7
+            if dd.day <= 7 and d['weekday'] == 0 and dd.month != last_m and col < ncol - 2:
+                s += s.t(gx + col * st, yoff - 10, dd.strftime('%b'), 'B', 11, DIM)
+                last_m = dd.month
+        for r in (1, 3, 5):
+            s += s.t(56, yoff + r * st + 9.5, ('Mon', 'Wed', 'Fri')[(r - 1) // 2], 'B', 11, DIM)
+    for year, yi, c, r, n, ds, dd, yoff in rows:
+        x, y = gx + c * st, yoff + r * st
         L = lvl(n)
         anim = ''
         if L:
@@ -359,16 +390,11 @@ def activity():
             t1 = min(0.985, t0 + REGROW / CYC)
             anim = (f'<animate attributeName="fill" values="{HEAT[L]};{HEAT[L]};{HEAT[0]};{HEAT[0]};{HEAT[L]}" keyTimes="0;{t0:.4f};{min(.995, t0 + .006):.4f};{t1:.4f};{min(.999, t1 + .03):.4f}" dur="{CYC:.1f}s" repeatCount="indefinite"/>')
         cells += f'<rect x="{x:.1f}" y="{y:.1f}" width="{cell}" height="{cell}" rx="2.6" fill="{HEAT[L]}"><title>{ds}: {n}</title>{anim}</rect>'
-        if dd.day <= 7 and r == 0 and dd.month != lastm and c < ncol - 2:
-            s += s.t(x, gy - 10, dd.strftime('%b'), 'B', 11, DIM)
-            lastm = dd.month
-    gw = ncol * st
-    s.d(f'<clipPath id="rv"><rect x="{gx - 4}" y="{gy - 4}" width="0" height="{7 * st + 8}"><animate attributeName="width" from="0" to="{gw + 8:.0f}" begin=".5s" dur="1.6s" fill="freeze" {EASE}/></rect></clipPath>')
+    gw = max_ncol * st
+    s.d(f'<clipPath id="rv"><rect x="{gx - 4}" y="{gy - 4}" width="0" height="{grid_h + 8:.0f}"><animate attributeName="width" from="0" to="{gw + 8:.0f}" begin=".5s" dur="1.6s" fill="freeze" {EASE}/></rect></clipPath>')
     s += f'<g clip-path="url(#rv)">{cells}</g>'
-    for r, lab in ((1, 'Mon'), (3, 'Wed'), (5, 'Fri')):
-        s += s.t(28, gy + r * st + 9.5, lab, 'B', 11, DIM)
     # crawler path, heading and timing
-    pts = [(gx + r[0] * st + cell / 2, gy + r[1] * st + cell / 2) for r in order]
+    pts = [(gx + r[2] * st + cell / 2, r[7] + r[3] * st + cell / 2) for r in order]
     kt = [(START + cum[i]) / CYC for i in range(len(order))]
     keyt = '0;' + ';'.join(f'{k:.5f}' for k in kt) + ';1'
     vals = [pts[0]] + pts + [pts[-1]]
@@ -384,7 +410,7 @@ def activity():
     if THEME == 'leaf':
         body = ladybug_shape(1.3)
     else:
-        mid = gy + 3.5 * st
+        mid = gy + grid_h / 2
         s.d(f'<linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{ACC}" stop-opacity="0"/><stop offset=".5" stop-color="{ACC}" stop-opacity=".22"/><stop offset="1" stop-color="{ACC}" stop-opacity="0"/></linearGradient>')
         bx = ';'.join(f'{x:.1f} {mid:.1f}' for x, y in vals)
         s += (f'<g opacity="0">{show}<g><animateTransform attributeName="transform" type="translate" values="{bx}" keyTimes="{keyt}" calcMode="linear" dur="{CYC:.1f}s" repeatCount="indefinite"/>'
@@ -392,7 +418,7 @@ def activity():
         body = '<g transform="scale(1.35)">' + probe_shape() + '</g>'
     s += (f'<g opacity="0">{show}<g><animateTransform attributeName="transform" type="translate" values="{trans}" keyTimes="{keyt}" calcMode="linear" dur="{CYC:.1f}s" repeatCount="indefinite"/>'
           f'<g><animateTransform attributeName="transform" type="rotate" values="{rot}" keyTimes="{keyt}" calcMode="discrete" dur="{CYC:.1f}s" repeatCount="indefinite"/>{body}</g></g></g>')
-    ly = gy + 7 * st + 32
+    ly = gy + grid_h + 32
     langs = S['languages'][:6]
     x, bw = 28, w - 56
     for i, l in enumerate(langs):

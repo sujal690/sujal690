@@ -37,14 +37,18 @@ fetch('stats.json?v=' + Date.now().toString().slice(0, 7)).then((r) => r.json())
   const pad = new Date(S.calendar[0].date + 'T00:00:00').getDay();
   const best = new Date(S.best_day.date + 'T00:00:00').toLocaleString('en', { month: 'short', day: 'numeric' });
   const tiles = [[S.contributions, 'contributions'], [S.commits, 'commits'], [S.repos, 'repositories'], [S.active_days, 'active days'], [S.longest_streak, 'day best streak'], [S.current_streak, 'day current streak'], [S.followers, 'follower'], [S.repos_contributed, 'repos contributed to']];
-  const mx = Math.max(...S.months.map((m) => m.count), 1), wd = S.weekday, wmx = Math.max(...wd, 1);
+  const recentMonths = S.months.slice(-12);
+  const mx = Math.max(...recentMonths.map((m) => m.count), 1), wd = S.weekday, wmx = Math.max(...wd, 1);
   const mon = (m) => new Date(m + '-01T00:00:00').toLocaleString('en', { month: 'short' });
+  const from = S.range?.from ? new Date(S.range.from + 'T00:00:00') : new Date(S.calendar[0].date + 'T00:00:00');
+  const to = S.range?.to ? new Date(S.range.to + 'T00:00:00') : new Date(S.calendar[S.calendar.length - 1].date + 'T00:00:00');
+  const rangeLabel = `${from.toLocaleString('en', { month: 'short', year: 'numeric' })} – ${to.toLocaleString('en', { month: 'short', year: 'numeric' })}`;
   const LC = ['#6aa0d8', '#e6c552', '#8f8fc0', '#c58ad8', '#e6a965', '#8fbf7a'];
   $('#dash').insertAdjacentHTML('beforeend', `<div class="tiles">${tiles.map(([v, l]) => `<div class="tile"><div class="v" data-to="${v}">0</div><div class="l">${l}</div></div>`).join('')}</div>
     <div class="gw"><div class="grid" id="grid">${'<span style="visibility:hidden"></span>'.repeat(pad)}${S.calendar.map((d, i) => `<span data-l="${lv(d.count)}" data-d="${d.date}" data-c="${d.count}" style="--c:${Math.floor((i + pad) / 7)}"></span>`).join('')}</div>
       <div class="bug" id="bug"><img alt=""><img alt=""><img alt=""><img alt=""></div></div>
-    <div class="cap"><span>${S.contributions} contributions in the last year</span><span>best day <b>${best}</b>, ${S.best_day.count}</span></div>
-    <div class="two"><div class="mini"><h4>Per month</h4><div class="bars">${S.months.map((m, i) => `<i style="--h:${Math.max(6, m.count / mx * 100)};--k:${i}" data-t="${mon(m.month)}: ${m.count}"></i>`).join('')}</div><div class="axis">${S.months.map((m) => `<span>${mon(m.month)[0]}</span>`).join('')}</div></div>
+    <div class="cap"><span>${S.contributions} contributions all time (${rangeLabel})</span><span>best day <b>${best}</b>, ${S.best_day.count}</span></div>
+    <div class="two"><div class="mini"><h4>Per month (recent 12)</h4><div class="bars">${recentMonths.map((m, i) => `<i style="--h:${Math.max(6, m.count / mx * 100)};--k:${i}" data-t="${mon(m.month)}: ${m.count}"></i>`).join('')}</div><div class="axis">${recentMonths.map((m) => `<span>${mon(m.month)[0]}</span>`).join('')}</div></div>
     <div class="mini"><h4>Week rhythm</h4><div class="bars">${wd.map((n, i) => `<i style="--h:${Math.max(6, n / wmx * 100)};--k:${i}" data-t="${['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i]}: ${n}"></i>`).join('')}</div><div class="axis">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d) => `<span>${d}</span>`).join('')}</div></div></div>
     <div class="mini" style="margin-top:28px"><h4>Languages</h4><div class="lang">${S.languages.slice(0, 6).map((l, i) => `<i style="--w:${l.pct};--c:${LC[i]};--k:${i}"></i>`).join('')}</div><div class="llist">${S.languages.slice(0, 6).map((l, i) => `<span style="--c:${LC[i]}"><b>${l.name}</b> ${l.pct}%</span>`).join('')}</div></div>`);
   const tip = $('#tip'), grid = $('#grid');

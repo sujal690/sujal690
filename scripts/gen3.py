@@ -309,13 +309,15 @@ def stack():
 # ================================================================ stats: tiles
 def tiles():
     w, h = 880, 132
-    items = [('contributions', str(S['contributions']), 'last 12 months', LEAF), ('commits', str(S['commits']), 'last 12 months', LIME),
-             ('repositories', str(S['repos']), f"{S['public_repos']} public", GOLD), ('active days', str(S['active_days']), 'of 365', LEAF),
+    items = [('contributions', str(S['contributions']), 'all time', LEAF), ('commits', str(S['commits']), 'all time', LIME),
+             ('repositories', str(S['repos']), f"{S['public_repos']} public", GOLD), ('active days', str(S['active_days']), 'since start', LEAF),
              ('longest streak', f"{S['longest_streak']}", 'days in a row', LIME), ('current streak', f"{S['current_streak']}", 'days and counting', GOLD)]
     s = Svg(w, h, 'GitHub stats: ' + ', '.join(f'{a} {b}' for a, b, _, _ in items))
     gap = 12
     tw = (w - gap * 5) / 6
-    mx = max(m['count'] for m in S['months']) or 1
+    months_for_tiles = S['months'][-12:] if len(S['months']) > 12 else S['months']
+    months_for_tiles = months_for_tiles or [{'month': S.get('generated', '1970-01')[:7], 'count': 0}]
+    mx = max(m['count'] for m in months_for_tiles) or 1
     for i, (lab, val, sub, col) in enumerate(items):
         x = i * (tw + gap)
         s += f'<g opacity="0" transform="translate({x:.1f} 0)">{fade(0.1 + i * 0.08, 10, 0.7)}'
@@ -325,7 +327,8 @@ def tiles():
         s += s.t(16 + W('D', val, 38) + 6, 72, '' if lab not in ('longest streak', 'current streak') else 'd', 'D7', 18, col) if lab in ('longest streak', 'current streak') else ''
         s += s.t(16, 94, sub, 'B', 11.5, SOFT)
         # micro sparkline of monthly activity, drawn once
-        pts = [(16 + j * (tw - 32) / 11, 118 - 14 * m['count'] / mx) for j, m in enumerate(S['months'])]
+        den = max(1, len(months_for_tiles) - 1)
+        pts = [(16 + j * (tw - 32) / den, 118 - 14 * m['count'] / mx) for j, m in enumerate(months_for_tiles)]
         d = 'M' + ' L'.join(f'{px:.1f} {py:.1f}' for px, py in pts)
         ln = sum(math.dist(pts[j], pts[j + 1]) for j in range(len(pts) - 1))
         s += (f'<path d="{d}" fill="none" stroke="{col}" stroke-opacity=".75" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="{ln:.0f}" stroke-dashoffset="{ln:.0f}">'
@@ -355,10 +358,12 @@ def contrib():
     lvl = lambda c: 0 if c == 0 else 1 + sum(c > t for t in q)
     best = S['best_day']
     bd = dt.date.fromisoformat(best['date'])
-    s = Svg(w, h, f"{S['contributions']} contributions in the last year. Best day: {best['count']} on {bd.strftime('%d %b %Y')}. A caterpillar crawls through the contribution grid eating each green square.")
+    r0, r1 = S.get('range', {}).get('from', cal[0]['date']), S.get('range', {}).get('to', cal[-1]['date'])
+    s = Svg(w, h, f"{S['contributions']} contributions all time from {r0} to {r1}. Best day: {best['count']} on {bd.strftime('%d %b %Y')}. A caterpillar crawls through the contribution grid eating each green square.")
     s += panel(s, 0, 0, w, h, 22)
-    s += s.t(26, 38, f"{S['contributions']} contributions in the last year", 'BB', 16, CREAM)
-    s += s.t(26 + W('BB', f"{S['contributions']} contributions in the last year", 16) + 12, 38, f"best day {bd.strftime('%b %d')}, {best['count']} commits", 'S', 17, LIME)
+    title = f"{S['contributions']} contributions all time"
+    s += s.t(26, 38, title, 'BB', 16, CREAM)
+    s += s.t(26 + W('BB', title, 16) + 12, 38, f"best day {bd.strftime('%b %d')}, {best['count']} commits", 'S', 17, LIME)
     lx = w - 26 - 5 * 15 - 70
     s += s.t(lx, 37, 'less', 'M', 10.5, MUTED)
     for i, c in enumerate(CELL):

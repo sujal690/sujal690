@@ -25,7 +25,7 @@
 <img src="assets/space/pipeline.svg" width="100%" alt="Data flows from input (documents, photos, SKUs, camera feeds) through vision, a locally hosted VLM, retrieval and an LLM into automation (spreadsheets, orders, compliance checks)."/>
 
 <img src="assets/space/h-activity.svg" width="100%" alt="Activity"/>
-<img src="assets/space/activity.svg" width="100%" alt="GitHub activity over the last 12 months: contributions, commits, repositories, active days, best streak, contribution calendar and top languages."/>
+<img src="assets/space/activity.svg" width="100%" alt="GitHub activity all time: contributions, commits, repositories, active days, best streak, contribution calendar and top languages."/>
 
 <img src="assets/space/h-work.svg" width="100%" alt="Selected work"/>
 <img src="assets/space/work-a.svg" width="100%" alt="Intelligent Document Automation and Enterprise Order Tracking at Sky Gold and Diamonds."/>
@@ -73,7 +73,7 @@
 <img src="assets/leaf/pipeline.svg" width="100%" alt="Data flows from input (documents, photos, SKUs, camera feeds) through vision, a locally hosted VLM, retrieval and an LLM into automation (spreadsheets, orders, compliance checks)."/>
 
 <img src="assets/leaf/h-activity.svg" width="100%" alt="Activity"/>
-<img src="assets/leaf/activity.svg" width="100%" alt="GitHub activity over the last 12 months: contributions, commits, repositories, active days, best streak, contribution calendar and top languages."/>
+<img src="assets/leaf/activity.svg" width="100%" alt="GitHub activity all time: contributions, commits, repositories, active days, best streak, contribution calendar and top languages."/>
 
 <img src="assets/leaf/h-work.svg" width="100%" alt="Selected work"/>
 <img src="assets/leaf/work-a.svg" width="100%" alt="Intelligent Document Automation and Enterprise Order Tracking at Sky Gold and Diamonds."/>
