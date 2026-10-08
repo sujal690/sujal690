@@ -141,12 +141,7 @@ def decor(s, x, y, w, h, r, k):
 
 
 def brackets(x, y, w, h, arm=16):
-    if THEME != 'space':
-        return ''
-    o = f'<g stroke="{ACC}" stroke-width="1.6" fill="none" stroke-linecap="round" opacity=".75"><animate attributeName="opacity" values=".75;.4;.75" dur="5s" repeatCount="indefinite"/>'
-    for px, py, sx, sy in ((x + 6, y + 6, 1, 1), (x + w - 6, y + 6, -1, 1), (x + 6, y + h - 6, 1, -1), (x + w - 6, y + h - 6, -1, -1)):
-        o += f'<path d="M{px} {py + sy * arm} V{py} H{px + sx * arm}"/>'
-    return o + '</g>'
+    return ''  # the L-shaped corner marks clashed with the rounded panels, so the Space cards no longer draw them
 
 
 def panel(s, x, y, w, h, r=16, gid='pg'):
